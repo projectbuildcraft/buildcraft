@@ -7,6 +7,7 @@ Goal Features:
 Build order calculator accurate to 5 seconds for the first ten minutes of the game
 Load, save, compare build orders
 Support team build orders for an effectively unbounded number of players
+Searchable build orders
 
 Design Procedure:
 
