@@ -8,6 +8,12 @@ Build order calculator accurate to 5 seconds for the first ten minutes of the ga
 Load, save, compare build orders
 Support team build orders for an effectively unbounded number of players
 Searchable build orders
+Build Order generation: being able to find the earliest possible time to have a given array of units and printing that build order.
+
+Potential issues with the current design:
+
+- We need a way to find out what we have at any given point.
+- We need to find a way to figure out if a unit or building is occupied. This might be handled in requirements, but such requirements aren't consumed
 
 Development Schedule:
 
