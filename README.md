@@ -12,20 +12,33 @@ Searchable build orders
 Development Schedule:
 
 0.0
+
 - The Event data structure exists. Its instances are enumerated with their names.
 - A main method loops through the events and can name them all.
+
 0.1
+
 - The Requirements data structure exists. Every enumerated Event object has defined requirements.
 - A main method loops through the events and their requirements, listing them out.
+
 0.2
+
 - The BuildOrder data structure exists. It can save and load all of the known build orders into the same file, using minimal time and space.
 - A main method prompts the user to modify and view defined builds.
+
 0.3
+
 - A main method restricts events appended to a build order to requirements that can be accomplished.
+
 0.4
+
 - A main method calculates the times at which each of the events occurs.
+
 1.0 GUI
+
 - All of the above functionality is in place in a GUI.
+
 1.1 Aesthetics
+
 - The GUI is aesthetically pleasing.
 
