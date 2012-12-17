@@ -14,7 +14,9 @@ Queen/Hatchery Things: A queen must be attached to hatchery, because nobody move
 		Resulting issue: Hatcheries can be busied by upgrades in parallel to larvae
 Creep Tumors: Must both become Used Creep Tumors, and spawn an additional Creep Tumor.
 	Suggestion: a function that does this. Done.
+		Or, could just have a cooldown, then spawn a Used Creep Tumor.
 MULE: event gives lots of minerals over time, not all at the end
 	Suggestion: creation of a mule unit so that minerals can be calculated in the same place. The MULE is destroyed.
 Chrono Boost: How will we factor this into event ending time calculations?
 Warpgate: Unit appears before building stops being busied.
+	This is Cooldown, correct?
