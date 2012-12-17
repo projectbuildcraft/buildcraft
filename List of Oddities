@@ -7,3 +7,4 @@ Salvaging Bunkers: It has to have an event that creates minerals rather than a u
 Queen/Hatchery Things: A queen must be attached to hatchery, because nobody moves their queens from hatchery to hatchery, and the distance matters.
 Creep Tumors: Must both become Used Creep Tumors, and spawn an additional Creep Tumor.
 MULE: event gives lots of minerals over time, not all at the end
+Chrono Boost: How will we factor this into event ending time calculations?
