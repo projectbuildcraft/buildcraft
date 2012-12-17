@@ -1,10 +1,20 @@
 List of things that do not fit the normal format:
 Zerglings: two are spawned
+	Solution: Modify add_unit function such that it takes a list as a parameter. Give two lings.
+	Better: Add an add_units function that takes a list as a parameter. Give that one two lings.
 Archons: two Templars are consumed. We need to make sure any combination of Templar works.
+	Solution: There are 3 distince events for the combination.
 TechLab/Reactor Things: The must be occupiable twice (for an additional unit or for a separate research). Removing the add-on must build two different units. It must be considered the same type of structure as its original version for the purposes of requirements.
 Supply Depot Addition: When using the OC calldown, it must be changed to a new type of Supply Depot. Called what?
+	Suggestion: Double Depot
 Salvaging Bunkers: It has to have an event that creates minerals rather than a unit.
+	Solution: Add an add_minerals function that takes a number as a parameter.
 Queen/Hatchery Things: A queen must be attached to hatchery, because nobody moves their queens from hatchery to hatchery, and the distance matters.
+	Suggestion: Make the distance negligible and handle injection as an event that busies the hatchery.
+		Resulting issue: Hatcheries can be busied by upgrades in parallel to larvae
 Creep Tumors: Must both become Used Creep Tumors, and spawn an additional Creep Tumor.
+	Suggestion: a function that does this. Done.
 MULE: event gives lots of minerals over time, not all at the end
+	Suggestion: creation of a mule unit so that minerals can be calculated in the same place. The MULE is destroyed.
 Chrono Boost: How will we factor this into event ending time calculations?
+Warpgate: Unit appears before building stops being busied.
