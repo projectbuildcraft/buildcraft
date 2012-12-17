@@ -1,8 +1,8 @@
 List of things that do not fit the normal format:
-Zerglings
-Archons
-TechLab/Reactor Things - This a lot of weirdness
-Supply Depot Addition
-Salvaging Bunkers
-Queen/Hatchery Things
-Ghost Academy Nukes
+Zerglings: two are spawned
+Archons: two Templars are consumed. We need to make sure any combination of Templar works.
+TechLab/Reactor Things: The must be occupiable twice (for an additional unit or for a separate research). Removing the add-on must build two different units. It must be considered the same type of structure as its original version for the purposes of requirements.
+Supply Depot Addition: When using the OC calldown, it must be changed to a new type of Supply Depot. Called what?
+Salvaging Bunkers: It has to have an event that creates minerals rather than a unit.
+Queen/Hatchery Things: A queen must be attached to hatchery, because nobody moves their queens from hatchery to hatchery, and the distance matters.
+Creep Tumors: Must both become Used Creep Tumors, and spawn an additional Creep Tumor.
