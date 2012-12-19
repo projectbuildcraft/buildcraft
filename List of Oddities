@@ -18,7 +18,12 @@ Creep Tumors: Must both become Used Creep Tumors, and spawn an additional Creep 
 MULE: event gives lots of minerals over time, not all at the end
 	Suggestion: creation of a mule unit so that minerals can be calculated in the same place. The MULE is destroyed.
 Chrono Boost: How will we factor this into event ending time calculations?
+	Suggestion: the event's result function modifies the end time of the event. The chrono boost would have to be listed immediately before the event to minimize confusion and the potential complexity this may cause.
+		Resulting issue: There are units that finish while chrono boost is still in effect. What then?
+			Suggestion: The function would have to look for separate events.
 Warpgate: Unit appears before building stops being busied.
-	This is Cooldown, correct?
+	Question: This is Cooldown, correct?
+		Answer: Yes
+	Suggestion: Perhaps cooldown could be an event created after another event, the warp-in. We know that warp-ins have to be a separate event already; we might as well make it two additional events.
 
 What is to be done of requirements that are upgraded? For example, if you have a Barracks-Reactor, then you may build a Factory. Should upgrades contain a list of what they still count as?
