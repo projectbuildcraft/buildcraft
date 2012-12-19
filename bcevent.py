@@ -17,3 +17,16 @@ class Event:
 	build_command_center = Event("Build Command Center",(400,0),None,100,add_unit,'command center')
 	build_nexus = Event("Build Nexus",(400,0),None,100,add_unit,'nexus')
 
+class Requirement:
+	def __init__(self,unit,kind):
+		pass # to be implemented for 0.1
+
+class Order:
+	def __init__(self,name,events):
+		pass # to be implemented for 0.2
+	def print(self):
+		pass # to be implemented for 0.3
+	def calculate_times(self):
+		pass # to be implemented for 0.4
+
+
