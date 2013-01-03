@@ -27,3 +27,4 @@ Warpgate: Unit appears before building stops being busied.
 	Suggestion: Perhaps cooldown could be an event created after another event, the warp-in. We know that warp-ins have to be a separate event already; we might as well make it two additional events.
 
 What is to be done of requirements that are upgraded? For example, if you have a Barracks-Reactor, then you may build a Factory. Should upgrades contain a list of what they still count as?
+	Solution: Boolean Or within requirements
