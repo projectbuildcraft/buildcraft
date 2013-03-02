@@ -1,2 +1,5 @@
 #!/usr/bin/python
-print "Hello World";
+import bcevent
+print "Hello World"
+order = bcevent.Order("Order",None,"SixPool.bo")
+order.printOut()
