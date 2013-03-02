@@ -23,13 +23,22 @@ class Event:
 
 class Requirement:
 	def __init__(self,unit,kind):
-		pass # to be implemented for 0.1
+		self.unit = unit
+		self.kind = kind
 
 class Order:
-	def __init__(self,name,events):
-		pass # to be implemented for 0.2
+	def __init__(self,name,events = None,filename = None):
+		self.name = name
+		if (events == None):
+			pass # load
+		else:
+			self.events = events
+	def save(self,filename):
+		pass # save	
 	def print(self):
-		pass # to be implemented for 0.2
+		print self.name
+		for e in events:
+			print e.name
 	def calculate_times(self):
 		pass # to be implemented for 0.4
 
