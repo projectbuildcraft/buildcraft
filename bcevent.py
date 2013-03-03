@@ -63,16 +63,35 @@ class Requirement:
 		return self.kind
 
 class Instance:
-	def __init__(self, time, units, production, minerals, gas):
+	def __init__(self, time, units, production, minerals, gas, blue, gold):
 		self.time = time
 		self.units = units
 		self.production = production
 		self.minerals = minerals
 		self.gas = gas
+		self.blue = blue
+		self.gold = gold
+
+	def resource_rate(self): # (mineralRate, gasRate) per minute
+		# assume optimal workers
+		workers = self.units[SCV_MINERAL] + self.units[PROBE_MINERAL] + self.units[DRONE_MINERAL]
+		workers_on_gold = min(self.gold * 12, workers)
+		workers -= workers_on_gold
+		workers_on_blue = min(self.blue * 16, workers)
+		workers -= workers_on_blue
+		saturated_on_gold = min(self.gold * 6, workers)
+		workers -= saturated_on_gold
+		saturated_on_blue = min(self.blue * 8, workers)
+		gassers = self.units[SCV_GAS] + self.units[PROBE_GAS] + self.units[DRONE_GAS]
+		gasses = self.units[ASSIMILATOR] + self.units[EXTRACTOR] + self.units[REFINERY]
+		gassers = min(gassers, 3 * gasses)
+		# http://www.teamliquid.net/forum/viewmessage.php?topic_id=140055
+		return (59 * workers_on_gold + 42 * workers_on_blue + 25 * saturated_on_gold + 18 * saturated_on_blue, gassers * 38)
+			
 
 	def increment(self):
-		# calculate resources as well
 		index = len(self.production)
+		self.minerals,self.gas += float(self.resource_rate()) / float(60)
 		while index >= 0:
 			self.production[index][1] -= 1
 			if self.production[index][1] == 0:
@@ -108,11 +127,19 @@ class Order:
 			print self.at[index].time, name(eventIndex)
 
 	def available(self, OrderIndex, EventIndex, now = False):
+		# concern for minerals, gas
+		if now:
+			if self.at[OrderIndex].minerals < events[EventIndex].cost[0]:
+				return False
+			if self.at[OrderIndex].gas < events[EventIndex].cost[1]:
+				return False
+		else:
+			if self.at[OrderIndex].
 		for requirement in get_requirements(EventIndex):
 			if requirement.kind() == ASSUMPTION or requirement.kind() == OCCUPATION or requirement.kind() == CONSUMPTION:
 				if requirement.unit() in self.at[OrderIndex].units:
 					continue
-				if (requirement.unit() in self.at[OrderIndex].production) and not now:
+				if (requirement.unit() in self.at[OrderIndex].production) and not now: # production
 					continue
 				return False
 			if requirement.kind() == NOT:
