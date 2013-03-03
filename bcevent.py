@@ -22,7 +22,7 @@ class Event:
 		return self.args
 
 def add_unit(unit, instance): # player of a class that stores the player's current state
-	instance.units.append(unit)
+	instance.units[unit] += 1
 
 def add_units(units,instance): # like add_unit but takes a list
 	for unit in units:
@@ -74,6 +74,7 @@ class Instance:
 
 	def resource_rate(self): # (mineralRate, gasRate) per minute
 		# assume optimal workers
+		# add MULE
 		workers = self.units[SCV_MINERAL] + self.units[PROBE_MINERAL] + self.units[DRONE_MINERAL]
 		workers_on_gold = min(self.gold * 12, workers)
 		workers -= workers_on_gold
@@ -82,11 +83,12 @@ class Instance:
 		saturated_on_gold = min(self.gold * 6, workers)
 		workers -= saturated_on_gold
 		saturated_on_blue = min(self.blue * 8, workers)
+		mules = self.units[MULE]
 		gassers = self.units[SCV_GAS] + self.units[PROBE_GAS] + self.units[DRONE_GAS]
 		gasses = self.units[ASSIMILATOR] + self.units[EXTRACTOR] + self.units[REFINERY]
 		gassers = min(gassers, 3 * gasses)
 		# http://www.teamliquid.net/forum/viewmessage.php?topic_id=140055
-		return (59 * workers_on_gold + 42 * workers_on_blue + 25 * saturated_on_gold + 18 * saturated_on_blue, gassers * 38)
+		return (59 * workers_on_gold + 42 * workers_on_blue + 25 * saturated_on_gold + 18 * saturated_on_blue + 170 * mules, gassers * 38)
 			
 
 	def increment(self):
@@ -128,22 +130,28 @@ class Order:
 
 	def available(self, OrderIndex, EventIndex, now = False):
 		# concern for minerals, gas
-		if now:
-			if self.at[OrderIndex].minerals < events[EventIndex].cost[0]:
+		if self.at[OrderIndex].minerals < events[EventIndex].cost[0]: # requires minerals
+			if now:
 				return False
-			if self.at[OrderIndex].gas < events[EventIndex].cost[1]:
+			else:
+				if self.at[OrderIndex].units[SCV_MINERAL] + self.at[OrderIndex].units[PROBE_MINERAL] + self.at[OrderIndex].units[DRONE_MINERAL] + self.at[OrderIndex].units[MULE]
+				+ self.at[OrderIndex].occupied[SCV_MINERAL] + self.at[OrderIndex].occupied[PROBE_MINERAL] + self.at[OrderIndex].occupied[DRONE_MINERAL] == 0:
+					return False
+		if self.at[OrderIndex].gas < events[EventIndex].cost[1]: # requires gas
+			if now:
 				return False
-		else:
-			if self.at[OrderIndex].
+			else:
+				if self.at[OrderIndex].units[SCV_GAS] + self.at[OrderIndex].units[PROBE_GAS] + self.at[OrderIndex].units[DRONE_GAS] == 0:
+					return False
 		for requirement in get_requirements(EventIndex):
 			if requirement.kind() == ASSUMPTION or requirement.kind() == OCCUPATION or requirement.kind() == CONSUMPTION:
-				if requirement.unit() in self.at[OrderIndex].units:
+				if self.at[OrderIndex].units[requirement.unit()] > 0:
 					continue
 				if (requirement.unit() in self.at[OrderIndex].production) and not now: # production
 					continue
 				return False
 			if requirement.kind() == NOT:
-				if requirement.unit() in self.at[OrderIndex].units:
+				if self.at[OrderIndex].units[requirement.unit()] > 0:
 					return False
 				if requirement.unit() in self.at[OrderIndex].production:
 					return False
