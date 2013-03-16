@@ -1,4 +1,6 @@
 from bcevent import events
+import copy
+import constants
 class Instance:
 	"""
 	Condition of player at a particular event in their build
@@ -117,7 +119,7 @@ class Order:
 			else:
 				if self.at[OrderIndex].units[SCV_GAS] + self.at[OrderIndex].units[PROBE_GAS] + self.at[OrderIndex].units[DRONE_GAS] == 0:
 					return False
-		for requirement in get_requirements(EventIndex):
+		for requirement in events[EventIndex].get_requirements():
 			if requirement.kind() == ASSUMPTION or requirement.kind() == OCCUPATION or requirement.kind() == CONSUMPTION:
 				if self.at[OrderIndex].units[requirement.unit()] > 0:
 					continue
@@ -170,15 +172,15 @@ class Order:
 			if index == 0:
 				now = Instance()
 				if self.race == "P":
-					now.units[PROBE] = 6
+					now.units[PROBE_MINERAL] = 6
 					now.units[NEXUS] = 1
 					pass
 				if self.race == "T":
-					now.units[SCV] = 6
+					now.units[SCV_MINERAL] = 6
 					now.units[COMMAND_CENTER] = 1
 					pass
 				if self.race == "Z":
-					now.units[DRONE] = 6
+					now.units[DRONE_MINERAL] = 6
 					now.units[HATCHERY] = 1
 					pass
 				now.blue = 1
