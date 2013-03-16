@@ -23,7 +23,7 @@ class Instance:
 	def resource_rate(self):
 		"""
 		Calculates the resource collection rate
-		Returns a tuple (mineralRate, gasRate) per minute
+		Returns a tuple (mineral_rate, gas_rate) per minute
 		"""
 		workers = self.units[SCV_MINERAL] + self.units[PROBE_MINERAL] + self.units[DRONE_MINERAL]
 		workers_on_gold = min(self.gold * 12, workers)
@@ -117,7 +117,7 @@ class Order:
 			if now:
 				return False
 			else:
-				if self.at[OrderIndex].units[SCV_MINERAL] + self.at[OrderIndex].units[PROBE_MINERAL] + self.at[OrderIndex].units[DRONE_MINERAL] + self.at[OrderIndex].units[MULE]	+ self.at[OrderIndex].occupied[SCV_MINERAL] + self.at[OrderIndex].occupied[PROBE_MINERAL] + self.at[OrderIndex].occupied[DRONE_MINERAL] == 0:
+				if self.at[OrderIndex].units[SCV_MINERAL] + self.at[OrderIndex].units[PROBE_MINERAL] + self.at[OrderIndex].units[DRONE_MINERAL] + self.at[OrderIndex].units[MULE] + self.at[OrderIndex].occupied[SCV_MINERAL] + self.at[OrderIndex].occupied[PROBE_MINERAL] + self.at[OrderIndex].occupied[DRONE_MINERAL] == 0:
 					return False
 		if self.at[OrderIndex].gas < events[EventIndex].cost[1]: # requires gas
 			if now:
