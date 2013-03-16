@@ -45,10 +45,13 @@ def salvage(unit,instance):
 def research(unit,instance):
 	pass
 
-def chrono(unit,instance):
+def boost(unit,instance):
 	pass
 
 def warp(unit,instance):
+	pass
+
+def spawn_larva(auto,instance):
 	pass
 
 def name(index):
