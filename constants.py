@@ -1,4 +1,4 @@
-from bcevent import Event
+from bcevent import add
 
 SCV = 1
 MARINE = 2
