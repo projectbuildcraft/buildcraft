@@ -222,6 +222,8 @@ GRAVITON_CATAPULT = 209
 WARP_GATE = 210
 NUM_UNITS = 211
 
+
+
 BUILD_SCV = 0
 SWITCH_SCV_TO_GAS = 1
 SWITCH_SCV_TO_MINERALS = 2
@@ -555,7 +557,7 @@ events = [
 	Event('Research Drilling Claws',150,150,0,0,110,research,(DRILLING_CLAWS,),((TECH_LAB_FACTORY,O),(DRILLING_CLAWS,N),(ARMORY,A))),
 	Event('Auto Spawn Larva',0,0,0,0,15,spawn_larva,(False,),((HATCHERY,A),)),
 	Event('Spawn Larva',0,0,0,0,2.5,spawn_larva,(True,),((QUEEN,25),(HATCHERY,A))),
-	Event('Spawn Drone',50,0,1,0,17,add,(DRONE_MINERAL,),((COMMAND_CENTER,O),)),
+	Event('Spawn Drone',50,0,1,0,17,add,(DRONE_MINERAL,),((LARVA,C),)),
 	Event('Switch Drone to Gas',0,0,0,0,0,add,(DRONE_GAS,),((DRONE_MINERAL,C),(EXTRACTOR,A))),
 	Event('Switch Drone to Minerals',0,0,0,0,0,add,(DRONE_MINERAL,),((DRONE_GAS,C),)),
 	Event('Send Drone to Scout',0,0,0,0,0,add,(DRONE_SCOUT,),((DRONE_MINERAL,C),)),
@@ -593,7 +595,7 @@ events = [
 	Event('Morph Ultralisk Cavern',150,200,-1,0,65,add,(ULTRALISK_CAVERN,),((DRONE_MINERAL,C),(HIVE,A))),
 	Event('Morph Greater Spire',100,150,0,0,100,add,(GREATER_SPIRE,),((SPIRE,C),(HIVE,A))),
 	Event('Spawn Creep Tumor',0,0,0,0,15,add,(CREEP_TUMOR,),((QUEEN,25),)),
-	Event('Re-Spawn Creep Tumor',0,0,0,0,15,add,(CREEP_TUMOR_USED,),((CREEP_TUMOR,O),)),
+	Event('Respawn Creep Tumor',0,0,0,0,15,add,(CREEP_TUMOR_USED,),((CREEP_TUMOR,O),)),
 	Event('Research Melee Attacks Level 1',100,100,0,0,160,research,(MELEE_ATTACKS_LEVEL_1,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_1,N))),
 	Event('Research Melee Attacks Level 2',150,150,0,0,190,research,(MELEE_ATTACKS_LEVEL_2,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_2,N),(MELEE_ATTACKS_LEVEL_1,A),(LAIR,A))),
 	Event('Research Melee Attacks Level 3',200,200,0,0,220,research,(MELEE_ATTACKS_LEVEL_3,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_3,N),(MELEE_ATTACKS_LEVEL_2,A),(HIVE,A))),
@@ -644,9 +646,9 @@ events = [
 	Event('Warp in High Templar',50,150,2,0,5,warp,(HIGH_TEMPLAR,45,),((WARPGATE,O),)),
 	Event('Create Dark Templar',125,125,2,0,55,add,(DARK_TEMPLAR,),((GATEWAY,O),)),
 	Event('Warp in Dark Templar',125,125,2,0,5,warp,(DARK_TEMPLAR,45,),((WARPGATE,O),)),
-	Event('Fuse Archon (Mix)',0,0,0,0,12,add,(ARCHON,),((HIGH_TEMPLAR,C),(DARK_TEMPLAR,C))),
-	Event('Fuse Archon (High)',0,0,0,0,12,add,(ARCHON,),((HIGH_TEMPLAR,C),(HIGH_TEMPLAR,C))),
-	Event('Fuse Archon (Dark)',0,0,0,0,12,add,(ARCHON,),((DARK_TEMPLAR,C),(DARK_TEMPLAR,C))),
+	Event('Fuse Archon Mix',0,0,0,0,12,add,(ARCHON,),((HIGH_TEMPLAR,C),(DARK_TEMPLAR,C))),
+	Event('Fuse Archon High',0,0,0,0,12,add,(ARCHON,),((HIGH_TEMPLAR,C),(HIGH_TEMPLAR,C))),
+	Event('Fuse Archon Dark',0,0,0,0,12,add,(ARCHON,),((DARK_TEMPLAR,C),(DARK_TEMPLAR,C))),
 	Event('Create Carrier',350,250,6,0,120,add,(CARRIER,),((STARGATE,O),)),
 	Event('Create Mothership',300,300,8,0,100,add,(MOTHERSHIP,),((MOTHERSHIP_CORE,C),(FLEET_BEACON,A),(MOTHERSHIP,N))),
 	Event('Create Mothership Core',100,100,2,0,30,add,(MOTHERSHIP_CORE,),((NEXUS,O),(CYBERNETICS_CORE,A),(MOTHERSHIP,N),(MOTHERSHIP_CORE,N))),
@@ -694,7 +696,6 @@ events = [
 	Event('Research Blink',150,150,0,0,140,research,(BLINK,),((TWILIGHT_COUNCIL,O),(BLINK,N))),
 	Event('Research Graviton Catapult',150,150,0,0,80,research,(GRAVITON_CATAPULT,),((FLEET_BEACON,O),(GRAVITON_CATAPULT,N))),
 	Event('Research Warp Gate',50,50,0,0,160,research,(WARP_GATE,),((CYBERNETICS_CORE,O),(WARP_GATE,N))),
-
 ]
 
 research = [0] * NUM_UNITS
