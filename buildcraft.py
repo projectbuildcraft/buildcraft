@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import bcevent
+import bcorder
 print "Hello World"
-order = bcevent.Order("Order",None,"orders/SixPool.bo")
+order = bcorder.Order("Order",None,"orders/SixPool.bo")
 order.printOut()
