@@ -1,12 +1,13 @@
 import copy
+import bcorder
 
 class Event:
 
-	def __init__(self,name,minerals,gas,supply,capacity,time,result,args,requirementss):
+	def __init__(self,name,minerals,gas,supply,capacity,time,result,args,requirements):
 		self.name = name
 		self.cost = (minerals,gas)
-        self.supply = supply
-        self.capacity = capacity
+		self.supply = supply
+		self.capacity = capacity
 		self.result = result # a function to be called that modifies the player's overall state after the event
 		self.args = args # args for result function
 		self.requirements = requirements # list of requirements in addition to cost, a set of tuples (req, type)
@@ -29,6 +30,26 @@ def add_unit(unit, instance): # player of a class that stores the player's curre
 def add_units(units,instance): # like add_unit but takes a list
 	for unit in units:
 		add_unit(unit,instance)
+
+add = add_units
+
+def mule(instance):
+	pass
+
+def idle(unit,instance):
+	pass
+
+def salvage(unit,instance):
+	pass
+
+def research(unit,instance):
+	pass
+
+def chrono(unit,instance):
+	pass
+
+def warp(unit,instance):
+	pass
 
 def name(index):
 	return events[index].get_name()
