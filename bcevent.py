@@ -1,5 +1,4 @@
 import copy
-import bcorder
 
 class Event:
 
@@ -54,11 +53,6 @@ def warp(unit,instance):
 def spawn_larva(auto,instance):
 	pass
 
-def name(index):
-	return events[index].get_name()
-
-def get_requirements(index):
-	return events[index].get_requirements()
 
 # class Requirement:
 

@@ -1,5 +1,12 @@
 import copy
 from constants import *
+
+def name(index):
+	return events[index].get_name()
+
+def get_requirements(index):
+	return events[index].get_requirements()
+
 class Instance:
 	"""
 	Condition of player at a particular event in their build
@@ -69,7 +76,7 @@ class Order:
 			f = open(filename, 'r')
 			lines = f.readlines()
 			self.name = lines.pop(0)
-			self.race = lines.pop(0)
+			self.race = lines.pop(0).rstrip()
 			self.events = []
 			for line in lines:
 				self.events.append(int(line))
@@ -183,6 +190,7 @@ class Order:
 					now.units[HATCHERY] = 1
 					pass
 				now.blue = 1
+				last = now # handles impossible case
 			else:
 				last = self.at[index - 1]
 				now = Instance(last.time, copy.deepcopy(last.units), copy.deepcopy(last.production), last.minerals, last.gas, last.blue, last.gold)
@@ -192,5 +200,5 @@ class Order:
 					now.increment()
 			else:
 				impossible = True
-				now = Instance(float('inf'), self.at[index-1].units.deepcopy(), self.at[index-1].production.deepcopy(), last.minerals, last.gas, last.blue, last.gold)
+				now = Instance(float('inf'), copy.deepcopy(self.at[index-1].units), copy.deepcopy(self.at[index-1].production), last.minerals, last.gas, last.blue, last.gold)
 
