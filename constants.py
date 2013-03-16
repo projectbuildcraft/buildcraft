@@ -27,24 +27,24 @@ MISSILE_TURRET = 24
 SENSOR_TOWER = 25
 FACTORY = 26
 GHOST_ACADEMY = 27
-GHOST_ACADEMY_(ARMED) = 28
+GHOST_ACADEMY_ARMED = 28
 ARMORY = 29
 STARPORT = 30
 FUSION_CORE = 31
 TECH_LAB = 32
 REACTOR = 33
-BARRACKS_(REACTOR) = 34
-BARRACKS_(TECH_LAB) = 35
-FACTORY_(REACTOR) = 36
-FACTORY_(TECH_LAB) = 37
-STARPORT_(REACTOR) = 38
-STARPORT_(TECH_LAB) = 39
-REACTOR_(BARRACKS) = 40
-REACTOR_(FACTORY) = 41
-REACTOR_(STARPORT) = 42
-TECH_LAB_(BARRACKS) = 43
-TECH_LAB_(FACTORY) = 44
-TECH_LAB_(STARPORT) = 45
+BARRACKS_REACTOR = 34
+BARRACKS_TECH_LAB = 35
+FACTORY_REACTOR = 36
+FACTORY_TECH_LAB = 37
+STARPORT_REACTOR = 38
+STARPORT_TECH_LAB = 39
+REACTOR_BARRACKS = 40
+REACTOR_FACTORY = 41
+REACTOR_STARPORT = 42
+TECH_LAB_BARRACKS = 43
+TECH_LAB_FACTORY = 44
+TECH_LAB_STARPORT = 45
 INFANTRY_WEAPONS_LEVEL_1 = 46
 INFANTRY_WEAPONS_LEVEL_2 = 47
 INFANTRY_WEAPONS_LEVEL_3 = 48
@@ -115,7 +115,7 @@ HIVE = 112
 ULTRALISK_CAVERN = 113
 GREATER_SPIRE = 114
 CREEP_TUMOR = 115
-CREEP_TUMOR_(USED) = 116
+CREEP_TUMOR_USED = 116
 MELEE_ATTACKS_LEVEL_1 = 117
 MELEE_ATTACKS_LEVEL_2 = 118
 MELEE_ATTACKS_LEVEL_3 = 119
@@ -298,7 +298,7 @@ RESEARCH_INFERNAL_PRE-IGNITER = 92
 RESEARCH_NEOSTEEL_FRAME = 93
 RESEARCH_TRANSFORMATION_SERVOS = 94
 RESEARCH_DRILLING_CLAWS = 95
-AUTO-SPAWN_LARVA = 96
+AUTO_SPAWN_LARVA = 96
 SPAWN_LARVA = 97
 SPAWN_DRONE = 98
 SWITCH_DRONE_TO_GAS = 99
@@ -440,7 +440,6 @@ RESEARCH_BLINK = 234
 RESEARCH_GRAVITON_CATAPULT = 235
 RESEARCH_WARP_GATE = 236
 
-
 events = [
     Event('Build SCV',50,0,1,0,17,add,(SCV_MINERAL,),((COMMAND_CENTER,O),)),
     Event('Switch SCV to Gas',0,0,0,0,0,add,(SCV_GAS,),((SCV_MINERAL,C),(REFINERY,A))),
@@ -448,17 +447,17 @@ events = [
     Event('Send SCV to Scout',0,0,0,0,0,add,(SCV_SCOUT,),((SCV_MINERAL,C),)),
     Event('Bring back SCV Scout',0,0,0,0,0,add,(SCV_MINERAL,),((SCV_SCOUT,C),)),
     Event('Train Marine',50,0,1,0,25,add,(MARINE,),((BARRACKS,O),)),
-    Event('Train Marauder',100,25,2,0,30,add,(MARAUDER,),((BARRACKS_(TECH_LAB),O),)),
+    Event('Train Marauder',100,25,2,0,30,add,(MARAUDER,),((BARRACKS_TECH_LAB,O),)),
     Event('Train Reaper',50,50,1,0,45,add,(REAPER,),((BARRACKS,O),)),
-    Event('Train Ghost',200,100,2,0,40,add,(GHOST,),((BARRACKS_(TECH_LAB),O),)),
+    Event('Train Ghost',200,100,2,0,40,add,(GHOST,),((BARRACKS_TECH_LAB,O),)),
     Event('Build Hellion',100,0,2,0,30,add,(HELLION,),((FACTORY,O),)),
-    Event('Build Siege Tank',150,125,3,0,45,add,(SIEGE_TANK,),((FACTORY_(TECH_LAB),O),)),
-    Event('Build Thor',300,200,6,0,60,add,(THOR,),((FACTORY_(TECH_LAB),O),(ARMORY,A))),
+    Event('Build Siege Tank',150,125,3,0,45,add,(SIEGE_TANK,),((FACTORY_TECH_LAB,O),)),
+    Event('Build Thor',300,200,6,0,60,add,(THOR,),((FACTORY_TECH_LAB,O),(ARMORY,A))),
     Event('Build Viking',150,75,2,0,42,add,(VIKING,),((STARPORT,O),)),
     Event('Build Medivac',100,100,2,0,42,add,(MEDIVAC,),((STARPORT,O),)),
-    Event('Build Raven',100,200,2,0,60,add,(RAVEN,),((STARPORT_(TECH_LAB),O),)),
-    Event('Build Banshee',150,100,3,0,60,add,(BANSHEE,),((STARPORT_(TECH_LAB),O),)),
-    Event('Build Battlecruiser',400,300,6,0,90,add,(BATTLECRUISER,),((STARPORT_(TECH_LAB),O),(FUSION_CORE,A))),
+    Event('Build Raven',100,200,2,0,60,add,(RAVEN,),((STARPORT_TECH_LAB,O),)),
+    Event('Build Banshee',150,100,3,0,60,add,(BANSHEE,),((STARPORT_TECH_LAB,O),)),
+    Event('Build Battlecruiser',400,300,6,0,90,add,(BATTLECRUISER,),((STARPORT_TECH_LAB,O),(FUSION_CORE,A))),
     Event('Build Hellbat',100,0,2,0,30,add,(HELLBAT,),((FACTORY,O),(ARMORY,))),
     Event('Build Widow Mine',75,25,2,0,40,add,(WIDOW_MINE,),((FACTORY,O),)),
     Event('Build Command Center',400,0,0,0,100,add,(COMMAND_CENTER,),((SCV_MINERAL,O),)),
@@ -477,29 +476,29 @@ events = [
     Event('Build Sensor Tower',125,100,0,0,25,add,(SENSOR_TOWER,),((SCV_MINERAL,O),(ENGINEERING_BAY,A))),
     Event('Build Factory',150,100,0,0,60,add,(FACTORY,),((SCV_MINERAL,O),(BARRACKS,A))),
     Event('Build Ghost Academy',150,50,0,0,40,add,(GHOST_ACADEMY,),((SCV_MINERAL,O),(BARRACKS,A))),
-    Event('Arm Silo with Nuke',100,100,0,0,60,add,(GHOST_ACADEMY_(ARMED),),((GHOST_ACADEMY,O),)),
-    Event('Fire Nuke',0,0,0,0,0,add,(GHOST_ACADEMY,),((GHOST_ACADEMY_(ARMED),C),)),
+    Event('Arm Silo with Nuke',100,100,0,0,60,add,(GHOST_ACADEMY_ARMED,),((GHOST_ACADEMY,O),)),
+    Event('Fire Nuke',0,0,0,0,0,add,(GHOST_ACADEMY,),((GHOST_ACADEMY_ARMED,C),)),
     Event('Build Armory',150,100,0,0,65,add,(ARMORY,),((SCV_MINERAL,O),(FACTORY,A))),
     Event('Build Starport',150,100,0,0,50,add,(STARPORT,),((SCV_MINERAL,O),(FACTORY,A))),
     Event('Build Fusion Core',150,150,0,0,65,add,(FUSION_CORE,),((SCV_MINERAL,O),(STARPORT,A))),
-    Event('Build Reactor onto Barracks',50,50,0,0,25,add,(BARRACKS_(REACTOR),),((BARRACKS,C),)),
-    Event('Build Tech Lab onto Barracks',50,25,0,0,25,add,(BARRACKS_(TECH_LAB),),((BARRACKS,C),)),
-    Event('Build Reactor onto Factory',50,50,0,0,25,add,(FACTORY_(REACTOR),),((FACTORY,C),)),
-    Event('Build Tech Lab onto Factory',50,25,0,0,25,add,(FACTORY_(TECH_LAB),),((FACTORY,C),)),
-    Event('Build Reactor onto Starport',50,50,0,0,25,add,(STARPORT_(REACTOR),),((STARPORT,C),)),
-    Event('Build Tech Lab onto Starport',50,25,0,0,25,add,(STARPORT_(TECH_LAB),),((STARPORT,C),)),
-    Event('Separate Reactor from Barracks',0,0,0,0,2,add,(BARRACKS,REACTOR,),((BARRACKS_(REACTOR),C),(REACTOR_(BARRACKS),C))),
-    Event('Attach Reactor to Barracks',0,0,0,0,2,add,(BARRACKS_(REACTOR),REACTOR_(BARRACKS),),((BARRACKS,C),(REACTOR,C))),
-    Event('Separate Tech Lab from Barracks',0,0,0,0,2,add,(BARRACKS,TECH_LAB,),((BARRACKS_(TECH_LAB),C),(TECH_LAB_(BARRACKS),C))),
-    Event('Attach Tech Lab to Barracks',0,0,0,0,2,add,(BARRACKS_(TECH_LAB),TECH_LAB_(BARRACKS),),((BARRACKS,C),(TECH_LAB,C))),
-    Event('Separate Reactor from Factory',0,0,0,0,2,add,(FACTORY,REACTOR,),((FACTORY_(REACTOR),C),(REACTOR_(FACTORY),C))),
-    Event('Attach Reactor to Factory',0,0,0,0,2,add,(FACTORY_(REACTOR),REACTOR_(FACTORY),),((FACTORY,C),(REACTOR,C))),
-    Event('Separate Tech Lab from Factory',0,0,0,0,2,add,(FACTORY,TECH_LAB,),((FACTORY_(TECH_LAB),C),(TECH_LAB_(FACTORY),C))),
-    Event('Attach Tech Lab to Factory',0,0,0,0,2,add,(FACTORY_(TECH_LAB),TECH_LAB_(FACTORY),),((FACTORY,C),(TECH_LAB,C))),
-    Event('Separate Reactor from Starport',0,0,0,0,2,add,(STARPORT,REACTOR,),((STARPORT_(REACTOR),C),(REACTOR_(STARPORT),C))),
-    Event('Attach Reactor to Starport',0,0,0,0,2,add,(STARPORT_(REACTOR),REACTOR_(STARPORT),),((STARPORT,C),(REACTOR,C))),
-    Event('Separate Tech Lab from Starport',0,0,0,0,2,add,(STARPORT,TECH_LAB,),((STARPORT_(TECH_LAB),C),(TECH_LAB_(STARPORT),C))),
-    Event('Attach Tech Lab to Starport',0,0,0,0,2,add,(STARPORT_(TECH_LAB),TECH_LAB_(STARPORT),),((STARPORT,C),(TECH_LAB,C))),
+    Event('Build Reactor onto Barracks',50,50,0,0,25,add,(BARRACKS_REACTOR,),((BARRACKS,C),)),
+    Event('Build Tech Lab onto Barracks',50,25,0,0,25,add,(BARRACKS_TECH_LAB,),((BARRACKS,C),)),
+    Event('Build Reactor onto Factory',50,50,0,0,25,add,(FACTORY_REACTOR,),((FACTORY,C),)),
+    Event('Build Tech Lab onto Factory',50,25,0,0,25,add,(FACTORY_TECH_LAB,),((FACTORY,C),)),
+    Event('Build Reactor onto Starport',50,50,0,0,25,add,(STARPORT_REACTOR,),((STARPORT,C),)),
+    Event('Build Tech Lab onto Starport',50,25,0,0,25,add,(STARPORT_TECH_LAB,),((STARPORT,C),)),
+    Event('Separate Reactor from Barracks',0,0,0,0,2,add,(BARRACKS,REACTOR,),((BARRACKS_REACTOR,C),(REACTOR_BARRACKS,C))),
+    Event('Attach Reactor to Barracks',0,0,0,0,2,add,(BARRACKS_REACTOR,REACTOR_BARRACKS,),((BARRACKS,C),(REACTOR,C))),
+    Event('Separate Tech Lab from Barracks',0,0,0,0,2,add,(BARRACKS,TECH_LAB,),((BARRACKS_TECH_LAB,C),(TECH_LAB_BARRACKS,C))),
+    Event('Attach Tech Lab to Barracks',0,0,0,0,2,add,(BARRACKS_TECH_LAB,TECH_LAB_BARRACKS,),((BARRACKS,C),(TECH_LAB,C))),
+    Event('Separate Reactor from Factory',0,0,0,0,2,add,(FACTORY,REACTOR,),((FACTORY_REACTOR,C),(REACTOR_FACTORY,C))),
+    Event('Attach Reactor to Factory',0,0,0,0,2,add,(FACTORY_REACTOR,REACTOR_FACTORY,),((FACTORY,C),(REACTOR,C))),
+    Event('Separate Tech Lab from Factory',0,0,0,0,2,add,(FACTORY,TECH_LAB,),((FACTORY_TECH_LAB,C),(TECH_LAB_FACTORY,C))),
+    Event('Attach Tech Lab to Factory',0,0,0,0,2,add,(FACTORY_TECH_LAB,TECH_LAB_FACTORY,),((FACTORY,C),(TECH_LAB,C))),
+    Event('Separate Reactor from Starport',0,0,0,0,2,add,(STARPORT,REACTOR,),((STARPORT_REACTOR,C),(REACTOR_STARPORT,C))),
+    Event('Attach Reactor to Starport',0,0,0,0,2,add,(STARPORT_REACTOR,REACTOR_STARPORT,),((STARPORT,C),(REACTOR,C))),
+    Event('Separate Tech Lab from Starport',0,0,0,0,2,add,(STARPORT,TECH_LAB,),((STARPORT_TECH_LAB,C),(TECH_LAB_STARPORT,C))),
+    Event('Attach Tech Lab to Starport',0,0,0,0,2,add,(STARPORT_TECH_LAB,TECH_LAB_STARPORT,),((STARPORT,C),(TECH_LAB,C))),
     Event('Research Infantry Weapons Level 1',100,100,0,0,160,research,(INFANTRY_WEAPONS_LEVEL_1,),((ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_1,N))),
     Event('Research Infantry Weapons Level 2',175,175,0,0,190,research,(INFANTRY_WEAPONS_LEVEL_2,),((ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_2,N),(INFANTRY_WEAPONS_LEVEL_1,A),(ARMORY,A))),
     Event('Research Infantry Weapons Level 3',250,250,0,0,220,research,(INFANTRY_WEAPONS_LEVEL_3,),((ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_3,N),(INFANTRY_WEAPONS_LEVEL_2,A),(ARMORY,A))),
@@ -518,24 +517,24 @@ events = [
     Event('Research Ship Plating Level 1',150,150,0,0,160,research,(SHIP_PLATING_LEVEL_1,),((ARMORY,O),(SHIP_PLATING_LEVEL_1,N))),
     Event('Research Ship Plating Level 2',225,225,0,0,190,research,(SHIP_PLATING_LEVEL_2,),((ARMORY,O),(SHIP_PLATING_LEVEL_2,N),(SHIP_PLATING_LEVEL_1,A))),
     Event('Research Ship Plating Level 3',300,300,0,0,220,research,(SHIP_PLATING_LEVEL_3,),((ARMORY,O),(SHIP_PLATING_LEVEL_3,N),(SHIP_PLATING_LEVEL_2,A))),
-    Event('Research Nitro Packs',50,50,0,0,100,research,(NITRO_PACKS,),((TECH_LAB_(BARRACKS),O),(NITRO_PACKS,N),(ARMORY,A))),
+    Event('Research Nitro Packs',50,50,0,0,100,research,(NITRO_PACKS,),((TECH_LAB_BARRACKS,O),(NITRO_PACKS,N),(ARMORY,A))),
     Event('Research Hi-Sec Auto Tracking',100,100,0,0,80,research,(HI-SEC_AUTO_TRACKING,),((ENGINEERING_BAY,O),(HI-SEC_AUTO_TRACKING,N))),
-    Event('Research Cloaking Field',200,200,0,0,110,research,(CLOAKING_FIELD,),((TECH_LAB_(STARPORT),O),(CLOAKING_FIELD,N))),
-    Event('Research Concussive Shells',50,50,0,0,60,research,(CONCUSSIVE_SHELLS,),((TECH_LAB_(BARRACKS),O),(CONCUSSIVE_SHELLS,N))),
+    Event('Research Cloaking Field',200,200,0,0,110,research,(CLOAKING_FIELD,),((TECH_LAB_STARPORT,O),(CLOAKING_FIELD,N))),
+    Event('Research Concussive Shells',50,50,0,0,60,research,(CONCUSSIVE_SHELLS,),((TECH_LAB_BARRACKS,O),(CONCUSSIVE_SHELLS,N))),
     Event('Research Personal Cloaking',150,150,0,0,120,research,(PERSONAL_CLOAKING,),((GHOST_ACADEMY,O),(PERSONAL_CLOAKING,N))),
-    Event('Research Stimpack',100,100,0,0,170,research,(STIMPACK,),((TECH_LAB_(BARRACKS),O),(STIMPACK,N))),
+    Event('Research Stimpack',100,100,0,0,170,research,(STIMPACK,),((TECH_LAB_BARRACKS,O),(STIMPACK,N))),
     Event('Research Weapon Refit',150,150,0,0,60,research,(WEAPON_REFIT,),((FUSION_CORE,O),(WEAPON_REFIT,N))),
     Event('Research Behemoth Reactor',150,150,0,0,80,research,(BEHEMOTH_REACTOR,),((FUSION_CORE,O),(BEHEMOTH_REACTOR,N))),
-    Event('Research Caduceus Reactor',100,100,0,0,80,research,(CADUCEUS_REACTOR,),((TECH_LAB_(STARPORT),O),(CADUCEUS_REACTOR,N))),
-    Event('Research Corvid Reactor',150,150,0,0,110,research,(CORVID_REACTOR,),((TECH_LAB_(STARPORT),O),(CORVID_REACTOR,N))),
+    Event('Research Caduceus Reactor',100,100,0,0,80,research,(CADUCEUS_REACTOR,),((TECH_LAB_STARPORT,O),(CADUCEUS_REACTOR,N))),
+    Event('Research Corvid Reactor',150,150,0,0,110,research,(CORVID_REACTOR,),((TECH_LAB_STARPORT,O),(CORVID_REACTOR,N))),
     Event('Research Moebius Reactor',100,100,0,0,80,research,(MOEBIUS_REACTOR,),((GHOST_ACADEMY,O),(MOEBIUS_REACTOR,N))),
     Event('Research Building Armor',150,150,0,0,140,research,(BUILDING_ARMOR,),((ENGINEERING_BAY,O),(BUILDING_ARMOR,N))),
-    Event('Research Combat Shield',100,100,0,0,110,research,(COMBAT_SHIELD,),((TECH_LAB_(BARRACKS),O),(COMBAT_SHIELD,N))),
-    Event('Research Durable Materials',150,150,0,0,110,research,(DURABLE_MATERIALS,),((TECH_LAB_(STARPORT),O),(DURABLE_MATERIALS,N))),
-    Event('Research Infernal Pre-Igniter',150,150,0,0,110,research,(INFERNAL_PRE-IGNITER,),((TECH_LAB_(FACTORY),O),(INFERNAL_PRE-IGNITER,N))),
+    Event('Research Combat Shield',100,100,0,0,110,research,(COMBAT_SHIELD,),((TECH_LAB_BARRACKS,O),(COMBAT_SHIELD,N))),
+    Event('Research Durable Materials',150,150,0,0,110,research,(DURABLE_MATERIALS,),((TECH_LAB_STARPORT,O),(DURABLE_MATERIALS,N))),
+    Event('Research Infernal Pre-Igniter',150,150,0,0,110,research,(INFERNAL_PRE-IGNITER,),((TECH_LAB_FACTORY,O),(INFERNAL_PRE-IGNITER,N))),
     Event('Research Neosteel Frame',100,100,0,0,110,research,(NEOSTEEL_FRAME,),((ENGINEERING_BAY,O),(NEOSTEEL_FRAME,N))),
-    Event('Research Transformation Servos',100,100,0,0,110,research,(TRANSFORMATION_SERVOS,),((TECH_LAB_(FACTORY),O),(TRANSFORMATION_SERVOS,N),(ARMORY,A))),
-    Event('Research Drilling Claws',150,150,0,0,110,research,(DRILLING_CLAWS,),((TECH_LAB_(FACTORY),O),(DRILLING_CLAWS,N),(ARMORY,A))),
+    Event('Research Transformation Servos',100,100,0,0,110,research,(TRANSFORMATION_SERVOS,),((TECH_LAB_FACTORY,O),(TRANSFORMATION_SERVOS,N),(ARMORY,A))),
+    Event('Research Drilling Claws',150,150,0,0,110,research,(DRILLING_CLAWS,),((TECH_LAB_FACTORY,O),(DRILLING_CLAWS,N),(ARMORY,A))),
     Event('Auto Spawn Larva',0,0,0,0,15,spawn_larva,(False,),((HATCHERY,A),)),
     Event('Spawn Larva',0,0,0,0,2.5,spawn_larva,(True,),((QUEEN,25),(HATCHERY,A))),
     Event('Spawn Drone',50,0,1,0,17,add,(DRONE_MINERAL,),((COMMAND_CENTER,O),)),
@@ -576,7 +575,7 @@ events = [
     Event('Morph Ultralisk Cavern',150,200,-1,0,65,add,(ULTRALISK_CAVERN,),((DRONE_MINERAL,C),(HIVE,A))),
     Event('Morph Greater Spire',100,150,0,0,100,add,(GREATER_SPIRE,),((SPIRE,C),(HIVE,A))),
     Event('Spawn Creep Tumor',0,0,0,0,15,add,(CREEP_TUMOR,),((QUEEN,25),)),
-    Event('Re-Spawn Creep Tumor',0,0,0,0,15,add,(CREEP_TUMOR_(USED),),((CREEP_TUMOR,O),)),
+    Event('Re-Spawn Creep Tumor',0,0,0,0,15,add,(CREEP_TUMOR_USED,),((CREEP_TUMOR,O),)),
     Event('Research Melee Attacks Level 1',100,100,0,0,160,research,(MELEE_ATTACKS_LEVEL_1,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_1,N))),
     Event('Research Melee Attacks Level 2',150,150,0,0,190,research,(MELEE_ATTACKS_LEVEL_2,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_2,N),(MELEE_ATTACKS_LEVEL_1,A),(LAIR,A))),
     Event('Research Melee Attacks Level 3',200,200,0,0,220,research,(MELEE_ATTACKS_LEVEL_3,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_3,N),(MELEE_ATTACKS_LEVEL_2,A),(HIVE,A))),
