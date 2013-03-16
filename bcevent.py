@@ -7,6 +7,7 @@ class Event:
 		self.cost = (minerals,gas)
 		self.supply = supply
 		self.capacity = capacity
+		self.time = time
 		self.result = result # a function to be called that modifies the player's overall state after the event
 		self.args = args # args for result function
 		self.requirements = requirements # list of requirements in addition to cost, a set of tuples (req, type)
