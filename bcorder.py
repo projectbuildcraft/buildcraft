@@ -11,9 +11,10 @@ class Instance:
 	"""
 	Condition of player at a particular event in their build
 	"""
-	def __init__(self, time = 0, units = [0]*NUM_UNITS, production = [], minerals = 50, gas = 0, blue = 1, gold = 0):
+	def __init__(self, time = 1, units = [0]*NUM_UNITS, occupied = [0]*NUM_UNITS, production = [], minerals = 50, gas = 0, blue = 1, gold = 0):
 		self.time = time
-		self.units = units # counts indexed by constants in bcevent
+		self.units = units # counts indexed by constants
+		self.occupied = occupied
 		self.production = production
 		self.minerals = minerals
 		self.gas = gas
@@ -46,17 +47,18 @@ class Instance:
 		"""
 		Moves the insteance forward one second
 		"""
+		self.time += 1
 		index = len(self.production)
 		mineral_rate, gas_rate = self.resource_rate()
 		self.minerals += mineral_rate / float(60)
 		self.gas += gas_rate / float(60)
-		while index >= 0:
+		while index > 0:
+			index -= 1
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] == 0: # if done
 				event = self.production[index][0]
 				event.get_result()(event.get_args(), self)
 				del self.production[index]
-			index -= 1
 
 racename = {
 	"P" : "Protoss",
@@ -68,14 +70,14 @@ class Order:
 	"""
 	Represents a calculated build order
 	"""
-	def __init__(self,name,events = None,filename = None):
+	def __init__(self,name = "",events = [],filename = None, race = "P"):
 		"""
 		Creates a build order from a list of events or a filename
 		"""
-		if (events == None):
+		if (filename != None):
 			f = open(filename, 'r')
 			lines = f.readlines()
-			self.name = lines.pop(0)
+			self.name = lines.pop(0).rstrip()
 			self.race = lines.pop(0).rstrip()
 			self.events = []
 			for line in lines:
@@ -83,6 +85,7 @@ class Order:
 			f.close()
 		else:
 			self.name = name
+			self.race = race
 			self.events = events
 		self.calculate_times()
 
@@ -91,8 +94,8 @@ class Order:
 		Saves the build order to file specified by filename
 		"""
 		f = open(filename, 'w')	
-		f.write(self.name)
-		f.write(self.race)
+		f.write(self.name + "\n")
+		f.write(self.race + "\n")
 		for index in self.events:
 			f.write(str(index) + "\n");
 
@@ -100,9 +103,9 @@ class Order:
 		"""
 		Prints the build order to std out
 		"""
-		print self.name, ":\t", racename[self.race]
+		print self.name, racename[self.race]
 		for index, eventIndex in enumerate(self.events):
-			print self.at[index].time, name(eventIndex)
+			print "{}".format(index), self.at[index + 1].time, name(eventIndex)
 
 	def available(self, OrderIndex, EventIndex, now = False):
 		"""
@@ -172,33 +175,32 @@ class Order:
 		"""
 		Evaluates the times at which all events occur
 		"""
-		self.at = []
+		now = Instance()
+		if self.race == "P":
+			now.units[PROBE_MINERAL] = 6
+			now.units[NEXUS] = 1
+			pass
+		if self.race == "T":
+			now.units[SCV_MINERAL] = 6
+			now.units[COMMAND_CENTER] = 1
+			pass
+		if self.race == "Z":
+			now.units[DRONE_MINERAL] = 6
+			now.units[HATCHERY] = 1
+			now.units[LARVA] = 3
+			pass
+		now.blue = 1
+		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
 		impossible = False
 		for index, event in enumerate(self.events):
-			if index == 0:
-				now = Instance()
-				if self.race == "P":
-					now.units[PROBE_MINERAL] = 6
-					now.units[NEXUS] = 1
-					pass
-				if self.race == "T":
-					now.units[SCV_MINERAL] = 6
-					now.units[COMMAND_CENTER] = 1
-					pass
-				if self.race == "Z":
-					now.units[DRONE_MINERAL] = 6
-					now.units[HATCHERY] = 1
-					pass
-				now.blue = 1
-				last = now # handles impossible case
-			else:
-				last = self.at[index - 1]
-				now = Instance(last.time, copy.deepcopy(last.units), copy.deepcopy(last.production), last.minerals, last.gas, last.blue, last.gold)
+			index += 1
+			last = self.at[index - 1]
+			now = Instance(last.time, copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.blue, last.gold)
 			self.at.append(now)
-			if (not impossible) and (self.available(index, event)):
+			if (not impossible) and (self.available(index, event, False)):
 				while not self.available(index, event, True):
 					now.increment()
 			else:
 				impossible = True
-				now = Instance(float('inf'), copy.deepcopy(self.at[index-1].units), copy.deepcopy(self.at[index-1].production), last.minerals, last.gas, last.blue, last.gold)
+				self.at[index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.blue, last.gold)
 
