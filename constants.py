@@ -1,4 +1,9 @@
-from bcevent import add
+from bcevent import add, mule, idle, salvage, research, warp, chrono, Event
+
+O = 1
+A = 2
+C = 3
+N = 4
 
 SCV_MINERAL = 1
 SCV_GAS = 2
