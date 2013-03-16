@@ -1,9 +1,13 @@
-from bcevent import add, mule, idle, salvage, research, warp, chrono, Event
+from bcevent import add, mule, idle, salvage, research, warp, boost, spawn_larva, Event
 
 O = 1
+OCCUPATION = O
 A = 2
+ASSUMPTION = A
 C = 3
+CONSUMPTION = C
 N = 4
+NOT = N
 
 SCV_MINERAL = 0
 SCV_GAS = 1

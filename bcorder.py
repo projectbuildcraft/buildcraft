@@ -1,11 +1,10 @@
-from bcevent import events
 import copy
-import constants
+from constants import *
 class Instance:
 	"""
 	Condition of player at a particular event in their build
 	"""
-	def __init__(self, time = 0, units = [], production = [], minerals = 50, gas = 0, blue = 1, gold = 0):
+	def __init__(self, time = 0, units = [0]*NUM_UNITS, production = [], minerals = 50, gas = 0, blue = 1, gold = 0):
 		self.time = time
 		self.units = units # counts indexed by constants in bcevent
 		self.production = production
@@ -45,8 +44,8 @@ class Instance:
 		self.minerals += mineral_rate / float(60)
 		self.gas += gas_rate / float(60)
 		while index >= 0:
-			self.production[index][1] -= 1
-			if self.production[index][1] == 0:
+			self.production[index][1] -= 1 # decrease remaining seconds
+			if self.production[index][1] == 0: # if done
 				event = self.production[index][0]
 				event.get_result()(event.get_args(), self)
 				del self.production[index]
@@ -120,16 +119,16 @@ class Order:
 				if self.at[OrderIndex].units[SCV_GAS] + self.at[OrderIndex].units[PROBE_GAS] + self.at[OrderIndex].units[DRONE_GAS] == 0:
 					return False
 		for requirement in events[EventIndex].get_requirements():
-			if requirement.kind() == ASSUMPTION or requirement.kind() == OCCUPATION or requirement.kind() == CONSUMPTION:
-				if self.at[OrderIndex].units[requirement.unit()] > 0:
+			if requirement[1] == ASSUMPTION or requirement[1] == OCCUPATION or requirement[1] == CONSUMPTION:
+				if self.at[OrderIndex].units[requirement[0]] > 0:
 					continue
-				if (requirement.unit() in self.at[OrderIndex].production) and not now: # production
+				if (requirement[0] in self.at[OrderIndex].production) and not now: # production
 					continue
 				return False
-			if requirement.kind() == NOT:
-				if self.at[OrderIndex].units[requirement.unit()] > 0:
+			if requirement[1] == NOT:
+				if self.at[OrderIndex].units[requirement[0]] > 0:
 					return False
-				if requirement.unit() in self.at[OrderIndex].production:
+				if requirement[0] in self.at[OrderIndex].production:
 					return False
 		return True
 
