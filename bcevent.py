@@ -1,13 +1,15 @@
 import copy
+
 class Event:
 
-	def __init__(self,name,cost,requirements,time,result,args):
+	def __init__(self,name,minerals,gas,supply,capacity,time,result,args,requirementss):
 		self.name = name
-		self.cost = cost #(minerals,gas)
-		self.requirements = requirements # list of requirements in addition to cost; has to be a list because archons
-		self.time = time
+		self.cost = (minerals,gas)
+        self.supply = supply
+        self.capacity = capacity
 		self.result = result # a function to be called that modifies the player's overall state after the event
 		self.args = args # args for result function
+		self.requirements = requirements # list of requirements in addition to cost, a set of tuples (req, type)
 
 	def get_name(self):
 		return self.name
@@ -34,31 +36,15 @@ def name(index):
 def get_requirements(index):
 	return events[index].get_requirements()
 
-DRONE = 0
-SCV = 1
-PROBE = 2
-HATCHERY = 3
-COMMAND_CENTER = 4
-NEXUS = 5
+# class Requirement:
 
-events = [
-	Event("Build Drone",(50,0),[],17,add_unit,DRONE),
-	Event("Build SCV",(50,0),[],17,add_unit,SCV),
-	Event("Build Probe",(50,0),[],17,add_unit,PROBE),
-	Event("Build Hatchery",(300,0),[],100,add_unit,HATCHERY),
-	Event("Build Command Center",(400,0),[],100,add_unit,COMMAND_CENTER),
-	Event("Build Nexus",(400,0),[],100,add_unit,NEXUS)
-]
+	# def __init__(self,unit,kind):
+		# self.unit = unit
+		# self.kind = kind # Occupation, Assumption, Consumption, Not
 
-class Requirement:
+	# def unit(self):
+		# return self.unit
 
-	def __init__(self,unit,kind):
-		self.unit = unit
-		self.kind = kind # Occupation, Assumption, Consumption, Not
-
-	def unit(self):
-		return self.unit
-
-	def kind(self):
-		return self.kind
+	# def kind(self):
+		# return self.kind
 
