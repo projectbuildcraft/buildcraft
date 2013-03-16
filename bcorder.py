@@ -1,6 +1,5 @@
-from bcevent import events
 import copy
-import constants
+from constants import *
 class Instance:
 	"""
 	Condition of player at a particular event in their build
@@ -45,8 +44,8 @@ class Instance:
 		self.minerals += mineral_rate / float(60)
 		self.gas += gas_rate / float(60)
 		while index >= 0:
-			self.production[index][1] -= 1
-			if self.production[index][1] == 0:
+			self.production[index][1] -= 1 # decrease remaining seconds
+			if self.production[index][1] == 0: # if done
 				event = self.production[index][0]
 				event.get_result()(event.get_args(), self)
 				del self.production[index]
