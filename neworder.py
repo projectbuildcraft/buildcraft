@@ -12,6 +12,7 @@ class App:
 
 def new_order():
     root = Tk()
+    root.wm_title('New Order')
     app = App(root)
     app.w = Label(root, text = "Create a new build order")
     app.w.pack()
