@@ -11,13 +11,15 @@ class Instance:
 	"""
 	Condition of player at a particular event in their build
 	"""
-	def __init__(self, time = 1, units = [0]*NUM_UNITS, occupied = [0]*NUM_UNITS, production = [], minerals = 50, gas = 0, blue = 1, gold = 0):
+	def __init__(self, time = 1, units = [0]*NUM_UNITS, occupied = [0]*NUM_UNITS, production = [], minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0):
 		self.time = time
 		self.units = units # counts indexed by constants
 		self.occupied = occupied
-		self.production = production
+		self.production = production # [[Event_Index, Time_Remaining]]
 		self.minerals = minerals
 		self.gas = gas
+		self.supply = supply
+		self.cap = cap
 		self.blue = blue
 		self.gold = gold
 
@@ -89,7 +91,7 @@ class Order:
 			self.events = events
 		self.calculate_times()
 
-	def save(self,filename):
+	def save(self,filename = "orders/"+name+".bo"):
 		"""
 		Saves the build order to file specified by filename
 		"""
@@ -200,6 +202,11 @@ class Order:
 			if (not impossible) and (self.available(index, event, False)):
 				while not self.available(index, event, True):
 					now.increment()
+				now.minerals -= events[event].cost[0]
+				now.gas -= events[event].cost[1]
+				now.supply += events[event].supply
+				now.cap += events[event].capacity
+				now.production.append([event,events[event].time])
 			else:
 				impossible = True
 				self.at[index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.blue, last.gold)

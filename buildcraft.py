@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import bcorder
 from constants import events
-my_order = bcorder.Order("Order",None,"orders/SixPool.bo")
+my_order = bcorder.Order(filename = "orders/7RR.bo")
 run = True
 racemap = {
 	0 : "P",
