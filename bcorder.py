@@ -28,6 +28,7 @@ class Instance:
 		Calculates the resource collection rate
 		Returns a tuple (mineral_rate, gas_rate) per minute
 		"""
+		# assume optimal workers
 		workers = self.units[SCV_MINERAL] + self.units[PROBE_MINERAL] + self.units[DRONE_MINERAL]
 		workers_on_gold = min(self.gold * 12, workers)
 		workers -= workers_on_gold
@@ -40,7 +41,6 @@ class Instance:
 		gassers = self.units[SCV_GAS] + self.units[PROBE_GAS] + self.units[DRONE_GAS]
 		gasses = self.units[ASSIMILATOR] + self.units[EXTRACTOR] + self.units[REFINERY]
 		gassers = min(gassers, 3 * gasses)
-		# assume optimal workers
 		# http://www.teamliquid.net/forum/viewmessage.php?topic_id=140055
 		return (59 * workers_on_gold + 42 * workers_on_blue + 25 * saturated_on_gold + 18 * saturated_on_blue + 170 * mules, gassers * 38)
 			
@@ -57,9 +57,14 @@ class Instance:
 		while index > 0:
 			index -= 1
 			self.production[index][1] -= 1 # decrease remaining seconds
-			if self.production[index][1] == 0: # if done
-				event = self.production[index][0]
+			if self.production[index][1] <= 0: # if done
+				event = events[self.production[index][0]]
 				event.get_result()(event.get_args(), self)
+				for requirement in event.get_requirements():
+					unit, kind = requirement
+					if kind == O:
+						self.occupied[unit] -= 1
+						self.units[unit] += 1
 				del self.production[index]
 
 	def active_worker_count(self, include_scouts = False):
@@ -123,39 +128,81 @@ class Order:
 		for index, eventIndex in enumerate(self.events):
 			print "{}".format(index), self.at[index + 1].time, name(eventIndex)
 
-	def available(self, OrderIndex, EventIndex, now = False):
+	def available(self, order_index, event_index, now = False):
 		"""
 		Evaluates whether event is available at this order
 		Arguments:
-		OrderIndex - location in build order
-		EventIndex - event desired
+		order_index - location in build order
+		event_index - event desired
 		now - whether to evaluate availability now or eventually
 		"""
-		# concern for minerals, gas
-		if self.at[OrderIndex].minerals < events[EventIndex].cost[0]: # requires minerals
+		# minerals, gas, supply
+		if self.at[order_index].minerals < events[event_index].cost[0]: # requires minerals
 			if now:
 				return False
 			else:
-				if self.at[OrderIndex].units[SCV_MINERAL] + self.at[OrderIndex].units[PROBE_MINERAL] + self.at[OrderIndex].units[DRONE_MINERAL] + self.at[OrderIndex].units[MULE] + self.at[OrderIndex].occupied[SCV_MINERAL] + self.at[OrderIndex].occupied[PROBE_MINERAL] + self.at[OrderIndex].occupied[DRONE_MINERAL] == 0:
+				if self.at[order_index].units[SCV_MINERAL] + self.at[order_index].units[PROBE_MINERAL] + self.at[order_index].units[DRONE_MINERAL] + self.at[order_index].units[MULE] + self.at[order_index].occupied[SCV_MINERAL] + self.at[order_index].occupied[PROBE_MINERAL] + self.at[order_index].occupied[DRONE_MINERAL] == 0:
 					return False
-		if self.at[OrderIndex].gas < events[EventIndex].cost[1]: # requires gas
+		if self.at[order_index].gas < events[event_index].cost[1]: # requires gas
 			if now:
 				return False
 			else:
-				if self.at[OrderIndex].units[SCV_GAS] + self.at[OrderIndex].units[PROBE_GAS] + self.at[OrderIndex].units[DRONE_GAS] == 0:
+				if self.at[order_index].units[SCV_GAS] + self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[DRONE_GAS] == 0:
 					return False
-		for requirement in events[EventIndex].get_requirements():
-			if requirement[1] == ASSUMPTION or requirement[1] == OCCUPATION or requirement[1] == CONSUMPTION:
-				if self.at[OrderIndex].units[requirement[0]] > 0:
+		if event[event_index].supply > 0: # requires supply
+			if self.at[order_index].supply + event[event_index].supply > self.at[order_index].cap:
+				if now:
+					return False
+				difference = self.at[order_index].supply + event[event_index].supply - self.at[order_index].cap
+				for event,time in self.at[order_index].production:
+					difference -= events[event].capacity
+				if difference > 0:
+					return False
+				continue
+
+		# requirements
+		for requirement in events[event_index].get_requirements():
+			unit, kind = requirement
+			if kind == ASSUMPTION:
+				if self.at[order_index].units[unit] > 0:
 					continue
-				if (requirement[0] in self.at[OrderIndex].production) and not now: # production
+				if self.at[order_index].occupied[unit] > 0:
 					continue
-				return False
-			if requirement[1] == NOT:
-				if self.at[OrderIndex].units[requirement[0]] > 0:
+				if now:
 					return False
-				if requirement[0] in self.at[OrderIndex].production:
+				else:
+					for event,time in self.at[order_index].production:
+						if events[event].get_result() == add:
+							if unit in events[event].get_args():
+								break
+					else:
+						return False
+				continue
+			if kind == OCCUPATION or kind == CONSUMPTION:
+				if self.at[order_index].units[unit] > 0:
+					continue
+				if now:
 					return False
+				else:
+					if self.at[order_index].occupied[unit] > 0:
+						continue
+					for event,time in self.at[order_index].production:
+						if events[event].get_result() == add:
+							if unit in events[event].get_args():
+								break
+					else:
+						return False
+					continue
+			if kind == NOT:
+				if self.at[order_index].units[unit] > 0:
+					return False
+				for event,time in self.at[order_index].production:
+					if event.get_result() == research:
+						if unit in event.get_args:
+							return False
+				continue
+			# requirement now must be energy
+			pass
 		return True
 
 	def append(self, event):
@@ -220,6 +267,13 @@ class Order:
 				now.gas -= events[event].cost[1]
 				now.supply += events[event].supply
 				now.cap += events[event].capacity
+				for requirement in get_requirements(event):
+					unit, kind = requirement
+					if kind == O:
+						now.units[unit] -= 1
+						now.occupied[unit] += 1
+					if kind == C:
+						now.units[unit] -= 1
 				now.production.append([event,events[event].time])
 			else:
 				impossible = True

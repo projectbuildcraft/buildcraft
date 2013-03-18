@@ -28,14 +28,14 @@ while run:
 		print "Saved to ",filename
 	if menu_choice == 2:
 		index = int(raw_input("Insert at:"))
-		choices = [i for i in range(len(events)) if my_order.available(OrderIndex = index, EventIndex = i)]
+		choices = [i for i in range(len(events)) if my_order.available(order_index = index, event_index = i)]
 		for choice_index,event_index in enumerate(choices):
 			print choice_index,bcorder.name(event_index)
 		choice = int(raw_input("=> "))
 		my_order.insert(choices[choice],index)
 		pass
 	if menu_choice == 3:
-		choices = [i for i in range(len(events)) if my_order.available(OrderIndex = len(my_order.events), EventIndex = i)]
+		choices = [i for i in range(len(events)) if my_order.available(order_index = len(my_order.events), event_index = i)]
 		for choice_index,event_index in enumerate(choices):
 			print choice_index,bcorder.name(event_index)
 		choice = int(raw_input("=> "))
