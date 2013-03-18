@@ -1,4 +1,5 @@
 from Tkinter import *
+from PIL import Image, ImageTk
 
 class App:
 
@@ -35,8 +36,12 @@ def new_order():
 
     app.v = StringVar()
     app.v.set('T')
+    app.images = []
     for text in modes:
-        b = Radiobutton(root, text=text, variable=app.v, value=text[0])
+        image = Image.open('images/'+text+'.jpg')
+        photo = ImageTk.PhotoImage(image.resize((50,50)))
+        app.images.append(photo)
+        b = Radiobutton(root, text=text, image=photo, variable=app.v, value=text[0])
         b.pack()
 
     app.b = Button(root, text="Done", command=lambda:submit(app))
