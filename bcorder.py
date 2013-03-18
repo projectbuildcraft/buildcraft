@@ -152,7 +152,7 @@ class Order:
 		# requirements
 		for requirement in events[EventIndex].get_requirements():
 			unit, kind = requirement
-			if kind == ASSUMPTION 
+			if kind == ASSUMPTION:
 				if self.at[OrderIndex].units[unit] > 0:
 					continue
 				if self.at[OrderIndex].occupied[unit] > 0:
@@ -161,8 +161,8 @@ class Order:
 					return False
 				else:
 					for event,time in self.at[OrderIndex].production:
-						if event.get_result() == add:
-							if unit in event.get_args():
+						if events[event].get_result() == add:
+							if unit in events[event].get_args():
 								break
 					else:
 						return False
@@ -173,11 +173,11 @@ class Order:
 				if now:
 					return False
 				else:
-					if self.occupied[unit] > 0:
+					if self.at[OrderIndex].occupied[unit] > 0:
 						continue
 					for event,time in self.at[OrderIndex].production:
-						if event.get_result() == add:
-							if unit in event.get_args():
+						if events[event].get_result() == add:
+							if unit in events[event].get_args():
 								break
 					else:
 						return False
