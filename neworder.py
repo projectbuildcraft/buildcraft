@@ -5,7 +5,7 @@ class App:
 
     def __init__(self, master):
         frame = Frame(master)
-        frame.pack()
+        frame.grid()
         self.master = master
 
     def get_master(self):
@@ -16,10 +16,10 @@ def new_order():
     root.wm_title('New Order')
     app = App(root)
     app.w = Label(root, text = "Create a new build order")
-    app.w.pack()
+    app.w.grid(row = 0, columnspan = 3)
 
     app.e = Entry(root)
-    app.e.pack()
+    app.e.grid(row = 1, columnspan = 3,sticky = E+W)
 
     modes = ("Terran","Protoss","Zerg")
 
@@ -37,15 +37,16 @@ def new_order():
     app.v = StringVar()
     app.v.set('T')
     app.images = []
-    for text in modes:
+    for i in range(3):
+        text = modes[i]
         image = Image.open('images/'+text+'.png')
         photo = ImageTk.PhotoImage(image.resize((50,50)))
         app.images.append(photo)
-        b = Radiobutton(root, text=text, image=photo, variable=app.v, value=text[0])
-        b.pack()
+        b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=app.v, value=text[0])
+        b.grid(row = 2,column = i)
 
     app.b = Button(root, text="Done", command=lambda:submit(app))
-    app.b.pack()
+    app.b.grid(row = 3, columnspan = 3, sticky = E+W)
 
     app.proceed = ()
 
