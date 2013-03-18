@@ -58,7 +58,7 @@ class Instance:
 			index -= 1
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] == 0: # if done
-				event = self.production[index][0]
+				event = events[self.production[index][0]]
 				event.get_result()(event.get_args(), self)
 				del self.production[index]
 
