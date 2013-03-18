@@ -33,17 +33,23 @@ def add_units(units,instance): # like add_unit but takes a list
 
 add = add_units
 
-def mule(instance):
+def mule(nonsense,instance):
+	instance.units[MULE] += 1
+	# mule dies
 	pass
+
+def mule_dies(nonsense,instance):
+	instance.units[MULE] -= 1
 
 def idle(unit,instance):
 	pass
 
-def salvage(unit,instance):
-	pass
+def salvage(resources,instance):
+	instance.minerals += resources[0]
 
-def research(unit,instance):
-	pass
+def research(topics,instance):
+	for topic in topics:
+		instance.units[topic] = 1
 
 def boost(unit,instance):
 	pass
