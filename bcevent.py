@@ -26,6 +26,11 @@ class Event:
 
 def add_unit(unit, instance): # player of a class that stores the player's current state
 	instance.units[unit] += 1
+	if unit in energy:
+		if energy[unit][2] != None and instance.units[energy[unit][2]] > 0: # energy upgrade
+			instance.energy_units.append([unit,energy[unit][0] + 25])
+		else:
+			instance.energy_units.append([unit,energy[unit][0] + 25])
 
 def add_units(units,instance): # like add_unit but takes a list
 	for unit in units:

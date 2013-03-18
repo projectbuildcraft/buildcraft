@@ -11,7 +11,7 @@ racemap = {
 	2 : "Z",
 }
 while run:
-	my_order.printOut()
+	my_order.print_out()
 	print "[0] Load"
 	print "[1] Save"
 	print "[2] Insert"

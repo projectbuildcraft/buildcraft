@@ -11,7 +11,7 @@ class Instance:
 	"""
 	Condition of player at a particular event in their build
 	"""
-	def __init__(self, time = 1, units = [0]*NUM_UNITS, occupied = [0]*NUM_UNITS, production = [], minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0):
+	def __init__(self, time = 1, units = [0]*NUM_UNITS, occupied = [0]*NUM_UNITS, production = [], minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0, energy_units = []):
 		self.time = time
 		self.units = units # counts indexed by constants
 		self.occupied = occupied
@@ -22,6 +22,7 @@ class Instance:
 		self.cap = cap
 		self.blue = blue
 		self.gold = gold
+		self.energy_units = energy_units # tracks energy: [[Unit_Index, Energy]]
 
 	def resource_rate(self):
 		"""
@@ -66,6 +67,8 @@ class Instance:
 						self.occupied[unit] -= 1
 						self.units[unit] += 1
 				del self.production[index]
+		for energy_unit in self.energy_units:
+			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
 
 	def active_worker_count(self, include_scouts = False):
 		count = 0
@@ -120,7 +123,7 @@ class Order:
 		for index in self.events:
 			f.write(str(index) + "\n");
 
-	def printOut(self):
+	def print_out(self):
 		"""
 		Prints the build order to std out
 		"""
@@ -149,17 +152,15 @@ class Order:
 			else:
 				if self.at[order_index].units[SCV_GAS] + self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[DRONE_GAS] == 0:
 					return False
-		if event[event_index].supply > 0: # requires supply
-			if self.at[order_index].supply + event[event_index].supply > self.at[order_index].cap:
+		if events[event_index].supply > 0: # requires supply
+			if self.at[order_index].supply + events[event_index].supply > self.at[order_index].cap:
 				if now:
 					return False
-				difference = self.at[order_index].supply + event[event_index].supply - self.at[order_index].cap
+				difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
 				for event,time in self.at[order_index].production:
 					difference -= events[event].capacity
 				if difference > 0:
 					return False
-				continue
-
 		# requirements
 		for requirement in events[event_index].get_requirements():
 			unit, kind = requirement
@@ -201,8 +202,17 @@ class Order:
 						if unit in event.get_args:
 							return False
 				continue
-			# requirement now must be energy
-			pass
+			# requirement must be energy
+			cost = kind
+			for energy_unit, energy_energy in self.at[order_index].energy_units:
+				if unit == energy_unit:
+					if now:
+						return energy_energy > cost
+					else:
+						break
+			else:
+				return False
+			continue
 		return True
 
 	def append(self, event):
@@ -242,6 +252,7 @@ class Order:
 		if self.race == "P":
 			now.units[PROBE_MINERAL] = 6
 			now.units[NEXUS] = 1
+			now.energy_units.append([NEXUS,energy(NEXUS)[0]])
 			pass
 		if self.race == "T":
 			now.units[SCV_MINERAL] = 6
@@ -274,6 +285,15 @@ class Order:
 						now.occupied[unit] += 1
 					if kind == C:
 						now.units[unit] -= 1
+					if kind > 20: # energy
+						greatest_index = 0
+						greatest_energy = 0
+						for energy_index, [energy_unit, energy_energy] in enumerate(now.energy_units):
+							if energy_unit == unit:
+								if energy_energy > greatest_energy:
+									greatest_energy == energy_energy
+									greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
+						energy_units[greatest_index] -= kind
 				now.production.append([event,events[event].time])
 			else:
 				impossible = True
