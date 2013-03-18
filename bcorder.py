@@ -128,39 +128,50 @@ class Order:
 		for index, eventIndex in enumerate(self.events):
 			print "{}".format(index), self.at[index + 1].time, name(eventIndex)
 
-	def available(self, OrderIndex, EventIndex, now = False):
+	def available(self, order_index, event_index, now = False):
 		"""
 		Evaluates whether event is available at this order
 		Arguments:
-		OrderIndex - location in build order
-		EventIndex - event desired
+		order_index - location in build order
+		event_index - event desired
 		now - whether to evaluate availability now or eventually
 		"""
 		# minerals, gas, supply
-		if self.at[OrderIndex].minerals < events[EventIndex].cost[0]: # requires minerals
+		if self.at[order_index].minerals < events[event_index].cost[0]: # requires minerals
 			if now:
 				return False
 			else:
-				if self.at[OrderIndex].units[SCV_MINERAL] + self.at[OrderIndex].units[PROBE_MINERAL] + self.at[OrderIndex].units[DRONE_MINERAL] + self.at[OrderIndex].units[MULE] + self.at[OrderIndex].occupied[SCV_MINERAL] + self.at[OrderIndex].occupied[PROBE_MINERAL] + self.at[OrderIndex].occupied[DRONE_MINERAL] == 0:
+				if self.at[order_index].units[SCV_MINERAL] + self.at[order_index].units[PROBE_MINERAL] + self.at[order_index].units[DRONE_MINERAL] + self.at[order_index].units[MULE] + self.at[order_index].occupied[SCV_MINERAL] + self.at[order_index].occupied[PROBE_MINERAL] + self.at[order_index].occupied[DRONE_MINERAL] == 0:
 					return False
-		if self.at[OrderIndex].gas < events[EventIndex].cost[1]: # requires gas
+		if self.at[order_index].gas < events[event_index].cost[1]: # requires gas
 			if now:
 				return False
 			else:
-				if self.at[OrderIndex].units[SCV_GAS] + self.at[OrderIndex].units[PROBE_GAS] + self.at[OrderIndex].units[DRONE_GAS] == 0:
+				if self.at[order_index].units[SCV_GAS] + self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[DRONE_GAS] == 0:
 					return False
+		if event[event_index].supply > 0: # requires supply
+			if self.at[order_index].supply + event[event_index].supply > self.at[order_index].cap:
+				if now:
+					return False
+				difference = self.at[order_index].supply + event[event_index].supply - self.at[order_index].cap
+				for event,time in self.at[order_index].production:
+					difference -= events[event].capacity
+				if difference > 0:
+					return False
+				continue
+
 		# requirements
-		for requirement in events[EventIndex].get_requirements():
+		for requirement in events[event_index].get_requirements():
 			unit, kind = requirement
 			if kind == ASSUMPTION:
-				if self.at[OrderIndex].units[unit] > 0:
+				if self.at[order_index].units[unit] > 0:
 					continue
-				if self.at[OrderIndex].occupied[unit] > 0:
+				if self.at[order_index].occupied[unit] > 0:
 					continue
 				if now:
 					return False
 				else:
-					for event,time in self.at[OrderIndex].production:
+					for event,time in self.at[order_index].production:
 						if events[event].get_result() == add:
 							if unit in events[event].get_args():
 								break
@@ -168,14 +179,14 @@ class Order:
 						return False
 				continue
 			if kind == OCCUPATION or kind == CONSUMPTION:
-				if self.at[OrderIndex].units[unit] > 0:
+				if self.at[order_index].units[unit] > 0:
 					continue
 				if now:
 					return False
 				else:
-					if self.at[OrderIndex].occupied[unit] > 0:
+					if self.at[order_index].occupied[unit] > 0:
 						continue
-					for event,time in self.at[OrderIndex].production:
+					for event,time in self.at[order_index].production:
 						if events[event].get_result() == add:
 							if unit in events[event].get_args():
 								break
@@ -183,9 +194,9 @@ class Order:
 						return False
 					continue
 			if kind == NOT:
-				if self.at[OrderIndex].units[unit] > 0:
+				if self.at[order_index].units[unit] > 0:
 					return False
-				for event,time in self.at[OrderIndex].production:
+				for event,time in self.at[order_index].production:
 					if event.get_result() == research:
 						if unit in event.get_args:
 							return False
