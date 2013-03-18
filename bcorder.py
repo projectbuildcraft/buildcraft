@@ -62,6 +62,18 @@ class Instance:
 				event.get_result()(event.get_args(), self)
 				del self.production[index]
 
+	def active_worker_count(self, include_scouts = False):
+		count = 0
+		for i in [SCV_MINERAL, SCV_GAS, PROBE_MINERAL, PROBE_GAS, DRONE_MINERAL, DRONE_GAS]
+			count += self.units[i]
+		if include_scouts:
+			for i in [SCV_SCOUT, PROBE_SCOUT, DRONE_SCOUT]
+				count += self.units[i]
+		return count
+
+	def army_value(self, include_defensive = False):
+		pass
+
 racename = {
 	"P" : "Protoss",
 	"T" : "Terran",
