@@ -64,10 +64,10 @@ class Instance:
 
 	def active_worker_count(self, include_scouts = False):
 		count = 0
-		for i in [SCV_MINERAL, SCV_GAS, PROBE_MINERAL, PROBE_GAS, DRONE_MINERAL, DRONE_GAS]
+		for i in [SCV_MINERAL, SCV_GAS, PROBE_MINERAL, PROBE_GAS, DRONE_MINERAL, DRONE_GAS]:
 			count += self.units[i]
 		if include_scouts:
-			for i in [SCV_SCOUT, PROBE_SCOUT, DRONE_SCOUT]
+			for i in [SCV_SCOUT, PROBE_SCOUT, DRONE_SCOUT]:
 				count += self.units[i]
 		return count
 
@@ -103,10 +103,12 @@ class Order:
 			self.events = events
 		self.calculate_times()
 
-	def save(self,filename = "orders/"+name+".bo"):
+	def save(self,filename = None):
 		"""
 		Saves the build order to file specified by filename
 		"""
+		if filename == None:
+			filename = "orders/"+self.name+".bo"
 		f = open(filename, 'w')	
 		f.write(self.name + "\n")
 		f.write(self.race + "\n")

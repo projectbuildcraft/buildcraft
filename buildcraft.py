@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import bcorder
 from constants import events
+import graphs
+
 my_order = bcorder.Order(filename = "orders/7RR.bo")
 run = True
 racemap = {
@@ -39,11 +41,13 @@ while run:
 		choice = int(raw_input("=> "))
 		my_order.append(choices[choice])
 	if menu_choice == 4:
-		name = str(raw_input("Name: "))
-		print "[0] Protoss"
-		print "[1] Terran"
-		print "[2] Zerg"
-		race = int(raw_input("Race: "))
-		my_order = bcorder.Order(name = name,race = racemap[race])
+		name, race = graphs.new_order()
+		my_order = bcorder.Order(name=name,race=race)
+##		name = str(raw_input("Name: "))
+##		print "[0] Protoss"
+##		print "[1] Terran"
+##		print "[2] Zerg"
+##		race = int(raw_input("Race: "))
+##		my_order = bcorder.Order(name = name,race = racemap[race])
 	if menu_choice == 5:
 		run = False
