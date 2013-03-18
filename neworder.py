@@ -38,7 +38,7 @@ def new_order():
     app.v.set('T')
     app.images = []
     for text in modes:
-        image = Image.open('images/'+text+'.jpg')
+        image = Image.open('images/'+text+'.png')
         photo = ImageTk.PhotoImage(image.resize((50,50)))
         app.images.append(photo)
         b = Radiobutton(root, text=text, image=photo, variable=app.v, value=text[0])
@@ -55,3 +55,4 @@ def new_order():
         pass
 
     return app.proceed
+
