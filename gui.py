@@ -109,14 +109,14 @@ def supply_graph(order):
     create_graph([supply,worker_supply,cap],title='Supply',fill=[True,True,False],colors=['red','blue','green'])
 
 def army_value_graph(order):
-    army_value = dict()
-    army_value_defense = dict()
+    minerals = dict()
+    total = dict()
 
     for i in order.at_time:
-        army_value[i.time] = i.army_value(False)
-        army_value_defense[i.time] = i.army_value(True)
+        minerals[i.time], gas = i.army_value(False)
+        total[i.time] = minerals[i.time] + gas
 
-    create_graph([army_value_defense, army_value],title='Army Value',fill=[True,True],colors=['red','blue'])
+    create_graph([total, minerals],title='Army Value',fill=[True,True],colors=['green','blue'])
 
 def resource_collection_rate_graph(order):
     mineral_rate = dict()
@@ -140,8 +140,6 @@ def resource_graph(order):
 max_ticks = 10
 
 def create_graph(data, fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30)):
-
-    print data
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 
