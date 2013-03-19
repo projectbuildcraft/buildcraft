@@ -144,7 +144,7 @@ class Order:
 		"""
 		print self.name, racename[self.race]
 		for index, eventIndex in enumerate(self.events):
-			print "{}".format(index), self.at[index + 1].time, name(eventIndex)
+			print "{}/{}".format(self.at[index + 1].supply,self.at[index + 1].cap), self.at[index + 1].time, name(eventIndex)
 
 	def available(self, order_index, event_index, now = False):
 		"""
