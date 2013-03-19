@@ -1,5 +1,4 @@
 import copy
-
 class Event:
 
 	def __init__(self,name,minerals,gas,supply,capacity,time,result,args,requirements):
@@ -26,6 +25,7 @@ class Event:
 
 def add_unit(unit, instance): # player of a class that stores the player's current state
 	instance.units[unit] += 1
+	from constants import energy
 	if unit in energy:
 		if energy[unit][2] != None and instance.units[energy[unit][2]] > 0: # energy upgrade
 			instance.energy_units.append([unit,energy[unit][0] + 25])
@@ -39,11 +39,13 @@ def add_units(units,instance): # like add_unit but takes a list
 add = add_units
 
 def mule(nonsense,instance):
+	from constants import MULE
 	instance.units[MULE] += 1
 	# mule dies
 	pass
 
 def mule_dies(nonsense,instance):
+	from constants import MULE
 	instance.units[MULE] -= 1
 
 def idle(unit,instance):

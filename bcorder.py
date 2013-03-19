@@ -11,18 +11,30 @@ class Instance:
 	"""
 	Condition of player at a particular event in their build
 	"""
-	def __init__(self, time = 1, units = [0]*NUM_UNITS, occupied = [0]*NUM_UNITS, production = [], minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0, energy_units = []):
+	def __init__(self, time = 1, units = None, occupied = None, production = None, minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0, energy_units = None):
 		self.time = time
-		self.units = units # counts indexed by constants
-		self.occupied = occupied
-		self.production = production # [[Event_Index, Time_Remaining]]
+		if units == None:
+			self.units = [0]*NUM_UNITS
+		else:
+			self.units = units # counts indexed by constants
+		if occupied == None:
+			self.occupied = [0]*NUM_UNITS
+		else:
+			self.occupied = occupied
+		if production == None:
+			self.production = []
+		else:
+			self.production = production # [[Event_Index, Time_Remaining]]
 		self.minerals = minerals
 		self.gas = gas
 		self.supply = supply
 		self.cap = cap
 		self.blue = blue
 		self.gold = gold
-		self.energy_units = energy_units # tracks energy: [[Unit_Index, Energy]]
+		if energy_units == None:
+			self.energy_units = []
+		else:
+			self.energy_units = energy_units # tracks energy: [[Unit_Index, Energy]]
 
 	def resource_rate(self):
 		"""
@@ -92,7 +104,7 @@ class Order:
 	"""
 	Represents a calculated build order
 	"""
-	def __init__(self,name = "",events = [],filename = None, race = "P"):
+	def __init__(self,name = "",events = None,filename = None, race = "P"):
 		"""
 		Creates a build order from a list of events or a filename
 		"""
@@ -108,7 +120,10 @@ class Order:
 		else:
 			self.name = name
 			self.race = race
-			self.events = events
+			if events == None:
+				self.events = []
+			else:
+				self.events = events
 		self.calculate_times()
 
 	def save(self,filename = None):
@@ -153,7 +168,7 @@ class Order:
 				if self.at[order_index].units[SCV_GAS] + self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[DRONE_GAS] == 0:
 					return False
 		if events[event_index].supply > 0: # requires supply
-			if self.at[order_index].supply + events[event_index].supply > self.at[order_index].cap:
+			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
 				if now:
 					return False
 				difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
@@ -198,8 +213,8 @@ class Order:
 				if self.at[order_index].units[unit] > 0:
 					return False
 				for event,time in self.at[order_index].production:
-					if event.get_result() == research:
-						if unit in event.get_args:
+					if events[event].get_result() == research:
+						if unit in events[event].get_args:
 							return False
 				continue
 			# requirement must be energy
@@ -207,7 +222,10 @@ class Order:
 			for energy_unit, energy_energy in self.at[order_index].energy_units:
 				if unit == energy_unit:
 					if now:
-						return energy_energy > cost
+						if energy_energy < cost:
+							continue
+						else:
+							break
 					else:
 						break
 			else:
@@ -253,23 +271,20 @@ class Order:
 			now.units[PROBE_MINERAL] = 6
 			now.units[NEXUS] = 1
 			now.energy_units.append([NEXUS,energy(NEXUS)[0]])
-			pass
 		if self.race == "T":
 			now.units[SCV_MINERAL] = 6
 			now.units[COMMAND_CENTER] = 1
-			pass
 		if self.race == "Z":
 			now.units[DRONE_MINERAL] = 6
 			now.units[HATCHERY] = 1
 			now.units[LARVA] = 3
-			pass
 		now.blue = 1
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
 		impossible = False
 		for index, event in enumerate(self.events):
 			index += 1
 			last = self.at[index - 1]
-			now = Instance(last.time, copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.blue, last.gold)
+			now = Instance(last.time, copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units))
 			self.at.append(now)
 			if (not impossible) and (self.available(index, event, False)):
 				while not self.available(index, event, True):
@@ -297,5 +312,5 @@ class Order:
 				now.production.append([event,events[event].time])
 			else:
 				impossible = True
-				self.at[index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.blue, last.gold)
+				self.at[index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units))
 
