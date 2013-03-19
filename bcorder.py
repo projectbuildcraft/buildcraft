@@ -73,7 +73,7 @@ class Instance:
 			if self.production[index][1] <= 0: # if done
 				event = events[self.production[index][0]]
 				event.get_result()(event.get_args(), self)
-				self.cap += events[event].capacity
+				self.cap += event.capacity
 				for requirement in event.get_requirements():
 					unit, kind = requirement
 					if kind == O:
