@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import bcorder
 from constants import events
-import graphs
+import gui
 
 my_order = bcorder.Order(filename = "orders/OC Opening.bo")
 run = True
@@ -18,6 +18,7 @@ while run:
 	print "[3] Append"
 	print "[4] New"
 	print "[5] Quit"
+	print "[6] Anaylsis"
 	menu_choice = int(raw_input("=>\t"))
 	if menu_choice == 0:
 		filename = str(raw_input("Load file: "))
@@ -41,7 +42,7 @@ while run:
 		choice = int(raw_input("=> "))
 		my_order.append(choices[choice])
 	if menu_choice == 4:
-		name, race = graphs.new_order()
+		name, race = gui.new_order()
 		my_order = bcorder.Order(name=name,race=race)
 ##		name = str(raw_input("Name: "))
 ##		print "[0] Protoss"
@@ -51,3 +52,5 @@ while run:
 ##		my_order = bcorder.Order(name = name,race = racemap[race])
 	if menu_choice == 5:
 		run = False
+	if menu_choice == 6:
+		gui.instance_analysis(my_order)

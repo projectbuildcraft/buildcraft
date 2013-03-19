@@ -60,6 +60,44 @@ def new_order():
 
 default_colors = ['red','blue','green','yellow','purple','orange']
 
+def instance_analysis(order):
+    root = Tk()
+
+    root.wm_title('Analysis')
+
+    app = App(root)
+
+    app.canvas = Canvas(root, width=500,height=500)
+    app.canvas.grid(row=1)
+
+    app.minerals = get_image('minerals.gif')
+    app.gas = get_image('vespene.gif')
+    app.time = get_image('time.gif')
+    app.supply = get_image('supply.gif')
+
+    app.canvas.create_image(50,50,image=app.minerals)
+    app.canvas.create_image(50,100,image=app.gas)
+    app.canvas.create_image(50,150,image=app.supply)
+
+    app.mineral_value = app.canvas.create_text(80,50,anchor=W)
+    app.gas_value = app.canvas.create_text(80,100,anchor=W)
+    app.supply_value = app.canvas.create_text(80,150,anchor=W)
+    
+    def refresh(i):
+        i = order.at_time[int(i)-1]
+
+        app.canvas.itemconfig(app.mineral_value,text=str(int(i.minerals)))
+        app.canvas.itemconfig(app.gas_value,text=str(int(i.gas)))
+        app.canvas.itemconfig(app.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
+        
+    app.scale = Scale(root, from_=1, to=len(order.at_time), command=refresh, orient=HORIZONTAL)
+    app.scale.grid(row=0,sticky=E+W)
+
+    root.mainloop()
+
+    refresh(app.scale.get())    
+
+
 def default_graph():
     d = {}
     v = 0
@@ -71,7 +109,7 @@ def default_graph():
         d[k] = v
     return d
 
-def create_graph(data = [default_graph()], fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30)):
+def create_graph(data = [default_graph()], fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30), labels = ('X values','Y values')):
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 
@@ -83,6 +121,7 @@ def create_graph(data = [default_graph()], fill = None, title = '', colors = Non
 
     width, height = size
     p_top, p_bottom, p_left, p_right = padding
+    x_label, y_label = labels
 
     root = Tk()
 
@@ -97,8 +136,11 @@ def create_graph(data = [default_graph()], fill = None, title = '', colors = Non
     app.c.create_rectangle(0,0,width,height,fill='white')
     app.c.create_line(p_left,p_top,p_left,height - p_bottom)
     app.c.create_line(p_left,height - p_bottom,width - p_right,height - p_bottom)
-    app.c.create_text(width/2,p_top/2,text = title)
 
+    app.c.create_text(width/2,p_top/2,text = title)
+    app.c.create_text(width/2,height - p_bottom/2,text = x_label)
+#    app.c.create_text(p_left/2,height/2,text = y_label,angle = 90)
+    
     max_y = max([max(d.values()) for d in data])
     max_x = max([max(d.keys()) for d in data])
     x_scale = float(width - p_left - p_right) / max_x
@@ -123,3 +165,9 @@ def create_graph(data = [default_graph()], fill = None, title = '', colors = Non
             app.c.create_line(coords, fill=colors[i])
 
     root.mainloop()
+
+def get_image(src, size = ()):
+    image = Image.open('images/'+src)
+    if size:
+        image = image.resize(size[0],size[1])
+    return ImageTk.PhotoImage(image)

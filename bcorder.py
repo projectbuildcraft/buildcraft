@@ -95,6 +95,10 @@ class Instance:
 	def army_value(self, include_defensive = False):
 		pass
 
+	def __deepcopy__(self, memo = None):
+                return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units))
+                
+
 racename = {
 	"P" : "Protoss",
 	"T" : "Terran",
@@ -290,15 +294,17 @@ class Order:
 			now.units[OVERLORD] = 1
 		now.blue = 1
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
+		self.at_time = [now]
 		impossible = False
 		for index, event in enumerate(self.events):
 			index += 1
 			last = self.at[index - 1]
-			now = Instance(last.time, copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units))
+			now = copy.deepcopy(last)
 			self.at.append(now)
 			if (not impossible) and (self.available(index, event, False)):
 				while not self.available(index, event, True):
 					now.increment()
+					self.at_time.append(copy.deepcopy(now))
 				now.minerals -= events[event].cost[0]
 				now.gas -= events[event].cost[1]
 				now.supply += events[event].supply
