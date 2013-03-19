@@ -97,19 +97,20 @@ def instance_analysis(order):
 
     refresh(app.scale.get())    
 
+def supply_graph(order):
+    worker_supply = dict()
+    supply = dict()
+    cap = dict()
 
-def default_graph():
-    d = {}
-    v = 0
-    for k in range(100):
-        if random.choice([0,1,1]):
-            v += 1
-        elif v > 0:
-            v -= 1
-        d[k] = v
-    return d
+    for i in order.at_time:
+        worker_supply[i.time] = i.active_worker_count(True)
+        supply[i.time] = i.supply
+        cap[i.time] = i.cap
 
-def create_graph(data = [default_graph()], fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30), labels = ('X values','Y values')):
+    create_graph([worker_supply,supply,cap],title='Supply',fill=[True,True,False],colors=['red','blue','green'])
+    
+
+def create_graph(data, fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30), labels = ('X values','Y values')):
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 

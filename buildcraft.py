@@ -19,6 +19,7 @@ while run:
 	print "[4] New"
 	print "[5] Quit"
 	print "[6] Anaylsis"
+	print "[7] Supply Graph"
 	menu_choice = int(raw_input("=>\t"))
 	if menu_choice == 0:
 		filename = str(raw_input("Load file: "))
@@ -54,3 +55,5 @@ while run:
 		run = False
 	if menu_choice == 6:
 		gui.instance_analysis(my_order)
+	if menu_choice == 7:
+		gui.supply_graph(my_order)
