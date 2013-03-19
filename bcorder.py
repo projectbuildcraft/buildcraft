@@ -106,7 +106,12 @@ class Instance:
 		return count
 
 	def army_value(self, include_defensive = False):
-		pass
+		minerals = 0
+		gas = 0
+		if include_defensive:
+			pass
+		# return dummy values for now
+		return (50,50)	
 
 	def __deepcopy__(self, memo = None):
                 return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units))
