@@ -21,32 +21,36 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    my_order = bcorder.Order(filename = "orders/OC Opening.bo")
+    app.my_order = bcorder.Order(filename = "orders/7RR.bo")
 
-    def load():
-        f = tkFileDialog.askopenfile()
+    def load(app):
+        f = tkFileDialog.askopenfilename()
+        app.my_order = bcorder.Order(filename = f)
+        analysis_update(app)
+        
 
-    app.load = Button(root, text='Load',command=load)
+    app.load = Button(root, text='Load',command=lambda:load(app))
     app.load.grid(row=0,column=0)
 
-    def save():
+    def save(app):
         name = tkFileDialog.asksaveasfilename()
-        my_order.save(name)
+        app.my_order.save(name)
 
-    app.save = Button(root, text='Save',command=save)   
+    app.save = Button(root, text='Save',command=lambda:save(app))   
     app.save.grid(row=0,column=1)
 
-    def new():
+    def new(app):
         new_options = new_order()
         if new_options:
             name, race = new_options
-            my_order = bcorder.Order(name=name, race=race)
+            app.my_order = bcorder.Order(name=name, race=race)
+            analysis_update(app)
 
-    app.new = Button(root, text='New',command=new)
+    app.new = Button(root, text='New',command=lambda:new(app))
     app.new.grid(row=0,column=3)    
 
-    def graph(f):
-        f(my_order)
+    def graph(app,f):
+        f(app.my_order)
 
     app.supply = Button(root, text='Supply',command=lambda:graph(supply_graph))
     app.supply.grid(row=3,column=0)
@@ -60,7 +64,7 @@ def main_menu():
     app.resources = Button(root, text='Resources',command=lambda:graph(resource_graph))
     app.resources.grid(row=3,column=3)
 
-    instance_analysis(my_order,(app,1,0))
+    instance_analysis(app.my_order,(app,1,0))
 
     root.mainloop()
 
@@ -113,7 +117,7 @@ def new_order():
 
 default_colors = ['red','blue','green','yellow','purple','orange']
 
-def instance_analysis(order, location=None):
+def instance_analysis(order = None, location=None):
 
     if not location:
         root = Toplevel()
@@ -123,7 +127,7 @@ def instance_analysis(order, location=None):
         app = App(root)
         row = 0
         column = 0
-
+        app.my_order = order
     else:
         app, row, column = location
         root = app.master
@@ -145,16 +149,21 @@ def instance_analysis(order, location=None):
     app.supply_value = app.canvas.create_text(80,150,anchor=W)
     
     def refresh(i):
-        i = order.at_time[int(i)-1]
+        print app.my_order.name
+        
+        i = app.my_order.at_time[int(i)-1]
 
         app.canvas.itemconfig(app.mineral_value,text=str(int(i.minerals)))
         app.canvas.itemconfig(app.gas_value,text=str(int(i.gas)))
         app.canvas.itemconfig(app.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
         
-    app.scale = Scale(root, from_=1, to=len(order.at_time), command=refresh, orient=HORIZONTAL)
+    app.scale = Scale(root, from_=1, to=len(app.my_order.at_time), command=refresh, orient=HORIZONTAL)
     app.scale.grid(row=row,column=column,sticky=E+W)
 
     root.mainloop()   
+
+def analysis_update(app):
+    app.scale.config(to=len(app.my_order.at_time))
 
 def supply_graph(order):
     worker_supply = dict()
@@ -173,6 +182,7 @@ def army_value_graph(order):
     total = dict()
 
     for i in order.at_time:
+        print minerals, i.army_value(False)
         minerals[i.time], gas = i.army_value(False)
         total[i.time] = minerals[i.time] + gas
 
