@@ -60,7 +60,7 @@ class Instance:
 
 	def increment(self):
 		"""
-		Moves the insteance forward one second
+		Moves the instance forward one second
 		"""
 		self.time += 1
 		index = len(self.production)

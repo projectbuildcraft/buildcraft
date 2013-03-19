@@ -1,7 +1,7 @@
 buildcraft
 ==========
 
-A build order calculator for Starcraft II: Heart of the Swarm
+A build order calculator and optimizer for Starcraft II: Heart of the Swarm
 
 Goal Features:
 
@@ -50,5 +50,10 @@ Development Schedule:
 
 1.1 Aesthetics
 
-- The GUI is aesthetically pleasing.
+- The GUI is aesthetically pleasing and user-friendly and supports graphs for user analysis.
 
+2.0 Optimization
+
+- The program calculates the build order with the earliest time at which an array of units can be produced
+
+- The program calculates the build order with the best economy possible to have an array of units by a certain time
