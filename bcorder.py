@@ -307,7 +307,7 @@ class Order:
 			now.units[OVERLORD] = 1
 		now.blue = 1
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
-		self.at_time = [now]
+		self.at_time = [now] # indexed by seconds
 		impossible = False
 		for index, event in enumerate(self.events):
 			index += 1
