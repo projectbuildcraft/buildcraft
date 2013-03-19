@@ -94,9 +94,7 @@ def instance_analysis(order):
     app.scale = Scale(root, from_=1, to=len(order.at_time), command=refresh, orient=HORIZONTAL)
     app.scale.grid(row=0,sticky=E+W)
 
-    root.mainloop()
-
-    refresh(app.scale.get())    
+    root.mainloop()   
 
 def supply_graph(order):
     worker_supply = dict()
@@ -104,15 +102,46 @@ def supply_graph(order):
     cap = dict()
 
     for i in order.at_time:
-        worker_supply[i.time] = i.active_worker_count(True)
+        worker_supply[i.time] = i.worker_supply()
         supply[i.time] = i.supply
         cap[i.time] = i.cap
 
-    create_graph([worker_supply,supply,cap],title='Supply',fill=[True,True,False],colors=['red','blue','green'])
-    
+    create_graph([supply,worker_supply,cap],title='Supply',fill=[True,True,False],colors=['red','blue','green'])
+
+def army_value_graph(order):
+    army_value = dict()
+    army_value_defense = dict()
+
+    for i in order.at_time:
+        army_value[i.time] = i.army_value(False)
+        army_value_defense[i.time] = i.army_value(True)
+
+    create_graph([army_value_defense, army_value],title='Army Value',fill=[True,True],colors=['red','blue'])
+
+def resource_collection_rate_graph(order):
+    mineral_rate = dict()
+    gas_rate = dict()
+
+    for i in order.at_time:
+        mineral_rate[i.time], gas_rate[i.time] = i.resource_rate()
+
+    create_graph([mineral_rate, gas_rate],title='Resource Collection Rate',colors=['blue','green'])
+
+def resource_graph(order):
+    minerals = dict()
+    gas = dict()
+
+    for i in order.at_time:
+        minerals[i.time] = i.minerals
+        gas[i.time] = i.gas
+
+    create_graph([minerals,gas],title='Resources on Hand',colors=['blue','green'])
+
 max_ticks = 10
 
 def create_graph(data, fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30)):
+
+    print data
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 
@@ -143,8 +172,7 @@ def create_graph(data, fill = None, title = '', colors = None, size = (500,400),
 
     max_y = max([max(d.values()) for d in data])
     max_x = final_x = max([max(d.keys()) for d in data])
-    print max_y
-
+    
     y_ticks = calculate_ticks(float(max_y) / (max_ticks - 1))
     max_y = math.ceil(max_y / y_ticks) * y_ticks
     x_ticks = calculate_ticks(float(max_x) / (max_ticks - 1))

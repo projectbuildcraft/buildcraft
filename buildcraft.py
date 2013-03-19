@@ -19,7 +19,7 @@ while run:
 	print "[4] New"
 	print "[5] Quit"
 	print "[6] Anaylsis"
-	print "[7] Supply Graph"
+	print "[7] Graph"
 	menu_choice = int(raw_input("=>\t"))
 	if menu_choice == 0:
 		filename = str(raw_input("Load file: "))
@@ -56,4 +56,17 @@ while run:
 	if menu_choice == 6:
 		gui.instance_analysis(my_order)
 	if menu_choice == 7:
-		gui.supply_graph(my_order)
+		print "[0] Supply Graph"
+		print "[1] Army Value Graph"
+		print "[2] Resource Collection Rate"
+		print "[3] Resources on Hand"
+		menu_choice_2 = int(raw_input("=>\t"))
+		if menu_choice_2 == 0:
+			gui.supply_graph(my_order)
+		elif menu_choice_2 == 1:
+			gui.army_value_graph(my_order)
+		elif menu_choice_2 == 2:
+			gui.resource_collection_rate_graph(my_order)
+		elif menu_choice_2 == 3:
+			gui.resource_graph(my_order)
+		
