@@ -11,7 +11,7 @@ class Instance:
 	"""
 	Condition of player at a particular event in their build
 	"""
-	def __init__(self, time = 1, units = None, occupied = None, production = None, minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0, energy_units = None):
+	def __init__(self, time = 1, units = None, occupied = None, production = None, minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0, energy_units = None, base_larva = None):
 		self.time = time
 		if units == None:
 			self.units = [0]*NUM_UNITS
@@ -35,6 +35,10 @@ class Instance:
 			self.energy_units = []
 		else:
 			self.energy_units = energy_units # tracks energy: [[Unit_Index, Energy]]
+		if base_larva == None:
+			self.base_larva = []
+		else:
+			self.base_larva = base_larva # tracks larva [larva_count]
 
 	def resource_rate(self):
 		"""
@@ -114,7 +118,7 @@ class Instance:
 		return (50,50)	
 
 	def __deepcopy__(self, memo = None):
-                return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units))
+                return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva))
                 
 
 racename = {
@@ -161,13 +165,18 @@ class Order:
 		for index in self.events:
 			f.write(str(index) + "\n");
 
+	def race_name(self):
+		return racename[self.race]
+
 	def print_out(self):
 		"""
 		Prints the build order to std out
 		"""
-		print self.name, racename[self.race]
+		print self.name, self.race_name()
 		for index, eventIndex in enumerate(self.events):
 			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap,index + 1), self.at[index + 1].time, name(eventIndex)
+			for event, time in self.at[index + 1].production:
+				print "\t{}: {}".format(time, events[event].get_name())
 
 	def available(self, order_index, event_index, now = False):
 		"""
@@ -310,6 +319,7 @@ class Order:
 			now.units[HATCHERY] = 1
 			now.units[LARVA] = 3
 			now.units[OVERLORD] = 1
+			now.base_larva = [3]
 		now.blue = 1
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
 		self.at_time = [now] # indexed by seconds
@@ -323,6 +333,7 @@ class Order:
 				while not self.available(index, event, True):
 					now.increment()
 					self.at_time.append(copy.deepcopy(now))
+				# now effect costs
 				now.minerals -= events[event].cost[0]
 				now.gas -= events[event].cost[1]
 				now.supply += events[event].supply
@@ -333,6 +344,18 @@ class Order:
 						now.occupied[unit] += 1
 					if kind == C:
 						now.units[unit] -= 1
+						if unit == LARVA:
+							# assume larva from base with most larva
+							max_index = 0
+							max_larva = 0
+							for index, larva in enumerate(now.base_larva):
+								if larva > max_larva:
+									max_index = index
+									max_larva = larva
+							if max_larva == 3:
+								print "AUTO_SPAWN_LARVA", AUTO_SPAWN_LARVA, events[AUTO_SPAWN_LARVA].time
+								now.production.append([AUTO_SPAWN_LARVA, events[AUTO_SPAWN_LARVA].time])
+							now.base_larva[max_index] -= 1
 					if kind > 20: # energy
 						greatest_index = 0
 						greatest_energy = 0
