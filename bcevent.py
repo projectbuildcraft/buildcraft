@@ -61,8 +61,14 @@ def research(topics,instance):
 def boost(unit,instance):
 	pass
 
-def warp(unit,instance):
-	pass
+def warp(result,instance):
+	from constants import WARPGATE_ON_COOLDOWN, WARPGATE
+	unit, cooldown = result
+	add_unit(unit,instance)
+	instance.production.append(WARPGATE_ON_COOLDOWN,cooldown)
+	# negate effect of removing warpgate
+	instance.units[WARPGATE] -= 1
+	instance.occupied[WARPGATE] += 1
 
 def spawn_larva(auto,instance):
 	from constants import LARVA, AUTO_SPAWN_LARVA, events
