@@ -83,13 +83,26 @@ class Instance:
 		for energy_unit in self.energy_units:
 			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
 
-	def active_worker_count(self, include_scouts = False):
+	def active_worker_count(self, include_scouts = False, include_occupied = False):
 		count = 0
 		for i in [SCV_MINERAL, SCV_GAS, PROBE_MINERAL, PROBE_GAS, DRONE_MINERAL, DRONE_GAS]:
 			count += self.units[i]
+			if include_occupied:
+				count += self.occupied[i]
 		if include_scouts:
 			for i in [SCV_SCOUT, PROBE_SCOUT, DRONE_SCOUT]:
 				count += self.units[i]
+		return count
+
+	def worker_supply(self, include_production = True):
+		count = self.active_worker_count(include_scouts = True, include_occupied = True)
+		if include_production:
+			for event_index, time in self.production:
+				event = events[event_index]
+				if event.get_result() == add:
+					for unit in event.get_args():
+						if unit in [SCV_MINERAL, PROBE_MINERAL, DRONE_MINERAL]:
+							count += 1
 		return count
 
 	def army_value(self, include_defensive = False):
