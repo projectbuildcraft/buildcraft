@@ -564,7 +564,7 @@ events = [
 	Event('Bring back Drone Scout',0,0,0,0,0,add,(DRONE_MINERAL,),((DRONE_SCOUT,C),)),
 	Event('Spawn Overlord',100,0,0,8,25,add,(OVERLORD,),((LARVA,C),)),
 	Event('Sacrifice Overlord',0,0,0,-8,0,idle,(None,),((OVERLORD,C),)),
-	Event('Spawn Zergling',50,0,1,0,24,add,(ZERGLING,),((LARVA,C),(SPAWNING_POOL,A))),
+	Event('Spawn Zergling',50,0,1,0,24,add,(ZERGLING, ZERGLING,),((LARVA,C),(SPAWNING_POOL,A))),
 	Event('Spawn Queen',150,0,2,0,50,add,(QUEEN,),((HATCHERY,O),(SPAWNING_POOL,A))),
 	Event('Spawn Hydralisk',100,50,2,0,33,add,(HYDRALISK,),((LARVA,C),(HYDRALISK_DEN,A))),
 	Event('Morph Baneling',25,25,0,0,20,add,(BANELING,),((LARVA,C),(BANELING_NEST,A))),
