@@ -1,6 +1,7 @@
 from Tkinter import *
 from PIL import Image, ImageTk
 import random
+import math
 
 class App:
 
@@ -109,8 +110,9 @@ def supply_graph(order):
 
     create_graph([worker_supply,supply,cap],title='Supply',fill=[True,True,False],colors=['red','blue','green'])
     
+max_ticks = 10
 
-def create_graph(data = [default_graph()], fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30)):
+def create_graph(data, fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30)):
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 
