@@ -3,7 +3,7 @@ import bcorder
 from constants import events
 import graphs
 
-my_order = bcorder.Order(filename = "orders/7RR.bo")
+my_order = bcorder.Order(filename = "orders/OC Opening.bo")
 run = True
 racemap = {
 	0 : "P",

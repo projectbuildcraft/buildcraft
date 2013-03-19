@@ -73,6 +73,7 @@ class Instance:
 			if self.production[index][1] <= 0: # if done
 				event = events[self.production[index][0]]
 				event.get_result()(event.get_args(), self)
+				self.cap += events[event].capacity
 				for requirement in event.get_requirements():
 					unit, kind = requirement
 					if kind == O:
@@ -144,7 +145,7 @@ class Order:
 		"""
 		print self.name, racename[self.race]
 		for index, eventIndex in enumerate(self.events):
-			print "{}/{}".format(self.at[index + 1].supply,self.at[index + 1].cap), self.at[index + 1].time, name(eventIndex)
+			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap,index + 1), self.at[index + 1].time, name(eventIndex)
 
 	def available(self, order_index, event_index, now = False):
 		"""
@@ -228,8 +229,15 @@ class Order:
 							break
 					else:
 						break
-			else:
-				return False
+			else: # must be in production
+				if now:
+					return False
+				for event,time in self.at[order_index].production:
+					if events[event].get_result() == add:
+						if unit in events[event].get_args():
+							break
+				else:
+					return False
 			continue
 		return True
 
@@ -292,7 +300,6 @@ class Order:
 				now.minerals -= events[event].cost[0]
 				now.gas -= events[event].cost[1]
 				now.supply += events[event].supply
-				now.cap += events[event].capacity
 				for requirement in get_requirements(event):
 					unit, kind = requirement
 					if kind == O:
