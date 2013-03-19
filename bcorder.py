@@ -282,10 +282,12 @@ class Order:
 		if self.race == "T":
 			now.units[SCV_MINERAL] = 6
 			now.units[COMMAND_CENTER] = 1
+			now.cap = 11 # override default
 		if self.race == "Z":
 			now.units[DRONE_MINERAL] = 6
 			now.units[HATCHERY] = 1
 			now.units[LARVA] = 3
+			now.units[OVERLORD] = 1
 		now.blue = 1
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
 		impossible = False
