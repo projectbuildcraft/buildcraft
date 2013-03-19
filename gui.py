@@ -2,19 +2,70 @@ from Tkinter import *
 from PIL import Image, ImageTk
 import random
 import math
+import tkFileDialog
+import bcorder
 
 class App:
 
-    def __init__(self, master):
-        frame = Frame(master)
+    def __init__(self, master, **options):
+        frame = Frame(master,options)
         frame.grid()
         self.master = master
 
     def get_master(self):
         return self.master
 
-def new_order():
+def main_menu():
+
     root = Tk()
+    root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
+    app = App(root)
+
+    my_order = bcorder.Order(filename = "orders/OC Opening.bo")
+
+    def load():
+        f = tkFileDialog.askopenfile()
+
+    app.load = Button(root, text='Load',command=load)
+    app.load.grid(row=0,column=0)
+
+    def save():
+        name = tkFileDialog.asksaveasfilename()
+        my_order.save(name)
+
+    app.save = Button(root, text='Save',command=save)   
+    app.save.grid(row=0,column=1)
+
+    def new():
+        new_options = new_order()
+        if new_options:
+            name, race = new_options
+            my_order = bcorder.Order(name=name, race=race)
+
+    app.new = Button(root, text='New',command=new)
+    app.new.grid(row=0,column=3)    
+
+    def graph(f):
+        f(my_order)
+
+    app.supply = Button(root, text='Supply',command=lambda:graph(supply_graph))
+    app.supply.grid(row=3,column=0)
+
+    app.army = Button(root, text='Army Value',command=lambda:graph(army_value_graph))
+    app.army.grid(row=3,column=1)
+
+    app.resource_rate = Button(root, text='Resource Collection Rate',command=lambda:graph(resource_collection_rate_graph))
+    app.resource_rate.grid(row=3,column=2)
+
+    app.resources = Button(root, text='Resources',command=lambda:graph(resource_graph))
+    app.resources.grid(row=3,column=3)
+
+    instance_analysis(my_order,(app,1,0))
+
+    root.mainloop()
+
+def new_order():
+    root = Toplevel()
     root.wm_title('New Order')
     app = App(root)
     app.w = Label(root, text = "Create a new build order")
@@ -41,6 +92,7 @@ def new_order():
     app.images = []
     for i in range(3):
         text = modes[i]
+        print text
         image = Image.open('images/'+text+'.png')
         photo = ImageTk.PhotoImage(image.resize((50,50)))
         app.images.append(photo)
@@ -61,15 +113,23 @@ def new_order():
 
 default_colors = ['red','blue','green','yellow','purple','orange']
 
-def instance_analysis(order):
-    root = Tk()
+def instance_analysis(order, location=None):
 
-    root.wm_title('Analysis')
+    if not location:
+        root = Toplevel()
 
-    app = App(root)
+        root.wm_title('Analysis')
+
+        app = App(root)
+        row = 0
+        column = 0
+
+    else:
+        app, row, column = location
+        root = app.master
 
     app.canvas = Canvas(root, width=500,height=500)
-    app.canvas.grid(row=1)
+    app.canvas.grid(row=row+1,column=column)
 
     app.minerals = get_image('minerals.gif')
     app.gas = get_image('vespene.gif')
@@ -92,7 +152,7 @@ def instance_analysis(order):
         app.canvas.itemconfig(app.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
         
     app.scale = Scale(root, from_=1, to=len(order.at_time), command=refresh, orient=HORIZONTAL)
-    app.scale.grid(row=0,sticky=E+W)
+    app.scale.grid(row=row,column=column,sticky=E+W)
 
     root.mainloop()   
 
@@ -154,7 +214,7 @@ def create_graph(data, fill = None, title = '', colors = None, size = (500,400),
     width, height = size
     p_top, p_bottom, p_left, p_right = padding
 
-    root = Tk()
+    root = Toplevel()
 
     root.wm_title(title)
     
