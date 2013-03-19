@@ -106,7 +106,12 @@ class Instance:
 		return count
 
 	def army_value(self, include_defensive = False):
-		pass
+		minerals = 0
+		gas = 0
+		if include_defensive:
+			pass
+		# return dummy values for now
+		return (50,50)	
 
 	def __deepcopy__(self, memo = None):
                 return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units))
@@ -307,7 +312,7 @@ class Order:
 			now.units[OVERLORD] = 1
 		now.blue = 1
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
-		self.at_time = [now]
+		self.at_time = [now] # indexed by seconds
 		impossible = False
 		for index, event in enumerate(self.events):
 			index += 1
