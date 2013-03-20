@@ -215,7 +215,7 @@ class Order:
 					return False
 				else:
 					for event,time in self.at[order_index].production:
-						if events[event].get_result() == add:
+						if events[event].get_result() == add or events[event].get_result() == research:
 							if unit in events[event].get_args():
 								break
 					else:
@@ -230,7 +230,7 @@ class Order:
 					if self.at[order_index].occupied[unit] > 0:
 						continue
 					for event,time in self.at[order_index].production:
-						if events[event].get_result() == add:
+						if events[event].get_result() == add or events[event].get_result() == research:
 							if unit in events[event].get_args():
 								break
 					else:
@@ -240,8 +240,8 @@ class Order:
 				if self.at[order_index].units[unit] > 0:
 					return False
 				for event,time in self.at[order_index].production:
-					if events[event].get_result() == research:
-						if unit in events[event].get_args:
+					if events[event].get_result() == research or events[event].get_result() == add:
+						if unit in events[event].get_args():
 							return False
 				continue
 			# requirement must be energy
@@ -304,7 +304,7 @@ class Order:
 		if self.race == "P":
 			now.units[PROBE_MINERAL] = 6
 			now.units[NEXUS] = 1
-			now.energy_units.append([NEXUS,energy(NEXUS)[0]])
+			now.energy_units.append([NEXUS,energy[NEXUS][0]])
 		if self.race == "T":
 			now.units[SCV_MINERAL] = 6
 			now.units[COMMAND_CENTER] = 1
