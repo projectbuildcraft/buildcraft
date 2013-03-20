@@ -69,8 +69,9 @@ class Instance:
 		self.time += 1
 		index = len(self.production)
 		mineral_rate, gas_rate = self.resource_rate()
-		self.minerals += mineral_rate / float(60)
-		self.gas += gas_rate / float(60)
+		if self.time > 4:
+			self.minerals += mineral_rate / float(60)
+			self.gas += gas_rate / float(60)
 		while index > 0:
 			index -= 1
 			self.production[index][1] -= 1 # decrease remaining seconds
