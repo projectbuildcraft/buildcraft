@@ -2,8 +2,9 @@
 import bcorder
 from constants import events
 import gui
+import constants
 
-my_order = bcorder.Order(filename = "orders/OC Opening.bo")
+my_order = bcorder.Order(filename = "orders/7RR.bo")
 run = True
 racemap = {
 	0 : "P",
@@ -11,6 +12,7 @@ racemap = {
 	2 : "Z",
 }
 while run:
+
 	my_order.print_out()
 	print "[0] Load"
 	print "[1] Save"
@@ -43,14 +45,12 @@ while run:
 		choice = int(raw_input("=> "))
 		my_order.append(choices[choice])
 	if menu_choice == 4:
-		name, race = gui.new_order()
-		my_order = bcorder.Order(name=name,race=race)
-##		name = str(raw_input("Name: "))
-##		print "[0] Protoss"
-##		print "[1] Terran"
-##		print "[2] Zerg"
-##		race = int(raw_input("Race: "))
-##		my_order = bcorder.Order(name = name,race = racemap[race])
+		name = str(raw_input("Name: "))
+		print "[0] Protoss"
+		print "[1] Terran"
+		print "[2] Zerg"
+		race = int(raw_input("Race: "))
+		my_order = bcorder.Order(name = name,race = racemap[race])
 	if menu_choice == 5:
 		run = False
 	if menu_choice == 6:
