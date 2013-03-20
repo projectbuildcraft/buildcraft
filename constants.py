@@ -699,8 +699,6 @@ events = [
 
 ]
 
-research = [0] * NUM_UNITS
-
 energy = {
 	GHOST : (50,200,MOEBIUS_REACTOR),
 	MEDIVAC : (50,200,CADUCEUS_REACTOR),
