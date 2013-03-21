@@ -11,7 +11,7 @@ class Instance:
 	"""
 	Condition of player at a particular event in their build
 	"""
-	def __init__(self, time = 1, units = None, occupied = None, production = None, minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0, energy_units = None, base_larva = None):
+	def __init__(self, time = 1, units = None, occupied = None, production = None, minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0, energy_units = None, base_larva = None, boosted_things = None):
 		self.time = time
 		if units == None:
 			self.units = [0]*NUM_UNITS
@@ -39,6 +39,10 @@ class Instance:
 			self.base_larva = []
 		else:
 			self.base_larva = base_larva # tracks larva [larva_count]
+		if boosted_things == None:
+			self.boosted_things = [{}, {}]
+		else:
+			self.boosted_things = boosted_things # tracks Chrono Boosted events and structures: [{Event_Index: {[time_left, chrono_left]}, {Unit_Index: [chrono_left]}]
 
 	def resource_rate(self):
 		"""
@@ -61,7 +65,6 @@ class Instance:
 		# http://www.teamliquid.net/forum/viewmessage.php?topic_id=140055
 		return (59 * workers_on_gold + 42 * workers_on_blue + 25 * saturated_on_gold + 18 * saturated_on_blue + 170 * mules, gassers * 38)
 			
-
 	def increment(self):
 		"""
 		Moves the instance forward one second
@@ -74,19 +77,53 @@ class Instance:
 			self.gas += gas_rate / float(60)
 		while index > 0:
 			index -= 1
+			if self.production[index][0] in self.boosted_things[0].keys():
+				i = 0
+				for i in xrange(len(self.boosted_things[0][self.production[index][0]])):
+					if self.production[index][1] == self.boosted_things[0][self.production[index][0]][i][0]:
+						self.production[index][1] -= .5
+						self.boosted_things[0][self.production[index][0]][i][0] -= 1.5
+						break
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
 				event = events[self.production[index][0]]
-				event.get_result()(event.get_args(), self)
+				if self.production[index][0] == CHRONO_BOOST:
+					event.get_result()(self.production[index][2], self.production[index][3], self)
+				else:
+					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
 				for requirement in event.get_requirements():
 					unit, kind = requirement
 					if kind == O:
 						self.occupied[unit] -= 1
 						self.units[unit] += 1
+				if self.production[index][0] in self.boosted_things[0].keys():
+					for requirement in event.get_requirements():
+						unit, kind = requirement
+						if kind == O:
+							for i in xrange(len(self.boosted_things[0][self.production[index][0]])):
+								if self.production[index][1] == self.boosted_things[0][self.production[index][0]][i][0]:
+									if kind not in self.boosted_things[1]:
+										self.boosted_things[1][kind] = []
+									self.boosted_things[1][kind].append(self.boosted_things[0][self.production[index][0]][i][1])
+									del self.boosted_things[0][self.production[index][0]][i]
 				del self.production[index]
 		for energy_unit in self.energy_units:
 			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
+		for boosted_event in self.boosted_things[0].iterkeys():
+			i = len(self.boosted_things[0][boosted_event])
+			while i > 0:
+				i -= 1
+				self.boosted_things[0][boosted_event][i][1] -= 1
+				if self.boosted_things[0][boosted_event][i][1] <= 0:
+					del self.boosted_things[0][boosted_event][i]
+		for boosted_structure in self.boosted_things[1].iterkeys():
+			i = len(self.boosted_things[1][boosted_structure])
+			while i > 0:
+				i -= 1
+				self.boosted_things[1][boosted_structure][i] -= 1
+				if self.boosted_things[1][boosted_structure][i] <= 0:
+					del self.boosted_things[1][boosted_structure][i]
 
 	def active_worker_count(self, include_scouts = False, include_occupied = False):
 		count = 0
@@ -114,8 +151,8 @@ class Instance:
 		pass
 
 	def __deepcopy__(self, memo = None):
-                return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva))
-                
+		return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva), copy.deepcopy(self.boosted_things))
+		
 
 racename = {
 	"P" : "Protoss",
@@ -169,10 +206,16 @@ class Order:
 		Prints the build order to std out
 		"""
 		print self.name, self.race_name()
+		skip = 0
 		for index, eventIndex in enumerate(self.events):
+                        if skip > 0:
+                                skip -= 1
+                                continue
+                        if eventIndex == CHRONO_BOOST:
+                                skip = 2
 			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap,index + 1), self.at[index + 1].time, name(eventIndex)
-			for event, time in self.at[index + 1].production:
-				print "\t{}: {}".format(time, events[event].get_name())
+			for i in self.at[index + 1].production:
+				print "\t{}: {}".format(i[1], events[i[0]].get_name())
 
 	def available(self, order_index, event_index, now = False):
 		"""
@@ -320,7 +363,12 @@ class Order:
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
 		self.at_time = [now]
 		impossible = False
+		skip = 0
 		for index, event in enumerate(self.events):
+			if skip > 0:
+				self.at.append(copy.deepcopy(self.at[index - 1]))
+				skip -= 1
+				continue
 			index += 1
 			last = self.at[index - 1]
 			now = copy.deepcopy(last)
@@ -338,6 +386,10 @@ class Order:
 					if kind == O:
 						now.units[unit] -= 1
 						now.occupied[unit] += 1
+						if kind in now.boosted_things[1].keys():
+							if len(now.boosted_things[1][kind]) > 0:
+								now.boosted_things[0][event].append([events[event].time, now.boosted_things[1][kind][0]]) 
+								del now.boosted_things[1][kind][0]
 					if kind == C:
 						now.units[unit] -= 1
 						if unit == LARVA:
@@ -359,8 +411,12 @@ class Order:
 								if energy_energy > greatest_energy:
 									greatest_energy == energy_energy
 									greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
-						energy_units[greatest_index] -= kind
-				now.production.append([event,events[event].time])
+						now.energy_units[greatest_index][1] -= kind
+				if event == CHRONO_BOOST:
+					now.production.append([event, 0, self.events[index], self.events[index + 1]])
+					skip = 2
+				else:
+					now.production.append([event,events[event].time])
 			else:
 				impossible = True
 				self.at[index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units))

@@ -4,7 +4,7 @@ from constants import events
 import gui
 import constants
 
-my_order = bcorder.Order(filename = "orders/7RR.bo")
+my_order = bcorder.Order(filename = "orders/Chrono.bo")
 run = True
 racemap = {
 	0 : "P",
