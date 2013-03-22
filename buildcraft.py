@@ -4,7 +4,7 @@ from constants import events
 import gui
 import constants
 
-my_order = bcorder.Order(filename = "orders/Chrono.bo")
+my_order = bcorder.Order(filename = "orders/4gate.bo")
 run = True
 racemap = {
 	0 : "P",
@@ -29,7 +29,10 @@ while run:
 	if menu_choice == 1:
 		filename = str(raw_input("Save to: "))
 		my_order.save(filename)
-		print "Saved to ",filename
+		if (filename == ""):
+			print "Saved to", my_order.default_location
+		else:
+			print "Saved to", filename
 	if menu_choice == 2:
 		index = int(raw_input("Insert at:"))
 		choices = [i for i in range(len(events)) if my_order.available(order_index = index, event_index = i)]

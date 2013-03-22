@@ -170,6 +170,7 @@ class Order:
 		Creates a build order from a list of events or a filename
 		"""
 		if (filename != None):
+			self.default_location = filename
 			f = open(filename, 'r')
 			lines = f.readlines()
 			self.name = lines.pop(0).rstrip()
@@ -183,6 +184,7 @@ class Order:
 			f.close()
 		else:
 			self.name = name
+			self.default_location = "orders/" + self.name + ".bo"
 			self.race = race
 			if events == None:
 				self.events = []
@@ -190,12 +192,12 @@ class Order:
 				self.events = events
 		self.calculate_times()
 
-	def save(self,filename = None):
+	def save(self,filename):
 		"""
-		Saves the build order to file specified by filename
+		Saves the build order to file specified by filename, or to default_location if filename is ""
 		"""
-		if filename == None:
-			filename = "orders/"+self.name+".bo"
+		if filename == "":
+			filename = self.default_location
 		f = open(filename, 'w')	
 		f.write(self.name + "\n")
 		f.write(self.race + "\n")
@@ -244,7 +246,7 @@ class Order:
 					return False
 				difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
 				for event,time in self.at[order_index].production:
-					difference -= events[event].capacity
+					difference -= events[event[0]].capacity
 				if difference > 0:
 					return False
 		# requirements
