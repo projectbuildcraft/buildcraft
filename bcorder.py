@@ -89,7 +89,6 @@ class Instance:
 			if self.production[index][1] <= 0: # if done
 				event = events[self.production[index][0][0]]
 				if self.production[index][0][0] == CHRONO_BOOST:
-					print self.production[index]
 					event.get_result()(self.production[index][0][1], self.production[index][0][2], self)
 				else:
 					event.get_result()(event.get_args(), self)
@@ -259,9 +258,9 @@ class Order:
 				if now:
 					return False
 				else:
-					for event,time in self.at[order_index].production:
-						if events[event].get_result() == add or events[event].get_result() == research:
-							if unit in events[event].get_args():
+					for event_info,time in self.at[order_index].production:
+						if events[event_info[0]].get_result() == add or events[event].get_result() == research:
+							if unit in events[event_info[0]].get_args():
 								break
 					else:
 						return False
@@ -274,9 +273,9 @@ class Order:
 				else:
 					if self.at[order_index].occupied[unit] > 0:
 						continue
-					for event,time in self.at[order_index].production:
-						if events[event].get_result() == add or events[event].get_result() == research:
-							if unit in events[event].get_args():
+					for event_info,time in self.at[order_index].production:
+						if events[event_info[0]].get_result() == add or events[event].get_result() == research:
+							if unit in events[event_info[0]].get_args():
 								break
 					else:
 						return False
@@ -303,9 +302,9 @@ class Order:
 			else: # must be in production
 				if now:
 					return False
-				for event,time in self.at[order_index].production:
-					if events[event].get_result() == add:
-						if unit in events[event].get_args():
+				for event_info,time in self.at[order_index].production:
+					if events[event_info[0]].get_result() == add:
+						if unit in events[event_info[0]].get_args():
 							break
 				else:
 					return False
