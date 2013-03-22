@@ -2,11 +2,11 @@ import copy
 import string
 from constants import *
 
-def name(event):
-	return events[event].get_name()
+def name(event_index):
+	return events[event_index].get_name()
 
-def get_requirements(event):
-	return events[event].get_requirements()
+def get_requirements(event_index):
+	return events[event_index].get_requirements()
 
 class Instance:
 	"""
@@ -79,17 +79,16 @@ class Instance:
 		while index > 0:
 			index -= 1
 			if self.production[index][0][0] in self.boosted_things[0].keys():
-				i = 0
 				for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
 					if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
-						self.production[index][1] -= .5
-						self.boosted_things[0][self.production[index][0][0]][i][0] -= 1.5
+						self.production[index][1] -= .5 # boosted effect
+						self.boosted_things[0][self.production[index][0][0]][i][0] -= 1.5 # update time left
 						break
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
 				event = events[self.production[index][0][0]]
-				if self.production[index][0][0] == CHRONO_BOOST:
-					event.get_result()(self.production[index][0][1], self.production[index][0][2], self)
+				if events[self.production[index][0][0]].get_result() == boost: # has special parameters
+					boost(self.production[index][0][2], self.production[index][0][3], self)
 				else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
@@ -115,7 +114,7 @@ class Instance:
 			i = len(self.boosted_things[0][boosted_event])
 			while i > 0:
 				i -= 1
-				self.boosted_things[0][boosted_event][i][1] -= 1
+				self.boosted_things[0][boosted_event][i][1] -= 1 # update chrono left
 				if self.boosted_things[0][boosted_event][i][1] <= 0:
 					del self.boosted_things[0][boosted_event][i]
 		for boosted_structure in self.boosted_things[1].iterkeys():
@@ -165,7 +164,7 @@ class Order:
 	"""
 	Represents a calculated build order
 	"""
-	def __init__(self,name = "",events = None,filename = None, race = "P"):
+	def __init__(self,name = "", events_list = None, filename = None, race = "P"):
 		"""
 		Creates a build order from a list of events or a filename
 		"""
@@ -175,21 +174,27 @@ class Order:
 			lines = f.readlines()
 			self.name = lines.pop(0).rstrip()
 			self.race = lines.pop(0).rstrip()
-			self.events = []
+			self.events = [] # [[event_index, note, targeted_event, time_left]]
 			for line in lines:
-				events_info = string.split(line)
-				for i in xrange(len(events_info)):
-					events_info[i] = int(events_info[i])
+				line = line.rstrip()
+				raw_info = string.split(line)
+				events_info = [None,None]
+				events_info[0] = int(raw_info.pop(0))
+				if events[events_info[0]].get_result() == boost:
+					events_info.append(None)
+					events_info.append(raw_info.pop())
+					events_info[2] = raw_info.pop()
+				events_info[1] = string.join(raw_info)
 				self.events.append(events_info)
 			f.close()
 		else:
 			self.name = name
 			self.default_location = "orders/" + self.name + ".bo"
 			self.race = race
-			if events == None:
+			if events_list == None:
 				self.events = []
 			else:
-				self.events = events
+				self.events = events_list
 		self.calculate_times()
 
 	def save(self,filename):
@@ -198,12 +203,12 @@ class Order:
 		"""
 		if filename == "":
 			filename = self.default_location
-		f = open(filename, 'w')	
+		f = open(filename, 'w')
 		f.write(self.name + "\n")
 		f.write(self.race + "\n")
-		for event in self.events:
-			for i in xrange(len(event)):
-				f.write(str(event[0]) + ("\n" if i == len(event) - 1 else " "))
+		for event_info in self.events:
+			for i in xrange(len(event_info)):
+				f.write(str(event_info[i]) + ("\n" if i == len(event_info) - 1 else " "))
 
 	def race_name(self):
 		return racename[self.race]
@@ -213,11 +218,11 @@ class Order:
 		Prints the build order to std out
 		"""
 		print self.name, self.race_name()
-		skip = 0
 		for index, event_info in enumerate(self.events):
-			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap,index + 1), self.at[index + 1].time, name(event_info[0])
+			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap, index + 1), self.at[index + 1].time, name(event_info[0]), event_info[1]
 			for i in self.at[index + 1].production:
 				print "\t{}: {}".format(i[1], events[i[0][0]].get_name())
+				# should include chrono information
 
 	def available(self, order_index, event_index, now = False):
 		"""
@@ -261,7 +266,7 @@ class Order:
 					return False
 				else:
 					for event_info,time in self.at[order_index].production:
-						if events[event_info[0]].get_result() == add or events[event].get_result() == research:
+						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
 								break
 					else:
@@ -276,7 +281,7 @@ class Order:
 					if self.at[order_index].occupied[unit] > 0:
 						continue
 					for event_info,time in self.at[order_index].production:
-						if events[event_info[0]].get_result() == add or events[event].get_result() == research:
+						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
 								break
 					else:
@@ -367,12 +372,12 @@ class Order:
 		self.at_time = [now]
 		impossible = False
 		for index, event_info in enumerate(self.events):
-			index += 1
-			last = self.at[index - 1]
+			order_index = index + 1
+			last = self.at[index]
 			now = copy.deepcopy(last)
 			self.at.append(now)
-			if (not impossible) and (self.available(index, event_info[0], False)):
-				while not self.available(index, event_info[0], True):
+			if (not impossible) and (self.available(order_index, event_info[0], False)):
+				while not self.available(order_index, event_info[0], True):
 					now.increment()
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
@@ -394,9 +399,9 @@ class Order:
 							# assume larva from base with most larva
 							max_index = 0
 							max_larva = 0
-							for index, larva in enumerate(now.base_larva):
+							for curr_index, larva in enumerate(now.base_larva):
 								if larva > max_larva:
-									max_index = index
+									max_index = curr_index
 									max_larva = larva
 							if max_larva == 3:
 								now.production.append([AUTO_SPAWN_LARVA, events[AUTO_SPAWN_LARVA].time])
@@ -413,5 +418,5 @@ class Order:
 				now.production.append([event_info,events[event_info[0]].time])
 			else:
 				impossible = True
-				self.at[index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units), copy.deepcopy(last.base_larva), copy.deepcopy(last.boosted_things))
+				self.at[order_index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units), copy.deepcopy(last.base_larva), copy.deepcopy(last.boosted_things))
 

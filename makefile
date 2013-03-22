@@ -1,3 +1,5 @@
+all:
+	
 clean:
 	rm *.pyc
 run:
