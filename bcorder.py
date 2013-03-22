@@ -286,8 +286,9 @@ class Order:
 				if self.at[order_index].units[unit] > 0:
 					return False
 				for event,time in self.at[order_index].production:
-					if events[event].get_result() == research or events[event].get_result() == add:
-						if unit in events[event].get_args():
+					event_index = event[0]
+					if events[event_index].get_result() == research or events[event_index].get_result() == add:
+						if unit in events[event_index].get_args():
 							return False
 				continue
 			# requirement must be energy

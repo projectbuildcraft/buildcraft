@@ -1,8 +1,7 @@
 #!/usr/bin/python
 import bcorder
-from constants import events
+from constants import events, CHRONO_BOOST
 import gui
-import constants
 
 my_order = bcorder.Order(filename = "orders/4gate.bo")
 run = True
