@@ -34,19 +34,25 @@ while run:
 		else:
 			print "Saved to", filename
 	if menu_choice == 2:
-		index = int(raw_input("Insert at:"))
+		index = int(raw_input("Insert at: "))
 		choices = [i for i in range(len(events)) if my_order.available(order_index = index, event_index = i)]
 		for choice_index,event_index in enumerate(choices):
 			print choice_index,bcorder.name(event_index)
 		choice = int(raw_input("=> "))
-		my_order.insert([choices[choice]],index)
+		if choice == CHRONO_BOOST:
+			pass
+		else:
+			my_order.insert([choices[choice]],index)
 		pass
 	if menu_choice == 3:
 		choices = [i for i in range(len(events)) if my_order.available(order_index = len(my_order.events), event_index = i)]
 		for choice_index,event_index in enumerate(choices):
 			print choice_index,bcorder.name(event_index)
 		choice = int(raw_input("=> "))
-		my_order.append([choices[choice]])
+		if choice == CHRONO_BOOST:
+			pass
+		else:
+			my_order.append([choices[choice]])
 	if menu_choice == 4:
 		name = str(raw_input("Name: "))
 		print "[0] Protoss"
