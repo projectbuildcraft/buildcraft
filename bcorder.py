@@ -1,11 +1,12 @@
 import copy
+import string
 from constants import *
 
-def name(index):
-	return events[index].get_name()
+def name(event):
+	return events[event].get_name()
 
-def get_requirements(index):
-	return events[index].get_requirements()
+def get_requirements(event):
+	return events[event].get_requirements()
 
 class Instance:
 	"""
@@ -24,7 +25,7 @@ class Instance:
 		if production == None:
 			self.production = []
 		else:
-			self.production = production # [[Event_Index, Time_Remaining]]
+			self.production = production # [[Event_Info], Time_Remaining]]
 		self.minerals = minerals
 		self.gas = gas
 		self.supply = supply
@@ -77,18 +78,19 @@ class Instance:
 			self.gas += gas_rate / float(60)
 		while index > 0:
 			index -= 1
-			if self.production[index][0] in self.boosted_things[0].keys():
+			if self.production[index][0][0] in self.boosted_things[0].keys():
 				i = 0
-				for i in xrange(len(self.boosted_things[0][self.production[index][0]])):
-					if self.production[index][1] == self.boosted_things[0][self.production[index][0]][i][0]:
+				for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
+					if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
 						self.production[index][1] -= .5
-						self.boosted_things[0][self.production[index][0]][i][0] -= 1.5
+						self.boosted_things[0][self.production[index][0][0]][i][0] -= 1.5
 						break
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
-				event = events[self.production[index][0]]
-				if self.production[index][0] == CHRONO_BOOST:
-					event.get_result()(self.production[index][2], self.production[index][3], self)
+				event = events[self.production[index][0][0]]
+				if self.production[index][0][0] == CHRONO_BOOST:
+					print self.production[index]
+					event.get_result()(self.production[index][0][1], self.production[index][0][2], self)
 				else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
@@ -97,16 +99,16 @@ class Instance:
 					if kind == O:
 						self.occupied[unit] -= 1
 						self.units[unit] += 1
-				if self.production[index][0] in self.boosted_things[0].keys():
+				if self.production[index][0][0] in self.boosted_things[0].keys():
 					for requirement in event.get_requirements():
 						unit, kind = requirement
 						if kind == O:
-							for i in xrange(len(self.boosted_things[0][self.production[index][0]])):
-								if self.production[index][1] == self.boosted_things[0][self.production[index][0]][i][0]:
+							for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
+								if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
 									if kind not in self.boosted_things[1]:
 										self.boosted_things[1][kind] = []
-									self.boosted_things[1][kind].append(self.boosted_things[0][self.production[index][0]][i][1])
-									del self.boosted_things[0][self.production[index][0]][i]
+									self.boosted_things[1][kind].append(self.boosted_things[0][self.production[index][0][0]][i][1])
+									del self.boosted_things[0][self.production[index][0][0]][i]
 				del self.production[index]
 		for energy_unit in self.energy_units:
 			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
@@ -139,8 +141,8 @@ class Instance:
 	def worker_supply(self, include_production = True):
 		count = self.active_worker_count(include_scouts = True, include_occupied = True)
 		if include_production:
-			for event_index, time in self.production:
-				event = events[event_index]
+			for event_info, time in self.production:
+				event = events[event_info[0]]
 				if event.get_result() == add:
 					for unit in event.get_args():
 						if unit in [SCV_MINERAL, PROBE_MINERAL, DRONE_MINERAL]:
@@ -175,7 +177,10 @@ class Order:
 			self.race = lines.pop(0).rstrip()
 			self.events = []
 			for line in lines:
-				self.events.append(int(line))
+				events_info = string.split(line)
+				for i in xrange(len(events_info)):
+					events_info[i] = int(events_info[i])
+				self.events.append(events_info)
 			f.close()
 		else:
 			self.name = name
@@ -195,8 +200,9 @@ class Order:
 		f = open(filename, 'w')	
 		f.write(self.name + "\n")
 		f.write(self.race + "\n")
-		for index in self.events:
-			f.write(str(index) + "\n");
+		for event in self.events:
+			for i in xrange(len(event)):
+				f.write(str(event[0]) + ("\n" if i == len(event) - 1 else " "))
 
 	def race_name(self):
 		return racename[self.race]
@@ -207,15 +213,10 @@ class Order:
 		"""
 		print self.name, self.race_name()
 		skip = 0
-		for index, eventIndex in enumerate(self.events):
-                        if skip > 0:
-                                skip -= 1
-                                continue
-                        if eventIndex == CHRONO_BOOST:
-                                skip = 2
-			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap,index + 1), self.at[index + 1].time, name(eventIndex)
+		for index, event_info in enumerate(self.events):
+			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap,index + 1), self.at[index + 1].time, name(event_info[0])
 			for i in self.at[index + 1].production:
-				print "\t{}: {}".format(i[1], events[i[0]].get_name())
+				print "\t{}: {}".format(i[1], events[i[0][0]].get_name())
 
 	def available(self, order_index, event_index, now = False):
 		"""
@@ -311,18 +312,18 @@ class Order:
 			continue
 		return True
 
-	def append(self, event):
+	def append(self, event_info):
 		"""
 		Appends event to the build order
 		"""
-		self.events.append(event)
+		self.events.append(event_info)
 		self.calculate_times()
 
-	def insert(self, event, index):
+	def insert(self, event_info, index):
 		"""
 		Inserts event at index
 		"""
-		self.events.insert(index, event)
+		self.events.insert(index, event_info)
 		self.calculate_times()
 
 	def delete(self, index):
@@ -363,32 +364,27 @@ class Order:
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
 		self.at_time = [now]
 		impossible = False
-		skip = 0
-		for index, event in enumerate(self.events):
-			if skip > 0:
-				self.at.append(copy.deepcopy(self.at[index - 1]))
-				skip -= 1
-				continue
+		for index, event_info in enumerate(self.events):
 			index += 1
 			last = self.at[index - 1]
 			now = copy.deepcopy(last)
 			self.at.append(now)
-			if (not impossible) and (self.available(index, event, False)):
-				while not self.available(index, event, True):
+			if (not impossible) and (self.available(index, event_info[0], False)):
+				while not self.available(index, event_info[0], True):
 					now.increment()
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
-				now.minerals -= events[event].cost[0]
-				now.gas -= events[event].cost[1]
-				now.supply += events[event].supply
-				for requirement in get_requirements(event):
+				now.minerals -= events[event_info[0]].cost[0]
+				now.gas -= events[event_info[0]].cost[1]
+				now.supply += events[event_info[0]].supply
+				for requirement in get_requirements(event_info[0]):
 					unit, kind = requirement
 					if kind == O:
 						now.units[unit] -= 1
 						now.occupied[unit] += 1
 						if kind in now.boosted_things[1].keys():
 							if len(now.boosted_things[1][kind]) > 0:
-								now.boosted_things[0][event].append([events[event].time, now.boosted_things[1][kind][0]]) 
+								now.boosted_things[0][event_info[0]].append([events[event_info[0]].time, now.boosted_things[1][kind][0]]) 
 								del now.boosted_things[1][kind][0]
 					if kind == C:
 						now.units[unit] -= 1
@@ -412,12 +408,8 @@ class Order:
 									greatest_energy == energy_energy
 									greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
 						now.energy_units[greatest_index][1] -= kind
-				if event == CHRONO_BOOST:
-					now.production.append([event, 0, self.events[index], self.events[index + 1]])
-					skip = 2
-				else:
-					now.production.append([event,events[event].time])
+				now.production.append([event_info,events[event_info[0]].time])
 			else:
 				impossible = True
-				self.at[index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units))
+				self.at[index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units), copy.deepcopy(last.base_larva), copy.deepcopy(last.boosted_things))
 
