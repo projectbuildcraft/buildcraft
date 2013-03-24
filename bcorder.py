@@ -526,3 +526,8 @@ class Team:
 		pass
 		return True
 
+	def add_mineral_gift(self, giver = 0, receiever = 1, time = 360):
+		pass
+
+	def add_gas_gift(self, giver = 0, receiver = 1, time = 360):
+		pass
