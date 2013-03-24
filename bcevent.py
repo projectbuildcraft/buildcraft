@@ -1,3 +1,7 @@
+"""
+    Copyright (C) 2013 Project Buildcraft
+    License notice in buildcraft.py
+"""
 import copy
 class Event:
 

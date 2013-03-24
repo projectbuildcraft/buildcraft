@@ -1,3 +1,7 @@
+"""
+    Copyright (C) 2013 Project Buildcraft
+    License notice in buildcraft.py
+"""
 from Tkinter import *
 from PIL import Image, ImageTk
 import random

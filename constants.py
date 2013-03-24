@@ -1,3 +1,7 @@
+"""
+    Copyright (C) 2013 Project Buildcraft
+    License notice in buildcraft.py
+"""
 from bcevent import add, mule, idle, salvage, research, warp, boost, spawn_larva, Event
 
 O = 1
