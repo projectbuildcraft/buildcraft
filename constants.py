@@ -1,7 +1,3 @@
-"""
-    Copyright (C) 2013 Project Buildcraft
-    License notice in buildcraft.py
-"""
 from bcevent import add, mule, idle, salvage, research, warp, boost, spawn_larva, Event
 
 O = 1
@@ -464,247 +460,247 @@ RESEARCH_GRAVITON_CATAPULT = 234
 RESEARCH_WARP_GATE = 235
 
 events = [
-        (COMMAND_CENTER,O),
-        (SCV_MINERAL,C),(REFINERY,A)
-        (SCV_GAS,C),
-        (SCV_MINERAL,C),
-        (SCV_SCOUT,C),
-        (BARRACKS,O),
-        (BARRACKS_TECH_LAB,O),
-        (BARRACKS,O),
-        (BARRACKS_TECH_LAB,O),
-        (FACTORY,O),
-        (FACTORY_TECH_LAB,O),
-        (FACTORY_TECH_LAB,O),(ARMORY,A)
-        (STARPORT,O),
-        (STARPORT,O),
-        (STARPORT_TECH_LAB,O),
-        (STARPORT_TECH_LAB,O),
-        (STARPORT_TECH_LAB,O),(FUSION_CORE,A)
-        (FACTORY,O),(ARMORY,)
-        (FACTORY,O),
-        (SCV_MINERAL,O),
-        (COMMAND_CENTER,C),(BARRACKS,A)
-        (ORBITAL_COMMAND,50),
-        (ORBITAL_COMMAND,50),
-        (COMMAND_CENTER,C),(ENGINEERING_BAY,A)
-        (SCV_MINERAL,O),
-        (SUPPLY_DEPOT,C),(ORBITAL_COMMAND,50)
-        (SCV_MINERAL,O),
-        (SCV_MINERAL,O),(SUPPLY_DEPOT,A)
-        (SCV_MINERAL,O),(SUPPLY_DEPOT,A)
-        (SCV_MINERAL,O),(BARRACKS,A)
-        (BUNKER,C),
-        (SCV_MINERAL,O),(ENGINEERING_BAY,A)
-        (SCV_MINERAL,O),(ENGINEERING_BAY,A)
-        (SCV_MINERAL,O),(BARRACKS,A)
-        (SCV_MINERAL,O),(BARRACKS,A)
-        (GHOST_ACADEMY,O),
-        (GHOST_ACADEMY_ARMED,C),
-        (SCV_MINERAL,O),(FACTORY,A)
-        (SCV_MINERAL,O),(FACTORY,A)
-        (SCV_MINERAL,O),(STARPORT,A)
-        (BARRACKS,C),
-        (BARRACKS,C),
-        (FACTORY,C),
-        (FACTORY,C),
-        (STARPORT,C),
-        (STARPORT,C),
-        (BARRACKS_REACTOR,C),(REACTOR_BARRACKS,C)
-        (BARRACKS,C),(REACTOR,C)
-        (BARRACKS_TECH_LAB,C),(TECH_LAB_BARRACKS,C)
-        (BARRACKS,C),(TECH_LAB,C)
-        (FACTORY_REACTOR,C),(REACTOR_FACTORY,C)
-        (FACTORY,C),(REACTOR,C)
-        (FACTORY_TECH_LAB,C),(TECH_LAB_FACTORY,C)
-        (FACTORY,C),(TECH_LAB,C)
-        (STARPORT_REACTOR,C),(REACTOR_STARPORT,C)
-        (STARPORT,C),(REACTOR,C)
-        (STARPORT_TECH_LAB,C),(TECH_LAB_STARPORT,C)
-        (STARPORT,C),(TECH_LAB,C)
-        (ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_1,N)
-        (ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_2,N),(INFANTRY_WEAPONS_LEVEL_1,A),(ARMORY,A)
-        (ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_3,N),(INFANTRY_WEAPONS_LEVEL_2,A),(ARMORY,A)
-        (ARMORY,O),(VEHICLE_WEAPONS_LEVEL_1,N)
-        (ARMORY,O),(VEHICLE_WEAPONS_LEVEL_2,N),(VEHICLE_WEAPONS_LEVEL_1,A)
-        (ARMORY,O),(VEHICLE_WEAPONS_LEVEL_3,N),(VEHICLE_WEAPONS_LEVEL_2,A)
-        (ARMORY,O),(SHIP_WEAPONS_LEVEL_1,N)
-        (ARMORY,O),(SHIP_WEAPONS_LEVEL_2,N),(SHIP_WEAPONS_LEVEL_1,A)
-        (ARMORY,O),(SHIP_WEAPONS_LEVEL_3,N),(SHIP_WEAPONS_LEVEL_2,A)
-        (ENGINEERING_BAY,O),(INFANTRY_ARMOR_LEVEL_1,N)
-        (ENGINEERING_BAY,O),(INFANTRY_ARMOR_LEVEL_2,N),(INFANTRY_ARMOR_LEVEL_1,A),(ARMORY,A)
-        (ENGINEERING_BAY,O),(INFANTRY_ARMOR_LEVEL_3,N),(INFANTRY_ARMOR_LEVEL_2,A),(ARMORY,A)
-        (ARMORY,O),(VEHICLE_PLATING_LEVEL_1,N)
-        (ARMORY,O),(VEHICLE_PLATING_LEVEL_2,N),(VEHICLE_PLATING_LEVEL_1,A)
-        (ARMORY,O),(VEHICLE_PLATING_LEVEL_3,N),(VEHICLE_PLATING_LEVEL_2,A)
-        (ARMORY,O),(SHIP_PLATING_LEVEL_1,N)
-        (ARMORY,O),(SHIP_PLATING_LEVEL_2,N),(SHIP_PLATING_LEVEL_1,A)
-        (ARMORY,O),(SHIP_PLATING_LEVEL_3,N),(SHIP_PLATING_LEVEL_2,A)
-        (TECH_LAB_BARRACKS,O),(NITRO_PACKS,N),(ARMORY,A)
-        (ENGINEERING_BAY,O),(HI_SEC_AUTO_TRACKING,N)
-        (TECH_LAB_STARPORT,O),(CLOAKING_FIELD,N)
-        (TECH_LAB_BARRACKS,O),(CONCUSSIVE_SHELLS,N)
-        (GHOST_ACADEMY,O),(PERSONAL_CLOAKING,N)
-        (TECH_LAB_BARRACKS,O),(STIMPACK,N)
-        (FUSION_CORE,O),(WEAPON_REFIT,N)
-        (FUSION_CORE,O),(BEHEMOTH_REACTOR,N)
-        (TECH_LAB_STARPORT,O),(CADUCEUS_REACTOR,N)
-        (TECH_LAB_STARPORT,O),(CORVID_REACTOR,N)
-        (GHOST_ACADEMY,O),(MOEBIUS_REACTOR,N)
-        (ENGINEERING_BAY,O),(BUILDING_ARMOR,N)
-        (TECH_LAB_BARRACKS,O),(COMBAT_SHIELD,N)
-        (TECH_LAB_STARPORT,O),(DURABLE_MATERIALS,N)
-        (TECH_LAB_FACTORY,O),(INFERNAL_PRE_IGNITER,N)
-        (ENGINEERING_BAY,O),(NEOSTEEL_FRAME,N)
-        (TECH_LAB_FACTORY,O),(TRANSFORMATION_SERVOS,N),(ARMORY,A)
-        (TECH_LAB_FACTORY,O),(DRILLING_CLAWS,N),(ARMORY,A)
-        (HATCHERY,A),(HATCHERY,N)
-        (QUEEN,25),(HATCHERY,A)
-        (LARVA,C),
-        (DRONE_MINERAL,C),(EXTRACTOR,A)
-        (DRONE_GAS,C),
-        (DRONE_MINERAL,C),
-        (DRONE_SCOUT,C),
-        (LARVA,C),
-        (OVERLORD,C),
-        (LARVA,C),(SPAWNING_POOL,A)
-        (HATCHERY,O),(SPAWNING_POOL,A)
-        (LARVA,C),(HYDRALISK_DEN,A)
-        (LARVA,C),(BANELING_NEST,A)
-        (LARVA,C),(LAIR,A)
-        (LARVA,C),(ROACH_WARREN,A)
-        (LARVA,C),(INFESTATION_PIT,A)
-        (LARVA,C),(SPIRE,A)
-        (LARVA,C),(SPIRE,A)
-        (NYDUS_NETWORK,A),
-        (LARVA,C),(ULTRALISK_CAVERN,A)
-        (LARVA,C),(GREATER_SPIRE,A)
-        (LARVA,C),(INFESTATION_PIT,A)
-        (LARVA,C),(SPIRE,A)
-        (DRONE_MINERAL,C),
-        (DRONE_MINERAL,C),
-        (DRONE_MINERAL,C),(HATCHERY,A)
-        (DRONE_MINERAL,C),(HATCHERY,A)
-        (DRONE_MINERAL,C),(SPAWNING_POOL,A)
-        (DRONE_MINERAL,C),(SPAWNING_POOL,A)
-        (DRONE_MINERAL,C),(SPAWNING_POOL,A)
-        (DRONE_MINERAL,C),(SPAWNING_POOL,A)
-        (HATCHERY,C),(SPAWNING_POOL,A)
-        (DRONE_MINERAL,C),(LAIR,A)
-        (DRONE_MINERAL,C),(LAIR,A)
-        (DRONE_MINERAL,C),(LAIR,A)
-        (DRONE_MINERAL,C),(LAIR,A)
-        (LAIR,C),(INFESTATION_PIT,A)
-        (DRONE_MINERAL,C),(HIVE,A)
-        (SPIRE,C),(HIVE,A)
-        (QUEEN,25),
-        (CREEP_TUMOR,O),
-        (EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_1,N)
-        (EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_2,N),(MELEE_ATTACKS_LEVEL_1,A),(LAIR,A)
-        (EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_3,N),(MELEE_ATTACKS_LEVEL_2,A),(HIVE,A)
-        (EVOLUTION_CHAMBER,O),(MISSILE_ATTACKS_LEVEL_1,N)
-        (EVOLUTION_CHAMBER,O),(MISSILE_ATTACKS_LEVEL_2,N),(MISSILE_ATTACKS_LEVEL_1,A),(LAIR,A)
-        (EVOLUTION_CHAMBER,O),(MISSILE_ATTACKS_LEVEL_3,N),(MISSILE_ATTACKS_LEVEL_2,A),(HIVE,A)
-        (SPIRE,O),(FLYER_ATTACKS_LEVEL_1,N)
-        (SPIRE,O),(FLYER_ATTACKS_LEVEL_2,N),(FLYER_ATTACKS_LEVEL_1,A),(LAIR,A)
-        (SPIRE,O),(FLYER_ATTACKS_LEVEL_3,N),(FLYER_ATTACKS_LEVEL_2,A),(HIVE,A)
-        (EVOLUTION_CHAMBER,O),(GROUND_CARAPACE_LEVEL_1,N)
-        (EVOLUTION_CHAMBER,O),(GROUND_CARAPACE_LEVEL_2,N),(GROUND_CARAPACE_LEVEL_1,A),(LAIR,A)
-        (EVOLUTION_CHAMBER,O),(GROUND_CARAPACE_LEVEL_3,N),(GROUND_CARAPACE_LEVEL_2,A),(HIVE,A)
-        (SPIRE,O),(FLYER_CARAPACE_LEVEL_1,N)
-        (SPIRE,O),(FLYER_CARAPACE_LEVEL_2,N),(FLYER_CARAPACE_LEVEL_1,A),(LAIR,A)
-        (SPIRE,O),(FLYER_CARAPACE_LEVEL_3,N),(FLYER_CARAPACE_LEVEL_2,A),(HIVE,A)
-        (ULTRALISK_CAVERN,O),(CHITINOUS_PLATING,N)
-        (BANELING_NEST,O),(CENTRIFUGAL_HOOKS,N),(LAIR,A)
-        (ROACH_WARREN,O),(GLIAL_RECONSTRUCTION,N),(LAIR,A)
-        (SPAWNING_POOL,O),(METABOLIC_BOOST,N)
-        (HATCHERY,O),(PNEUMATIZED_CARAPACE,N)
-        (HYDRALISK_DEN,O),(MUSCULAR_AUGMENTS,N)
-        (HYDRALISK_DEN,O),(GROOVED_SPINES,N)
-        (HATCHERY,O),(BURROW,N)
-        (INFESTATION_PIT,O),(NEURAL_PARASITE,N)
-        (INFESTATION_PIT,O),(PATHOGEN_GLANDS,N)
-        (SPAWNING_POOL,O),(ADRENAL_GLANDS,N)
-        (ROACH_WARREN,O),(TUNNELING_CLAWS,N),(LAIR,A)
-        (HATCHERY,O),(VENTRAL_SACS,N),(LAIR,A)
-        (HYDRALISK_DEN,O),(MUSCULAR_AUGMENTS,N)
-        (INFESTATION_PIT,O),(INCREASED_LOCUST_LIFETIME,N)
-        (NEXUS,O),
-        (PROBE_MINERAL,C),(ASSIMILATOR,A)
-        (PROBE_GAS,C),
-        (PROBE_MINERAL,C),
-        (PROBE_SCOUT,C),
-        (GATEWAY,O),
-        (WARPGATE,O),
-        (GATEWAY,O),(CYBERNETICS_CORE,A)
-        (WARPGATE,O),
-        (GATEWAY,O),(CYBERNETICS_CORE,A)
-        (WARPGATE,O),
-        (ROBOTICS_FACILITY,O),
-        (ROBOTICS_FACILITY,O),
-        (ROBOTICS_FACILITY,O),
-        (ROBOTICS_FACILITY,O),(ROBOTICS_BAY,A)
-        (STARGATE,O),
-        (STARGATE,O),
-        (GATEWAY,O),(TEMPLAR_ARCHIVES,A)
-        (WARPGATE,O),(TEMPLAR_ARCHIVES,A)
-        (GATEWAY,O),(DARK_SHRINE,A)
-        (WARPGATE,O),(DARK_SHRINE,A)
-        (HIGH_TEMPLAR,C),(DARK_TEMPLAR,C)
-        (HIGH_TEMPLAR,C),(HIGH_TEMPLAR,C)
-        (DARK_TEMPLAR,C),(DARK_TEMPLAR,C)
-        (STARGATE,O),
-        (MOTHERSHIP_CORE,C),(FLEET_BEACON,A),(MOTHERSHIP,N)
-        (NEXUS,O),(CYBERNETICS_CORE,A),(MOTHERSHIP,N),(MOTHERSHIP_CORE,N)
-        (STARGATE,O),
-        (STARGATE,O),
-        (PROBE_MINERAL,A),
-        (NEXUS,25),
-        (PROBE_MINERAL,A),
-        (PROBE_MINERAL,A),
-        (PROBE_MINERAL,A),(PYLON,A)
-        (PROBE_MINERAL,A),(NEXUS,A),(PYLON,A)
-        (PROBE_MINERAL,A),(FORGE,A)
-        (GATEWAY,C),(WARP_GATE,A)
-        (WARPGATE,C),
-        (WARPGATE,O),(WARPGATE,N)
-        (PROBE_MINERAL,A),(GATEWAY,A)
-        (PROBE_MINERAL,A),(CYBERNETICS_CORE,A)
-        (PROBE_MINERAL,A),(CYBERNETICS_CORE,A)
-        (PROBE_MINERAL,A),(CYBERNETICS_CORE,A)
-        (PROBE_MINERAL,A),(TWILIGHT_COUNCIL,A)
-        (PROBE_MINERAL,A),(TEMPLAR_ARCHIVES,A)
-        (PROBE_MINERAL,A),(ROBOTICS_FACILITY,A)
-        (PROBE_MINERAL,A),(STARGATE,A)
-        (FORGE,O),(GROUND_WEAPONS_LEVEL_1,N)
-        (FORGE,O),(GROUND_WEAPONS_LEVEL_2,N),(GROUND_WEAPONS_LEVEL_1,A)
-        (FORGE,O),(GROUND_WEAPONS_LEVEL_3,N),(GROUND_WEAPONS_LEVEL_2,A)
-        (CYBERNETICS_CORE,O),(AIR_WEAPONS_LEVEL_1,N)
-        (CYBERNETICS_CORE,O),(AIR_WEAPONS_LEVEL_2,N),(AIR_WEAPONS_LEVEL_1,A)
-        (CYBERNETICS_CORE,O),(AIR_WEAPONS_LEVEL_3,N),(AIR_WEAPONS_LEVEL_2,A)
-        (FORGE,O),(GROUND_ARMOR_LEVEL_1,N)
-        (FORGE,O),(GROUND_ARMOR_LEVEL_2,N),(GROUND_ARMOR_LEVEL_1,A)
-        (FORGE,O),(GROUND_ARMOR_LEVEL_3,N),(GROUND_ARMOR_LEVEL_2,A)
-        (CYBERNETICS_CORE,O),(AIR_ARMOR_LEVEL_1,N)
-        (CYBERNETICS_CORE,O),(AIR_ARMOR_LEVEL_2,N),(AIR_ARMOR_LEVEL_1,A)
-        (CYBERNETICS_CORE,O),(AIR_ARMOR_LEVEL_3,N),(AIR_ARMOR_LEVEL_2,A)
-        (FORGE,O),(SHIELDS_LEVEL_1,N)
-        (FORGE,O),(SHIELDS_LEVEL_2,N),(SHIELDS_LEVEL_1,A)
-        (FORGE,O),(SHIELDS_LEVEL_3,N),(SHIELDS_LEVEL_2,A)
-        (TWILIGHT_COUNCIL,O),(CHARGE,N)
-        (ROBOTICS_BAY,O),(GRAVITIC_BOOSTERS,N)
-        (ROBOTICS_BAY,O),(GRAVITIC_DRIVE,N)
-        (FLEET_BEACON,O),(ANION_PULSE_CRYSTALS,N)
-        (ROBOTICS_BAY,O),(EXTENDED_THERMAL_LANCE,N)
-        (TEMPLAR_ARCHIVES,O),(PSIONIC_STORM,N)
-        (CYBERNETICS_CORE,O),(HALLUCINATION,N)
-        (TWILIGHT_COUNCIL,O),(BLINK,N)
-        (FLEET_BEACON,O),(GRAVITON_CATAPULT,N)
-        (CYBERNETICS_CORE,O),(WARP_GATE,N)
-        (COMMAND_CENTER,A),(COMMAND_CENTER,N)
-        (COMMAND_CENTER,A),(COMMAND_CENTER,N)
-        (COMMAND_CENTER,A),(COMMAND_CENTER,N)
-        (COMMAND_CENTER,A),(COMMAND_CENTER,N)
+        Event('Build SCV',50,0,1,0,17,add,(SCV_MINERAL,),((COMMAND_CENTER,O),)),
+        Event('Switch SCV to Gas',0,0,0,0,0,add,(SCV_GAS,),((SCV_MINERAL,C),(REFINERY,A))),
+        Event('Switch SCV to Minerals',0,0,0,0,0,add,(SCV_MINERAL,),((SCV_GAS,C),)),
+        Event('Send SCV to Scout',0,0,0,0,0,add,(SCV_SCOUT,),((SCV_MINERAL,C),)),
+        Event('Bring back SCV Scout',0,0,0,0,0,add,(SCV_MINERAL,),((SCV_SCOUT,C),)),
+        Event('Train Marine',50,0,1,0,25,add,(MARINE,),((BARRACKS,O),)),
+        Event('Train Marauder',100,25,2,0,30,add,(MARAUDER,),((BARRACKS_TECH_LAB,O),)),
+        Event('Train Reaper',50,50,1,0,45,add,(REAPER,),((BARRACKS,O),)),
+        Event('Train Ghost',200,100,2,0,40,add,(GHOST,),((BARRACKS_TECH_LAB,O),)),
+        Event('Build Hellion',100,0,2,0,30,add,(HELLION,),((FACTORY,O),)),
+        Event('Build Siege Tank',150,125,3,0,45,add,(SIEGE_TANK,),((FACTORY_TECH_LAB,O),)),
+        Event('Build Thor',300,200,6,0,60,add,(THOR,),((FACTORY_TECH_LAB,O),(ARMORY,A))),
+        Event('Build Viking',150,75,2,0,42,add,(VIKING,),((STARPORT,O),)),
+        Event('Build Medivac',100,100,2,0,42,add,(MEDIVAC,),((STARPORT,O),)),
+        Event('Build Raven',100,200,2,0,60,add,(RAVEN,),((STARPORT_TECH_LAB,O),)),
+        Event('Build Banshee',150,100,3,0,60,add,(BANSHEE,),((STARPORT_TECH_LAB,O),)),
+        Event('Build Battlecruiser',400,300,6,0,90,add,(BATTLECRUISER,),((STARPORT_TECH_LAB,O),(FUSION_CORE,A))),
+        Event('Build Hellbat',100,0,2,0,30,add,(HELLBAT,),((FACTORY,O),(ARMORY,))),
+        Event('Build Widow Mine',75,25,2,0,40,add,(WIDOW_MINE,),((FACTORY,O),)),
+        Event('Build Command Center',400,0,0,11,100,add,(COMMAND_CENTER,),((SCV_MINERAL,O),)),
+        Event('Upgrade to Orbital Command',150,0,0,0,35,add,(ORBITAL_COMMAND,),((COMMAND_CENTER,C),(BARRACKS,A))),
+        Event('Call Down Mule',0,0,0,0,0,mule,(None,),((ORBITAL_COMMAND,50),)),
+        Event('Scanner Sweep',0,0,0,0,0,idle,(None,),((ORBITAL_COMMAND,50),)),
+        Event('Upgrade to Planetary Fortress',150,150,0,0,50,add,(PLANETARY_FORTRESS,),((COMMAND_CENTER,C),(ENGINEERING_BAY,A))),
+        Event('Build Supply Depot',100,0,0,8,30,add,(SUPPLY_DEPOT,),((SCV_MINERAL,O),)),
+        Event('Upgrade Supply Depot',0,0,0,8,4,add,(SUPPLY_DEPOT_EXTRA,),((SUPPLY_DEPOT,C),(ORBITAL_COMMAND,50))),
+        Event('Build Refinery',75,0,0,0,30,add,(REFINERY,),((SCV_MINERAL,O),)),
+        Event('Build Barracks',150,0,0,0,65,add,(BARRACKS,),((SCV_MINERAL,O),(SUPPLY_DEPOT,A))),
+        Event('Build Engineering Bay',125,0,0,0,35,add,(ENGINEERING_BAY,),((SCV_MINERAL,O),(SUPPLY_DEPOT,A))),
+        Event('Build Bunker',100,0,0,0,40,add,(BUNKER,),((SCV_MINERAL,O),(BARRACKS,A))),
+        Event('Salvage Bunker',0,0,0,0,0,salvage,(75,),((BUNKER,C),)),
+        Event('Build Missile Turret',100,0,0,0,25,add,(MISSILE_TURRET,),((SCV_MINERAL,O),(ENGINEERING_BAY,A))),
+        Event('Build Sensor Tower',125,100,0,0,25,add,(SENSOR_TOWER,),((SCV_MINERAL,O),(ENGINEERING_BAY,A))),
+        Event('Build Factory',150,100,0,0,60,add,(FACTORY,),((SCV_MINERAL,O),(BARRACKS,A))),
+        Event('Build Ghost Academy',150,50,0,0,40,add,(GHOST_ACADEMY,),((SCV_MINERAL,O),(BARRACKS,A))),
+        Event('Arm Silo with Nuke',100,100,0,0,60,add,(GHOST_ACADEMY_ARMED,),((GHOST_ACADEMY,O),)),
+        Event('Fire Nuke',0,0,0,0,0,add,(GHOST_ACADEMY,),((GHOST_ACADEMY_ARMED,C),)),
+        Event('Build Armory',150,100,0,0,65,add,(ARMORY,),((SCV_MINERAL,O),(FACTORY,A))),
+        Event('Build Starport',150,100,0,0,50,add,(STARPORT,),((SCV_MINERAL,O),(FACTORY,A))),
+        Event('Build Fusion Core',150,150,0,0,65,add,(FUSION_CORE,),((SCV_MINERAL,O),(STARPORT,A))),
+        Event('Build Reactor onto Barracks',50,50,0,0,25,add,(BARRACKS_REACTOR,),((BARRACKS,C),)),
+        Event('Build Tech Lab onto Barracks',50,25,0,0,25,add,(BARRACKS_TECH_LAB,),((BARRACKS,C),)),
+        Event('Build Reactor onto Factory',50,50,0,0,25,add,(FACTORY_REACTOR,),((FACTORY,C),)),
+        Event('Build Tech Lab onto Factory',50,25,0,0,25,add,(FACTORY_TECH_LAB,),((FACTORY,C),)),
+        Event('Build Reactor onto Starport',50,50,0,0,25,add,(STARPORT_REACTOR,),((STARPORT,C),)),
+        Event('Build Tech Lab onto Starport',50,25,0,0,25,add,(STARPORT_TECH_LAB,),((STARPORT,C),)),
+        Event('Separate Reactor from Barracks',0,0,0,0,2,add,(BARRACKS,REACTOR,),((BARRACKS_REACTOR,C),(REACTOR_BARRACKS,C))),
+        Event('Attach Reactor to Barracks',0,0,0,0,2,add,(BARRACKS_REACTOR,REACTOR_BARRACKS,),((BARRACKS,C),(REACTOR,C))),
+        Event('Separate Tech Lab from Barracks',0,0,0,0,2,add,(BARRACKS,TECH_LAB,),((BARRACKS_TECH_LAB,C),(TECH_LAB_BARRACKS,C))),
+        Event('Attach Tech Lab to Barracks',0,0,0,0,2,add,(BARRACKS_TECH_LAB,TECH_LAB_BARRACKS,),((BARRACKS,C),(TECH_LAB,C))),
+        Event('Separate Reactor from Factory',0,0,0,0,2,add,(FACTORY,REACTOR,),((FACTORY_REACTOR,C),(REACTOR_FACTORY,C))),
+        Event('Attach Reactor to Factory',0,0,0,0,2,add,(FACTORY_REACTOR,REACTOR_FACTORY,),((FACTORY,C),(REACTOR,C))),
+        Event('Separate Tech Lab from Factory',0,0,0,0,2,add,(FACTORY,TECH_LAB,),((FACTORY_TECH_LAB,C),(TECH_LAB_FACTORY,C))),
+        Event('Attach Tech Lab to Factory',0,0,0,0,2,add,(FACTORY_TECH_LAB,TECH_LAB_FACTORY,),((FACTORY,C),(TECH_LAB,C))),
+        Event('Separate Reactor from Starport',0,0,0,0,2,add,(STARPORT,REACTOR,),((STARPORT_REACTOR,C),(REACTOR_STARPORT,C))),
+        Event('Attach Reactor to Starport',0,0,0,0,2,add,(STARPORT_REACTOR,REACTOR_STARPORT,),((STARPORT,C),(REACTOR,C))),
+        Event('Separate Tech Lab from Starport',0,0,0,0,2,add,(STARPORT,TECH_LAB,),((STARPORT_TECH_LAB,C),(TECH_LAB_STARPORT,C))),
+        Event('Attach Tech Lab to Starport',0,0,0,0,2,add,(STARPORT_TECH_LAB,TECH_LAB_STARPORT,),((STARPORT,C),(TECH_LAB,C))),
+        Event('Research Infantry Weapons Level 1',100,100,0,0,160,research,(INFANTRY_WEAPONS_LEVEL_1,),((ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_1,N))),
+        Event('Research Infantry Weapons Level 2',175,175,0,0,190,research,(INFANTRY_WEAPONS_LEVEL_2,),((ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_2,N),(INFANTRY_WEAPONS_LEVEL_1,A),(ARMORY,A))),
+        Event('Research Infantry Weapons Level 3',250,250,0,0,220,research,(INFANTRY_WEAPONS_LEVEL_3,),((ENGINEERING_BAY,O),(INFANTRY_WEAPONS_LEVEL_3,N),(INFANTRY_WEAPONS_LEVEL_2,A),(ARMORY,A))),
+        Event('Research Vehicle Weapons Level 1',100,100,0,0,160,research,(VEHICLE_WEAPONS_LEVEL_1,),((ARMORY,O),(VEHICLE_WEAPONS_LEVEL_1,N))),
+        Event('Research Vehicle Weapons Level 2',175,175,0,0,190,research,(VEHICLE_WEAPONS_LEVEL_2,),((ARMORY,O),(VEHICLE_WEAPONS_LEVEL_2,N),(VEHICLE_WEAPONS_LEVEL_1,A))),
+        Event('Research Vehicle Weapons Level 3',250,250,0,0,220,research,(VEHICLE_WEAPONS_LEVEL_3,),((ARMORY,O),(VEHICLE_WEAPONS_LEVEL_3,N),(VEHICLE_WEAPONS_LEVEL_2,A))),
+        Event('Research Ship Weapons Level 1',100,100,0,0,160,research,(SHIP_WEAPONS_LEVEL_1,),((ARMORY,O),(SHIP_WEAPONS_LEVEL_1,N))),
+        Event('Research Ship Weapons Level 2',175,175,0,0,190,research,(SHIP_WEAPONS_LEVEL_2,),((ARMORY,O),(SHIP_WEAPONS_LEVEL_2,N),(SHIP_WEAPONS_LEVEL_1,A))),
+        Event('Research Ship Weapons Level 3',250,250,0,0,220,research,(SHIP_WEAPONS_LEVEL_3,),((ARMORY,O),(SHIP_WEAPONS_LEVEL_3,N),(SHIP_WEAPONS_LEVEL_2,A))),
+        Event('Research Infantry Armor Level 1',100,100,0,0,160,research,(INFANTRY_ARMOR_LEVEL_1,),((ENGINEERING_BAY,O),(INFANTRY_ARMOR_LEVEL_1,N))),
+        Event('Research Infantry Armor Level 2',175,175,0,0,190,research,(INFANTRY_ARMOR_LEVEL_2,),((ENGINEERING_BAY,O),(INFANTRY_ARMOR_LEVEL_2,N),(INFANTRY_ARMOR_LEVEL_1,A),(ARMORY,A))),
+        Event('Research Infantry Armor Level 3',250,250,0,0,220,research,(INFANTRY_ARMOR_LEVEL_3,),((ENGINEERING_BAY,O),(INFANTRY_ARMOR_LEVEL_3,N),(INFANTRY_ARMOR_LEVEL_2,A),(ARMORY,A))),
+        Event('Research Vehicle Plating Level 1',100,100,0,0,160,research,(VEHICLE_PLATING_LEVEL_1,),((ARMORY,O),(VEHICLE_PLATING_LEVEL_1,N))),
+        Event('Research Vehicle Plating Level 2',175,175,0,0,190,research,(VEHICLE_PLATING_LEVEL_2,),((ARMORY,O),(VEHICLE_PLATING_LEVEL_2,N),(VEHICLE_PLATING_LEVEL_1,A))),
+        Event('Research Vehicle Plating Level 3',250,250,0,0,220,research,(VEHICLE_PLATING_LEVEL_3,),((ARMORY,O),(VEHICLE_PLATING_LEVEL_3,N),(VEHICLE_PLATING_LEVEL_2,A))),
+        Event('Research Ship Plating Level 1',150,150,0,0,160,research,(SHIP_PLATING_LEVEL_1,),((ARMORY,O),(SHIP_PLATING_LEVEL_1,N))),
+        Event('Research Ship Plating Level 2',225,225,0,0,190,research,(SHIP_PLATING_LEVEL_2,),((ARMORY,O),(SHIP_PLATING_LEVEL_2,N),(SHIP_PLATING_LEVEL_1,A))),
+        Event('Research Ship Plating Level 3',300,300,0,0,220,research,(SHIP_PLATING_LEVEL_3,),((ARMORY,O),(SHIP_PLATING_LEVEL_3,N),(SHIP_PLATING_LEVEL_2,A))),
+        Event('Research Nitro Packs',50,50,0,0,100,research,(NITRO_PACKS,),((TECH_LAB_BARRACKS,O),(NITRO_PACKS,N),(ARMORY,A))),
+        Event('Research Hi_Sec Auto Tracking',100,100,0,0,80,research,(HI_SEC_AUTO_TRACKING,),((ENGINEERING_BAY,O),(HI_SEC_AUTO_TRACKING,N))),
+        Event('Research Cloaking Field',200,200,0,0,110,research,(CLOAKING_FIELD,),((TECH_LAB_STARPORT,O),(CLOAKING_FIELD,N))),
+        Event('Research Concussive Shells',50,50,0,0,60,research,(CONCUSSIVE_SHELLS,),((TECH_LAB_BARRACKS,O),(CONCUSSIVE_SHELLS,N))),
+        Event('Research Personal Cloaking',150,150,0,0,120,research,(PERSONAL_CLOAKING,),((GHOST_ACADEMY,O),(PERSONAL_CLOAKING,N))),
+        Event('Research Stimpack',100,100,0,0,170,research,(STIMPACK,),((TECH_LAB_BARRACKS,O),(STIMPACK,N))),
+        Event('Research Weapon Refit',150,150,0,0,60,research,(WEAPON_REFIT,),((FUSION_CORE,O),(WEAPON_REFIT,N))),
+        Event('Research Behemoth Reactor',150,150,0,0,80,research,(BEHEMOTH_REACTOR,),((FUSION_CORE,O),(BEHEMOTH_REACTOR,N))),
+        Event('Research Caduceus Reactor',100,100,0,0,80,research,(CADUCEUS_REACTOR,),((TECH_LAB_STARPORT,O),(CADUCEUS_REACTOR,N))),
+        Event('Research Corvid Reactor',150,150,0,0,110,research,(CORVID_REACTOR,),((TECH_LAB_STARPORT,O),(CORVID_REACTOR,N))),
+        Event('Research Moebius Reactor',100,100,0,0,80,research,(MOEBIUS_REACTOR,),((GHOST_ACADEMY,O),(MOEBIUS_REACTOR,N))),
+        Event('Research Building Armor',150,150,0,0,140,research,(BUILDING_ARMOR,),((ENGINEERING_BAY,O),(BUILDING_ARMOR,N))),
+        Event('Research Combat Shield',100,100,0,0,110,research,(COMBAT_SHIELD,),((TECH_LAB_BARRACKS,O),(COMBAT_SHIELD,N))),
+        Event('Research Durable Materials',150,150,0,0,110,research,(DURABLE_MATERIALS,),((TECH_LAB_STARPORT,O),(DURABLE_MATERIALS,N))),
+        Event('Research Infernal Pre_Igniter',150,150,0,0,110,research,(INFERNAL_PRE_IGNITER,),((TECH_LAB_FACTORY,O),(INFERNAL_PRE_IGNITER,N))),
+        Event('Research Neosteel Frame',100,100,0,0,110,research,(NEOSTEEL_FRAME,),((ENGINEERING_BAY,O),(NEOSTEEL_FRAME,N))),
+        Event('Research Transformation Servos',100,100,0,0,110,research,(TRANSFORMATION_SERVOS,),((TECH_LAB_FACTORY,O),(TRANSFORMATION_SERVOS,N),(ARMORY,A))),
+        Event('Research Drilling Claws',150,150,0,0,110,research,(DRILLING_CLAWS,),((TECH_LAB_FACTORY,O),(DRILLING_CLAWS,N),(ARMORY,A))),
+        Event('Auto Spawn Larva',0,0,0,0,15,spawn_larva,(False,),((HATCHERY,A),(HATCHERY,N))),
+        Event('Spawn Larva',0,0,0,0,2.5,spawn_larva,(True,),((QUEEN,25),(HATCHERY,A))),
+        Event('Spawn Drone',50,0,1,0,17,add,(DRONE_MINERAL,),((LARVA,C),)),
+        Event('Switch Drone to Gas',0,0,0,0,0,add,(DRONE_GAS,),((DRONE_MINERAL,C),(EXTRACTOR,A))),
+        Event('Switch Drone to Minerals',0,0,0,0,0,add,(DRONE_MINERAL,),((DRONE_GAS,C),)),
+        Event('Send Drone to Scout',0,0,0,0,0,add,(DRONE_SCOUT,),((DRONE_MINERAL,C),)),
+        Event('Bring back Drone Scout',0,0,0,0,0,add,(DRONE_MINERAL,),((DRONE_SCOUT,C),)),
+        Event('Spawn Overlord',100,0,0,8,25,add,(OVERLORD,),((LARVA,C),)),
+        Event('Sacrifice Overlord',0,0,0,-8,0,idle,(None,),((OVERLORD,C),)),
+        Event('Spawn Zergling',50,0,1,0,24,add,(ZERGLING, ZERGLING,),((LARVA,C),(SPAWNING_POOL,A))),
+        Event('Spawn Queen',150,0,2,0,50,add,(QUEEN,),((HATCHERY,O),(SPAWNING_POOL,A))),
+        Event('Spawn Hydralisk',100,50,2,0,33,add,(HYDRALISK,),((LARVA,C),(HYDRALISK_DEN,A))),
+        Event('Morph Baneling',25,25,0,0,20,add,(BANELING,),((LARVA,C),(BANELING_NEST,A))),
+        Event('Morph Overseer',50,50,0,0,17,add,(OVERSEER,),((LARVA,C),(LAIR,A))),
+        Event('Spawn Roach',75,25,2,0,27,add,(ROACH,),((LARVA,C),(ROACH_WARREN,A))),
+        Event('Spawn Infestor',100,150,2,0,50,add,(INFESTOR,),((LARVA,C),(INFESTATION_PIT,A))),
+        Event('Spawn Mutalisk',100,100,2,0,33,add,(MUTALISK,),((LARVA,C),(SPIRE,A))),
+        Event('Spawn Corruptor',150,100,2,0,40,add,(CORRUPTOR,),((LARVA,C),(SPIRE,A))),
+        Event('Spawn Nydus Worm',100,100,0,0,20,add,(NYDUS_WORM,),((NYDUS_NETWORK,A),)),
+        Event('Spawn Ultralisk',300,200,6,0,55,add,(ULTRALISK,),((LARVA,C),(ULTRALISK_CAVERN,A))),
+        Event('Morph Brood Lord',150,150,2,0,34,add,(BROOD_LORD,),((LARVA,C),(GREATER_SPIRE,A))),
+        Event('Spawn Swarm Host',200,100,3,0,40,add,(SWARM_HOST,),((LARVA,C),(INFESTATION_PIT,A))),
+        Event('Spawn Viper',100,200,3,0,40,add,(VIPER,),((LARVA,C),(SPIRE,A))),
+        Event('Morph Hatchery',300,0,-1,2,100,add,(HATCHERY,),((DRONE_MINERAL,C),)),
+        Event('Morph Extractor',25,0,-1,0,30,add,(EXTRACTOR,),((DRONE_MINERAL,C),)),
+        Event('Morph Spawning Pool',200,0,-1,0,65,add,(SPAWNING_POOL,),((DRONE_MINERAL,C),(HATCHERY,A))),
+        Event('Morph Evolution Chamber',75,0,-1,0,30,add,(EVOLUTION_CHAMBER,),((DRONE_MINERAL,C),(HATCHERY,A))),
+        Event('Morph Spine Crawler',100,0,-1,0,50,add,(SPINE_CRAWLER,),((DRONE_MINERAL,C),(SPAWNING_POOL,A))),
+        Event('Morph Spore Crawler',75,0,-1,0,30,add,(SPORE_CRAWLER,),((DRONE_MINERAL,C),(SPAWNING_POOL,A))),
+        Event('Morph Roach Warren',150,0,-1,0,55,add,(ROACH_WARREN,),((DRONE_MINERAL,C),(SPAWNING_POOL,A))),
+        Event('Morph Baneling Nest',100,50,-1,0,60,add,(BANELING_NEST,),((DRONE_MINERAL,C),(SPAWNING_POOL,A))),
+        Event('Morph Lair',150,100,0,0,40,add,(LAIR,),((HATCHERY,C),(SPAWNING_POOL,A))),
+        Event('Morph Hydralisk Den',100,100,-1,0,40,add,(HYDRALISK_DEN,),((DRONE_MINERAL,C),(LAIR,A))),
+        Event('Morph Infestation Pit',100,100,-1,0,50,add,(INFESTATION_PIT,),((DRONE_MINERAL,C),(LAIR,A))),
+        Event('Morph Spire',200,200,-1,0,100,add,(SPIRE,),((DRONE_MINERAL,C),(LAIR,A))),
+        Event('Morph Nydus Network',150,200,-1,0,50,add,(NYDUS_NETWORK,),((DRONE_MINERAL,C),(LAIR,A))),
+        Event('Morph Hive',200,150,0,0,100,add,(HIVE,),((LAIR,C),(INFESTATION_PIT,A))),
+        Event('Morph Ultralisk Cavern',150,200,-1,0,65,add,(ULTRALISK_CAVERN,),((DRONE_MINERAL,C),(HIVE,A))),
+        Event('Morph Greater Spire',100,150,0,0,100,add,(GREATER_SPIRE,),((SPIRE,C),(HIVE,A))),
+        Event('Spawn Creep Tumor',0,0,0,0,15,add,(CREEP_TUMOR,),((QUEEN,25),)),
+        Event('Respawn Creep Tumor',0,0,0,0,15,add,(CREEP_TUMOR_USED,),((CREEP_TUMOR,O),)),
+        Event('Research Melee Attacks Level 1',100,100,0,0,160,research,(MELEE_ATTACKS_LEVEL_1,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_1,N))),
+        Event('Research Melee Attacks Level 2',150,150,0,0,190,research,(MELEE_ATTACKS_LEVEL_2,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_2,N),(MELEE_ATTACKS_LEVEL_1,A),(LAIR,A))),
+        Event('Research Melee Attacks Level 3',200,200,0,0,220,research,(MELEE_ATTACKS_LEVEL_3,),((EVOLUTION_CHAMBER,O),(MELEE_ATTACKS_LEVEL_3,N),(MELEE_ATTACKS_LEVEL_2,A),(HIVE,A))),
+        Event('Research Missile Attacks Level 1',100,100,0,0,160,research,(MISSILE_ATTACKS_LEVEL_1,),((EVOLUTION_CHAMBER,O),(MISSILE_ATTACKS_LEVEL_1,N))),
+        Event('Research Missile Attacks Level 2',150,150,0,0,190,research,(MISSILE_ATTACKS_LEVEL_2,),((EVOLUTION_CHAMBER,O),(MISSILE_ATTACKS_LEVEL_2,N),(MISSILE_ATTACKS_LEVEL_1,A),(LAIR,A))),
+        Event('Research Missile Attacks Level 3',200,200,0,0,220,research,(MISSILE_ATTACKS_LEVEL_3,),((EVOLUTION_CHAMBER,O),(MISSILE_ATTACKS_LEVEL_3,N),(MISSILE_ATTACKS_LEVEL_2,A),(HIVE,A))),
+        Event('Research Flyer Attacks Level 1',100,100,0,0,160,research,(FLYER_ATTACKS_LEVEL_1,),((SPIRE,O),(FLYER_ATTACKS_LEVEL_1,N))),
+        Event('Research Flyer Attacks Level 2',175,175,0,0,190,research,(FLYER_ATTACKS_LEVEL_2,),((SPIRE,O),(FLYER_ATTACKS_LEVEL_2,N),(FLYER_ATTACKS_LEVEL_1,A),(LAIR,A))),
+        Event('Research Flyer Attacks Level 3',250,250,0,0,220,research,(FLYER_ATTACKS_LEVEL_3,),((SPIRE,O),(FLYER_ATTACKS_LEVEL_3,N),(FLYER_ATTACKS_LEVEL_2,A),(HIVE,A))),
+        Event('Research Ground Carapace Level 1',150,150,0,0,160,research,(GROUND_CARAPACE_LEVEL_1,),((EVOLUTION_CHAMBER,O),(GROUND_CARAPACE_LEVEL_1,N))),
+        Event('Research Ground Carapace Level 2',225,225,0,0,190,research,(GROUND_CARAPACE_LEVEL_2,),((EVOLUTION_CHAMBER,O),(GROUND_CARAPACE_LEVEL_2,N),(GROUND_CARAPACE_LEVEL_1,A),(LAIR,A))),
+        Event('Research Ground Carapace Level 3',300,300,0,0,220,research,(GROUND_CARAPACE_LEVEL_3,),((EVOLUTION_CHAMBER,O),(GROUND_CARAPACE_LEVEL_3,N),(GROUND_CARAPACE_LEVEL_2,A),(HIVE,A))),
+        Event('Research Flyer Carapace Level 1',150,150,0,0,160,research,(FLYER_CARAPACE_LEVEL_1,),((SPIRE,O),(FLYER_CARAPACE_LEVEL_1,N))),
+        Event('Research Flyer Carapace Level 2',225,225,0,0,190,research,(FLYER_CARAPACE_LEVEL_2,),((SPIRE,O),(FLYER_CARAPACE_LEVEL_2,N),(FLYER_CARAPACE_LEVEL_1,A),(LAIR,A))),
+        Event('Research Flyer Carapace Level 3',300,300,0,0,220,research,(FLYER_CARAPACE_LEVEL_3,),((SPIRE,O),(FLYER_CARAPACE_LEVEL_3,N),(FLYER_CARAPACE_LEVEL_2,A),(HIVE,A))),
+        Event('Research Chitinous Plating',150,150,0,0,110,research,(CHITINOUS_PLATING,),((ULTRALISK_CAVERN,O),(CHITINOUS_PLATING,N))),
+        Event('Research Centrifugal Hooks',150,150,0,0,110,research,(CENTRIFUGAL_HOOKS,),((BANELING_NEST,O),(CENTRIFUGAL_HOOKS,N),(LAIR,A))),
+        Event('Research Glial Reconstruction',100,100,0,0,110,research,(GLIAL_RECONSTRUCTION,),((ROACH_WARREN,O),(GLIAL_RECONSTRUCTION,N),(LAIR,A))),
+        Event('Research Metabolic Boost',100,100,0,0,110,research,(METABOLIC_BOOST,),((SPAWNING_POOL,O),(METABOLIC_BOOST,N))),
+        Event('Research Pneumatized Carapace',100,100,0,0,60,research,(PNEUMATIZED_CARAPACE,),((HATCHERY,O),(PNEUMATIZED_CARAPACE,N))),
+        Event('Research Muscular Augments',150,150,0,0,100,research,(MUSCULAR_AUGMENTS,),((HYDRALISK_DEN,O),(MUSCULAR_AUGMENTS,N))),
+        Event('Research Grooved Spines',150,150,0,0,80,research,(GROOVED_SPINES,),((HYDRALISK_DEN,O),(GROOVED_SPINES,N))),
+        Event('Research Burrow',100,100,0,0,100,research,(BURROW,),((HATCHERY,O),(BURROW,N))),
+        Event('Research Neural Parasite',150,150,0,0,110,research,(NEURAL_PARASITE,),((INFESTATION_PIT,O),(NEURAL_PARASITE,N))),
+        Event('Research Pathogen Glands',150,150,0,0,80,research,(PATHOGEN_GLANDS,),((INFESTATION_PIT,O),(PATHOGEN_GLANDS,N))),
+        Event('Research Adrenal Glands',200,200,0,0,130,research,(ADRENAL_GLANDS,),((SPAWNING_POOL,O),(ADRENAL_GLANDS,N))),
+        Event('Research Tunneling Claws',150,150,0,0,110,research,(TUNNELING_CLAWS,),((ROACH_WARREN,O),(TUNNELING_CLAWS,N),(LAIR,A))),
+        Event('Research Ventral Sacs',200,200,0,0,130,research,(VENTRAL_SACS,),((HATCHERY,O),(VENTRAL_SACS,N),(LAIR,A))),
+        Event('Research Muscular Augments',150,150,0,0,80,research,(MUSCULAR_AUGMENTS,),((HYDRALISK_DEN,O),(MUSCULAR_AUGMENTS,N))),
+        Event('Research Increased Locust Lifetime',200,200,0,0,120,research,(INCREASED_LOCUST_LIFETIME,),((INFESTATION_PIT,O),(INCREASED_LOCUST_LIFETIME,N))),
+        Event('Create Probe',50,0,1,0,17,add,(PROBE_MINERAL,),((NEXUS,O),)),
+        Event('Switch Probe to Gas',0,0,0,0,0,add,(PROBE_GAS,),((PROBE_MINERAL,C),(ASSIMILATOR,A))),
+        Event('Switch Probe to Minerals',0,0,0,0,0,add,(PROBE_MINERAL,),((PROBE_GAS,C),)),
+        Event('Send Probe to Scout',0,0,0,0,0,add,(PROBE_SCOUT,),((PROBE_MINERAL,C),)),
+        Event('Bring back Probe Scout',0,0,0,0,0,add,(PROBE_MINERAL,),((PROBE_SCOUT,C),)),
+        Event('Create Zealot',100,0,2,0,38,add,(ZEALOT,),((GATEWAY,O),)),
+        Event('Warp in Zealot',100,0,2,0,5,warp,(ZEALOT,28,),((WARPGATE,O),)),
+        Event('Create Stalker',125,50,2,0,42,add,(STALKER,),((GATEWAY,O),(CYBERNETICS_CORE,A))),
+        Event('Warp in Stalker',125,50,2,0,5,warp,(STALKER,32,),((WARPGATE,O),)),
+        Event('Create Sentry',50,100,2,0,37,add,(SENTRY,),((GATEWAY,O),(CYBERNETICS_CORE,A))),
+        Event('Warp in Sentry',50,100,2,0,5,warp,(SENTRY,32,),((WARPGATE,O),)),
+        Event('Create Observer',25,75,1,0,40,add,(OBSERVER,),((ROBOTICS_FACILITY,O),)),
+        Event('Create Immortal',250,100,4,0,55,add,(IMMORTAL,),((ROBOTICS_FACILITY,O),)),
+        Event('Create Warp Prism',200,0,2,0,50,add,(WARP_PRISM,),((ROBOTICS_FACILITY,O),)),
+        Event('Create Colossus',300,200,6,0,75,add,(COLOSSUS,),((ROBOTICS_FACILITY,O),(ROBOTICS_BAY,A))),
+        Event('Create Phoenix',150,100,2,0,35,add,(PHOENIX,),((STARGATE,O),)),
+        Event('Create Void Ray',250,150,4,0,60,add,(VOID_RAY,),((STARGATE,O),)),
+        Event('Create High Templar',50,150,2,0,55,add,(HIGH_TEMPLAR,),((GATEWAY,O),(TEMPLAR_ARCHIVES,A))),
+        Event('Warp in High Templar',50,150,2,0,5,warp,(HIGH_TEMPLAR,45,),((WARPGATE,O),(TEMPLAR_ARCHIVES,A))),
+        Event('Create Dark Templar',125,125,2,0,55,add,(DARK_TEMPLAR,),((GATEWAY,O),(DARK_SHRINE,A))),
+        Event('Warp in Dark Templar',125,125,2,0,5,warp,(DARK_TEMPLAR,45,),((WARPGATE,O),(DARK_SHRINE,A))),
+        Event('Fuse Archon Mix',0,0,0,0,12,add,(ARCHON,),((HIGH_TEMPLAR,C),(DARK_TEMPLAR,C))),
+        Event('Fuse Archon High',0,0,0,0,12,add,(ARCHON,),((HIGH_TEMPLAR,C),(HIGH_TEMPLAR,C))),
+        Event('Fuse Archon Dark',0,0,0,0,12,add,(ARCHON,),((DARK_TEMPLAR,C),(DARK_TEMPLAR,C))),
+        Event('Create Carrier',350,250,6,0,120,add,(CARRIER,),((STARGATE,O),)),
+        Event('Create Mothership',300,300,8,0,100,add,(MOTHERSHIP,),((MOTHERSHIP_CORE,C),(FLEET_BEACON,A),(MOTHERSHIP,N))),
+        Event('Create Mothership Core',100,100,2,0,30,add,(MOTHERSHIP_CORE,),((NEXUS,O),(CYBERNETICS_CORE,A),(MOTHERSHIP,N),(MOTHERSHIP_CORE,N))),
+        Event('Create Oracle',150,150,3,0,50,add,(ORACLE,),((STARGATE,O),)),
+        Event('Create Tempest',300,200,4,0,60,add,(TEMPEST,),((STARGATE,O),)),
+        Event('Warp Nexus',400,0,0,11,100,add,(NEXUS,),((PROBE_MINERAL,A),)),
+        Event('Chrono Boost',0,0,0,0,0,boost,(None,),((NEXUS,25),)),
+        Event('Warp Pylon',100,0,0,8,25,add,(PYLON,),((PROBE_MINERAL,A),)),
+        Event('Warp Assimilator',75,0,0,0,30,add,(ASSIMILATOR,),((PROBE_MINERAL,A),)),
+        Event('Warp Gateway',150,0,0,0,65,add,(GATEWAY,),((PROBE_MINERAL,A),(PYLON,A))),
+        Event('Warp Forge',150,0,0,0,45,add,(FORGE,),((PROBE_MINERAL,A),(NEXUS,A),(PYLON,A))),
+        Event('Warp Photon Cannon',150,0,0,0,40,add,(PHOTON_CANNON,),((PROBE_MINERAL,A),(FORGE,A))),
+        Event('Transform into Warpgate',0,0,0,0,10,add,(WARPGATE,),((GATEWAY,C),(WARP_GATE,A))),
+        Event('Transform into Gateway',0,0,0,0,10,add,(GATEWAY,),((WARPGATE,C),)),
+        Event('Warpgate on Cooldown',0,0,0,0,0,idle,(None,),((WARPGATE,O),(WARPGATE,N))),
+        Event('Warp Cybernetics Core',150,0,0,0,50,add,(CYBERNETICS_CORE,),((PROBE_MINERAL,A),(GATEWAY,A))),
+        Event('Warp Twilight Council',150,100,0,0,50,add,(TWILIGHT_COUNCIL,),((PROBE_MINERAL,A),(CYBERNETICS_CORE,A))),
+        Event('Warp Robotics Facility',200,100,0,0,65,add,(ROBOTICS_FACILITY,),((PROBE_MINERAL,A),(CYBERNETICS_CORE,A))),
+        Event('Warp Stargate',150,150,0,0,60,add,(STARGATE,),((PROBE_MINERAL,A),(CYBERNETICS_CORE,A))),
+        Event('Warp Templar Archives',150,200,0,0,50,add,(TEMPLAR_ARCHIVES,),((PROBE_MINERAL,A),(TWILIGHT_COUNCIL,A))),
+        Event('Warp Dark Shrine',100,250,0,0,100,add,(DARK_SHRINE,),((PROBE_MINERAL,A),(TEMPLAR_ARCHIVES,A))),
+        Event('Warp Robotics Bay',200,200,0,0,65,add,(ROBOTICS_BAY,),((PROBE_MINERAL,A),(ROBOTICS_FACILITY,A))),
+        Event('Warp Fleet Beacon',300,200,0,0,60,add,(FLEET_BEACON,),((PROBE_MINERAL,A),(STARGATE,A))),
+        Event('Research Ground Weapons Level 1',100,100,0,0,160,research,(GROUND_WEAPONS_LEVEL_1,),((FORGE,O),(GROUND_WEAPONS_LEVEL_1,N))),
+        Event('Research Ground Weapons Level 2',150,150,0,0,190,research,(GROUND_WEAPONS_LEVEL_2,),((FORGE,O),(GROUND_WEAPONS_LEVEL_2,N),(GROUND_WEAPONS_LEVEL_1,A))),
+        Event('Research Ground Weapons Level 3',200,200,0,0,220,research,(GROUND_WEAPONS_LEVEL_3,),((FORGE,O),(GROUND_WEAPONS_LEVEL_3,N),(GROUND_WEAPONS_LEVEL_2,A))),
+        Event('Research Air Weapons Level 1',100,100,0,0,160,research,(AIR_WEAPONS_LEVEL_1,),((CYBERNETICS_CORE,O),(AIR_WEAPONS_LEVEL_1,N))),
+        Event('Research Air Weapons Level 2',175,175,0,0,190,research,(AIR_WEAPONS_LEVEL_2,),((CYBERNETICS_CORE,O),(AIR_WEAPONS_LEVEL_2,N),(AIR_WEAPONS_LEVEL_1,A))),
+        Event('Research Air Weapons Level 3',250,250,0,0,220,research,(AIR_WEAPONS_LEVEL_3,),((CYBERNETICS_CORE,O),(AIR_WEAPONS_LEVEL_3,N),(AIR_WEAPONS_LEVEL_2,A))),
+        Event('Research Ground Armor Level 1',100,100,0,0,160,research,(GROUND_ARMOR_LEVEL_1,),((FORGE,O),(GROUND_ARMOR_LEVEL_1,N))),
+        Event('Research Ground Armor Level 2',150,150,0,0,190,research,(GROUND_ARMOR_LEVEL_2,),((FORGE,O),(GROUND_ARMOR_LEVEL_2,N),(GROUND_ARMOR_LEVEL_1,A))),
+        Event('Research Ground Armor Level 3',200,200,0,0,220,research,(GROUND_ARMOR_LEVEL_3,),((FORGE,O),(GROUND_ARMOR_LEVEL_3,N),(GROUND_ARMOR_LEVEL_2,A))),
+        Event('Research Air Armor Level 1',150,150,0,0,160,research,(AIR_ARMOR_LEVEL_1,),((CYBERNETICS_CORE,O),(AIR_ARMOR_LEVEL_1,N))),
+        Event('Research Air Armor Level 2',225,225,0,0,190,research,(AIR_ARMOR_LEVEL_2,),((CYBERNETICS_CORE,O),(AIR_ARMOR_LEVEL_2,N),(AIR_ARMOR_LEVEL_1,A))),
+        Event('Research Air Armor Level 3',300,300,0,0,220,research,(AIR_ARMOR_LEVEL_3,),((CYBERNETICS_CORE,O),(AIR_ARMOR_LEVEL_3,N),(AIR_ARMOR_LEVEL_2,A))),
+        Event('Research Shields Level 1',150,150,0,0,160,research,(SHIELDS_LEVEL_1,),((FORGE,O),(SHIELDS_LEVEL_1,N))),
+        Event('Research Shields Level 2',225,225,0,0,190,research,(SHIELDS_LEVEL_2,),((FORGE,O),(SHIELDS_LEVEL_2,N),(SHIELDS_LEVEL_1,A))),
+        Event('Research Shields Level 3',300,300,0,0,220,research,(SHIELDS_LEVEL_3,),((FORGE,O),(SHIELDS_LEVEL_3,N),(SHIELDS_LEVEL_2,A))),
+        Event('Research Charge',200,200,0,0,140,research,(CHARGE,),((TWILIGHT_COUNCIL,O),(CHARGE,N))),
+        Event('Research Gravitic Boosters',100,100,0,0,80,research,(GRAVITIC_BOOSTERS,),((ROBOTICS_BAY,O),(GRAVITIC_BOOSTERS,N))),
+        Event('Research Gravitic Drive',100,100,0,0,80,research,(GRAVITIC_DRIVE,),((ROBOTICS_BAY,O),(GRAVITIC_DRIVE,N))),
+        Event('Research Anion Pulse_Crystals',150,150,0,0,90,research,(ANION_PULSE_CRYSTALS,),((FLEET_BEACON,O),(ANION_PULSE_CRYSTALS,N))),
+        Event('Research Extended Thermal Lance',200,200,0,0,140,research,(EXTENDED_THERMAL_LANCE,),((ROBOTICS_BAY,O),(EXTENDED_THERMAL_LANCE,N))),
+        Event('Research Psionic Storm',200,200,0,0,110,research,(PSIONIC_STORM,),((TEMPLAR_ARCHIVES,O),(PSIONIC_STORM,N))),
+        Event('Research Hallucination',100,100,0,0,80,research,(HALLUCINATION,),((CYBERNETICS_CORE,O),(HALLUCINATION,N))),
+        Event('Research Blink',150,150,0,0,170,research,(BLINK,),((TWILIGHT_COUNCIL,O),(BLINK,N))),
+        Event('Research Graviton Catapult',150,150,0,0,80,research,(GRAVITON_CATAPULT,),((FLEET_BEACON,O),(GRAVITON_CATAPULT,N))),
+        Event('Research Warp Gate',50,50,0,0,160,research,(WARP_GATE,),((CYBERNETICS_CORE,O),(WARP_GATE,N))),
+        Event('Give Minerals',50,0,0,0,0,idle,(None,),((COMMAND_CENTER,A),(COMMAND_CENTER,N))),
+        Event('Give Gas',0,50,0,0,0,idle,(None,),((COMMAND_CENTER,A),(COMMAND_CENTER,N))),
+        Event('Receive Minerals',0,0,0,0,0,salvage,(50, 0,),((COMMAND_CENTER,A),(COMMAND_CENTER,N))),
+        Event('Receive Gas',0,0,0,0,0,salvage,(0, 50,),((COMMAND_CENTER,A),(COMMAND_CENTER,N))),
 ]
 
 energy = {
