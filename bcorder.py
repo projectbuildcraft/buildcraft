@@ -325,16 +325,21 @@ class Order:
 		Requires calculated times for each event in self.at
 		Checks the build order for the following conditions:
 			Worker change from gas to minerals and back and vice versa in same second
+			Player does not send and receive the same resource in the same second
 			Has more than 3 workers per gas
 		Returns False if one is met
 		"""
 		current_time = 0
 		delta_workers = 0 # keeps track of changes in workers
+		delta_minerals = 0
+		delta_gas = 0
 		for event_index, event in enumerate(self.events):
 			at_index = index + 1
 			if self.at[at_index].time > current_time:
 				current_time = self.at[at_index].time
 				delta_workers = 0
+				delta_minerals = 0
+				delta_gas = 0
 			else:
 				gassers = self.at[at_index].units[SCV_GAS] + self.at[at_index].units[PROBE_GAS] + self.at[at_index].units[DRONE_GAS]
 				gasses = self.at[at_index].units[ASSIMILATOR] + self.at[at_index].units[EXTRACTOR] + self.at[at_index].units[REFINERY]
@@ -344,10 +349,26 @@ class Order:
 					if delta_workers < 0:
 						return False
 					delta_workers = 1
-				if event[event_index] in [SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS, SWITCH_SCV_TO_MINERALS]:
+				elif event[event_index] in [SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS, SWITCH_SCV_TO_MINERALS]:
 					if delta_workers > 0:
 						return False
 					delta_workers = -1
+				elif event[event_index] == GIVE_MINERALS:
+					if delta_minerals > 0:
+						return False
+					delta_minerals = -1
+				elif event[event_index] == RECEIVE_MINERALS:
+					if delta_minerals < 0:
+						return False
+					delta_minerals = 1
+				elif event[event_index] == GIVE_GAS:
+					if delta_gas > 0:
+						return False
+					delta_gas = -1
+				elif event[event_index] == RECEIVE_GAS:
+					if delta_gas < 0:
+						return False
+					delta_gas = 1
 		return True
 				
 	def append(self, event_info):
@@ -371,7 +392,7 @@ class Order:
 		del self.events[index]
 		self.calculate_times()
 
-	def deleteMany(self, indices):
+	def delete_many(self, indices):
 		"""
 		Deletes events at indices
 		"""
@@ -450,4 +471,58 @@ class Order:
 			else:
 				impossible = True
 				self.at[order_index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units), copy.deepcopy(last.base_larva), copy.deepcopy(last.boosted_things))
+
+class Team:
+	"""
+	Tracks and manages a team of players
+	"""
+	def __init__(self, builds = None, number = 0):
+		"""
+		Initializes a team based on a set of Orders and/or number of players
+		"""
+		if builds == None:
+			self.builds = [Order()]*number # count of builds
+		else:
+			self.builds = builds
+			while (len(self.builds) < number):
+				self.builds.append(Order())
+
+	def add_player(self, order = None, new_race = 'P'):
+		"""
+		Adds a player with the specified order and/or race
+		"""
+		if order == None:
+			self.builds.append(Order(race = new_race))
+		else:
+			self.builds.append(order)
+
+	def remove_player(self, player = 0):
+		del self.builds[player]
+
+	def reset(self, player = 0, race = 'P'):
+		"""
+		Resets specified player as specified race
+		"""
+		self.builds[player] = Order(race = new_race)
+
+	def append(self, event, player = 0):
+		self.builds[player].append(event)
+
+	def sanity_check(self, check_individual = False):
+		"""
+		Returns whether the builds on the team make sense in a team context, specifically, that they:
+			- give and receive minerals at the same time, in the same amounts
+		Optionally, also checks for the individual build conditions in Order
+		Returns True if the builds make sense, false otherwise
+		"""
+		if check_individual:
+			for order in self.builds:
+				if not order.sanity_check():
+					return False
+		delta_minerals = 0
+		delta_gas = 0
+		current_time = 0
+		event_indices = [0]*len(self.builds)
+		pass
+		return True
 
