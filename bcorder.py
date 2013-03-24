@@ -435,7 +435,7 @@ class Order:
 									max_index = curr_index
 									max_larva = larva
 							if max_larva == 3:
-								now.production.append([AUTO_SPAWN_LARVA, events[AUTO_SPAWN_LARVA].time])
+								now.production.append([[AUTO_SPAWN_LARVA,''], events[AUTO_SPAWN_LARVA].time])
 							now.base_larva[max_index] -= 1
 					if kind > 20: # energy
 						greatest_index = 0
