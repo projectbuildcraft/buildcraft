@@ -319,6 +319,37 @@ class Order:
 			continue
 		return True
 
+	def sanity_check(self):
+		"""
+		Concept: Rejects build orders that are illogical during optimization search
+		Requires calculated times for each event in self.at
+		Checks the build order for the following conditions:
+			Worker change from gas to minerals and back and vice versa in same second
+			Has more than 3 workers per gas
+		Returns False if one is met
+		"""
+		current_time = 0
+		delta_workers = 0 # keeps track of changes in workers
+		for event_index, event in enumerate(self.events):
+			at_index = index + 1
+			if self.at[at_index].time > current_time:
+				current_time = self.at[at_index].time
+				delta_workers = 0
+			else:
+				gassers = self.at[at_index].units[SCV_GAS] + self.at[at_index].units[PROBE_GAS] + self.at[at_index].units[DRONE_GAS]
+				gasses = self.at[at_index].units[ASSIMILATOR] + self.at[at_index].units[EXTRACTOR] + self.at[at_index].units[REFINERY]
+				if gassers > 3 * gasses:
+					return False
+				if event[event_index] in [SWITCH_DRONE_TO_GAS, SWITCH_PROBE_TO_GAS, SWITCH_SCV_TO_GAS]:
+					if delta_workers < 0:
+						return False
+					delta_workers = 1
+				if event[event_index] in [SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS, SWITCH_SCV_TO_MINERALS]:
+					if delta_workers > 0:
+						return False
+					delta_workers = -1
+		return True
+				
 	def append(self, event_info):
 		"""
 		Appends event to the build order
