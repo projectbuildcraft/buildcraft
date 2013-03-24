@@ -21,7 +21,7 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    app.my_order = bcorder.Order(filename = "orders/7RR.bo")
+    app.my_order = bcorder.Order(filename = "orders/4gate.bo")
 
     def load(app):
         f = tkFileDialog.askopenfilename()
@@ -52,16 +52,16 @@ def main_menu():
     def graph(app,f):
         f(app.my_order)
 
-    app.supply = Button(root, text='Supply',command=lambda:graph(supply_graph))
+    app.supply = Button(root, text='Supply',command=lambda:graph(app,supply_graph))
     app.supply.grid(row=3,column=0)
 
-    app.army = Button(root, text='Army Value',command=lambda:graph(army_value_graph))
+    app.army = Button(root, text='Army Value',command=lambda:graph(app,army_value_graph))
     app.army.grid(row=3,column=1)
 
-    app.resource_rate = Button(root, text='Resource Collection Rate',command=lambda:graph(resource_collection_rate_graph))
+    app.resource_rate = Button(root, text='Resource Collection Rate',command=lambda:graph(app,resource_collection_rate_graph))
     app.resource_rate.grid(row=3,column=2)
 
-    app.resources = Button(root, text='Resources',command=lambda:graph(resource_graph))
+    app.resources = Button(root, text='Resources',command=lambda:graph(app,resource_graph))
     app.resources.grid(row=3,column=3)
 
     instance_analysis(app.my_order,(app,1,0))
@@ -182,7 +182,6 @@ def army_value_graph(order):
     total = dict()
 
     for i in order.at_time:
-        print minerals, i.army_value(False)
         minerals[i.time], gas = i.army_value(False)
         total[i.time] = minerals[i.time] + gas
 
@@ -257,7 +256,6 @@ def create_graph(data, fill = None, title = '', colors = None, size = (500,400),
     k = 0
     while k <= max_y:
         i = int(round(k))
-        print k, i
         if abs(i - k) < 0.000001 or True:
             y = plot_y(i)
             app.c.create_line(p_left - 3,y,p_left,y)
@@ -267,7 +265,6 @@ def create_graph(data, fill = None, title = '', colors = None, size = (500,400),
     k = 0
     while k <= max_x:
         i = int(round(k))
-        print k, i
         if abs(i - k) < 0.000001 or True:
             x = plot_x(i)
             app.c.create_line(x,height - p_bottom + 3,x,height - p_bottom)
@@ -278,6 +275,7 @@ def create_graph(data, fill = None, title = '', colors = None, size = (500,400),
         coords = []
         if fill[i]:
             coords.append((plot_x(0),plot_y(0)))
+        coords.append((plot_x(0),plot_y(d[min(d.keys())])))
         for k in d.keys():
             coords.append((plot_x(k),plot_y(d[k])))
         if fill[i]:

@@ -21,8 +21,11 @@ def new_order():
     app.w = Label(root, text = "Create a new build order")
     app.w.grid(row = 0, columnspan = 3)
 
+    app.t = Label(root, text = 'Name:')
+    app.t.grid(row = 1, column = 0)
+
     app.e = Entry(root)
-    app.e.grid(row = 1, columnspan = 3,sticky = E+W)
+    app.e.grid(row = 1, column = 1, columnspan = 2,sticky = E+W)
 
     modes = ("Terran","Protoss","Zerg")
 
@@ -74,7 +77,7 @@ def default_graph():
         d[k] = v
     return d
 
-def create_graph(data = [default_graph()], fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30)):
+def create_graph(data, fill = None, title = '', colors = None, size = (500,400), padding = (50,30,30,30)):
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 
