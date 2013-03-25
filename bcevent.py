@@ -43,10 +43,10 @@ def add_units(units,instance): # like add_unit but takes a list
 add = add_units
 
 def mule(nonsense,instance):
-	from constants import MULE
+	from constants import MULE, events, MULE_LIFE
 	instance.units[MULE] += 1
-	# mule dies
-	pass
+	# add mule dies event
+	instance.production.append([MULE_LIFE],events[MULE_LIFE].time)
 
 def mule_dies(nonsense,instance):
 	from constants import MULE
@@ -57,6 +57,7 @@ def idle(unit,instance):
 
 def salvage(resources,instance):
 	instance.minerals += resources[0]
+	instance.gas += resources[1]
 
 def research(topics,instance):
 	for topic in topics:
@@ -71,7 +72,7 @@ def warp(result,instance):
 	from constants import WARPGATE_ON_COOLDOWN, WARPGATE
 	unit, cooldown = result
 	add_unit(unit,instance)
-	instance.production.append(WARPGATE_ON_COOLDOWN,cooldown)
+	instance.production.append([WARPGATE_ON_COOLDOWN],cooldown)
 	# negate effect of removing warpgate
 	instance.units[WARPGATE] -= 1
 	instance.occupied[WARPGATE] += 1

@@ -1,4 +1,4 @@
-from bcevent import add, mule, idle, salvage, research, warp, boost, spawn_larva, Event
+from bcevent import add, mule, idle, salvage, research, warp, boost, spawn_larva, Event, mule_dies
 
 O = 1
 OCCUPATION = O
