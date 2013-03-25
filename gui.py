@@ -3,6 +3,7 @@
     License notice in buildcraft.py
 """
 from Tkinter import *
+from constants import events
 from PIL import Image, ImageTk
 import random
 import math
@@ -19,58 +20,77 @@ class App:
     def get_master(self):
         return self.master
 
+class EventWidget(Canvas):
+
+    def __init__(self, master, event):
+        Canvas.__init__(self, master, height=20)
+        self.event = event
+        self.create_text(10,10,text=events[event[0]].name,anchor=W)
+        self.bind('<Button-1>',self.echo)
+
+    def echo(self,location=None):
+        print self.event
+
 def main_menu():
 
     root = Tk()
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    app.my_order = bcorder.Order(filename = "orders/4gate.bo")
+    app.my_order = bcorder.Order(filename = "orders/OC Opening.bo")
 
-    def load(app):
-        f = tkFileDialog.askopenfilename()
-        app.my_order = bcorder.Order(filename = f)
-        analysis_update(app)
-        
+    add_menu(app)
 
-    app.load = Button(root, text='Load',command=lambda:load(app))
-    app.load.grid(row=0,column=0)
+    add_graph_buttons(app)
 
-    def save(app):
-        name = tkFileDialog.asksaveasfilename()
-        app.my_order.save(name)
+    add_instance_analysis(app)
 
-    app.save = Button(root, text='Save',command=lambda:save(app))   
-    app.save.grid(row=0,column=1)
-
-    def new(app):
-        new_options = new_order()
-        if new_options:
-            name, race = new_options
-            app.my_order = bcorder.Order(name=name, race=race)
-            analysis_update(app)
-
-    app.new = Button(root, text='New',command=lambda:new(app))
-    app.new.grid(row=0,column=3)    
-
-    def graph(app,f):
-        f(app.my_order)
-
-    app.supply = Button(root, text='Supply',command=lambda:graph(app,supply_graph))
-    app.supply.grid(row=3,column=0)
-
-    app.army = Button(root, text='Army Value',command=lambda:graph(app,army_value_graph))
-    app.army.grid(row=3,column=1)
-
-    app.resource_rate = Button(root, text='Resource Collection Rate',command=lambda:graph(app,resource_collection_rate_graph))
-    app.resource_rate.grid(row=3,column=2)
-
-    app.resources = Button(root, text='Resources',command=lambda:graph(app,resource_graph))
-    app.resources.grid(row=3,column=3)
-
-    instance_analysis(app.my_order,(app,1,0))
+    add_event_list(app)
 
     root.mainloop()
+
+def load(app):
+    f = tkFileDialog.askopenfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')])
+    app.my_order = bcorder.Order(filename = f)
+    analysis_update(app)
+
+def save(app):
+    name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')])
+    app.my_order.save(name)
+
+def new(app):
+    new_options = new_order()
+    if new_options:
+        name, race = new_options
+        app.my_order = bcorder.Order(name=name, race=race)
+        analysis_update(app)
+
+def graph(app,f):
+    f(app.my_order)
+
+def add_menu(app):
+
+    app.menubar = Menu(app.master)
+    app.menubar.add_command(label='Load',command=lambda:load(app))
+    app.menubar.add_command(label='Save',command=lambda:save(app))
+    app.menubar.add_command(label='New',command=lambda:new(app))
+    app.master.config(menu=app.menubar)
+
+def add_graph_buttons(app):
+    app.bottom_buttons = Frame(app.master)
+    app.bottom_buttons.pack(side = BOTTOM)
+
+    app.supply = Button(app.bottom_buttons, text='Supply',command=lambda:graph(app,supply_graph))
+    app.supply.grid(row=0,column=0,sticky=E+W)
+
+    app.army = Button(app.bottom_buttons, text='Army Value',command=lambda:graph(app,army_value_graph))
+    app.army.grid(row=1,column=0,sticky=E+W)
+
+    app.resource_rate = Button(app.bottom_buttons, text='Resource Collection Rate',command=lambda:graph(app,resource_collection_rate_graph))
+    app.resource_rate.grid(row=0,column=1,sticky=E+W)
+
+    app.resources = Button(app.bottom_buttons, text='Resources',command=lambda:graph(app,resource_graph))
+    app.resources.grid(row=1,column=1,sticky=E+W)
 
 def new_order():
     root = Toplevel()
@@ -121,23 +141,13 @@ def new_order():
 
 default_colors = ['red','blue','green','yellow','purple','orange']
 
-def instance_analysis(order = None, location=None):
+def add_instance_analysis(app):
 
-    if not location:
-        root = Toplevel()
+    app.instance = Frame(app.master)
+    app.instance.pack(side = LEFT)
 
-        root.wm_title('Analysis')
-
-        app = App(root)
-        row = 0
-        column = 0
-        app.my_order = order
-    else:
-        app, row, column = location
-        root = app.master
-
-    app.canvas = Canvas(root, width=500,height=500)
-    app.canvas.grid(row=row+1,column=column)
+    app.canvas = Canvas(app.instance, width=500,height=500)
+    app.canvas.pack(side = BOTTOM)
 
     app.minerals = get_image('minerals.gif')
     app.gas = get_image('vespene.gif')
@@ -153,18 +163,33 @@ def instance_analysis(order = None, location=None):
     app.supply_value = app.canvas.create_text(80,150,anchor=W)
     
     def refresh(i):
-        print app.my_order.name
-        
         i = app.my_order.at_time[int(i)-1]
 
         app.canvas.itemconfig(app.mineral_value,text=str(int(i.minerals)))
         app.canvas.itemconfig(app.gas_value,text=str(int(i.gas)))
         app.canvas.itemconfig(app.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
-        
-    app.scale = Scale(root, from_=1, to=len(app.my_order.at_time), command=refresh, orient=HORIZONTAL)
-    app.scale.grid(row=row,column=column,sticky=E+W)
 
-    root.mainloop()   
+    app.time_scale = Frame(app.instance)
+    app.time_scale.pack(side = TOP)
+
+    app.time_icon = Label(app.time_scale, image = app.time)
+    app.time_icon.pack(side = LEFT)
+    
+    app.scale = Scale(app.time_scale, from_=1,to=len(app.my_order.at_time), command=refresh, orient=HORIZONTAL)
+    app.scale.pack(side = LEFT, fill=X, expand = True) 
+
+def add_event_list(app):
+
+    app.event_canvas = Canvas(app.master, width=0)
+    app.event_frame = Frame(app.event_canvas)
+    app.event_scrollbar = Scrollbar(app.master,orient='vertical',command=app.event_canvas.yview)
+    app.event_canvas.configure(yscrollcommand = app.event_scrollbar.set)
+    app.event_scrollbar.pack(side='left',fill='y')
+    app.event_canvas.pack(side='right')
+
+    for e in app.my_order.events:
+        event_widget = EventWidget(app.master, e)
+        event_widget.pack()
 
 def analysis_update(app):
     app.scale.config(to=len(app.my_order.at_time))
