@@ -20,12 +20,8 @@ import bcorder
 from constants import * 
 from bcevent import boost
 import gui
-<<<<<<< HEAD
-my_order = bcorder.Order(filename = "orders/test_chrono.bo")
-=======
 
-my_order = bcorder.Order(filename = "orders/Widow Mine Expand.bo")
->>>>>>> 295b8ef5d43825578e2adcacbf23a0ff04c96faf
+my_order = bcorder.Order(filename = "orders/test_chrono.bo")
 run = True
 racemap = {
 	0 : "P",
