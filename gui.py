@@ -26,7 +26,7 @@ class EventWidget(Canvas):
     def __init__(self, app, index):
         Canvas.__init__(self, app.master, height=20)
         self.event = app.my_order.events[index]
-        self.at = app.my_order.at[index]
+        self.at = app.my_order.at[index+1]
         print ToolTip
         self.tooltip = ToolTip(self,delay=50)
         start = self.at.time
