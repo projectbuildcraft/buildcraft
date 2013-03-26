@@ -46,7 +46,7 @@ def mule(nonsense,instance):
 	from constants import MULE, events, MULE_LIFE
 	instance.units[MULE] += 1
 	# add mule dies event
-	instance.production.append([MULE_LIFE],events[MULE_LIFE].time)
+	instance.production.append([[MULE_LIFE],events[MULE_LIFE].time])
 
 def mule_dies(nonsense,instance):
 	from constants import MULE

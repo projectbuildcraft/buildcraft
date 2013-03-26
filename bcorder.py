@@ -45,10 +45,70 @@ class Instance:
 		else:
 			self.base_larva = base_larva # tracks larva [larva_count]
 		if boosted_things == None:
-			self.boosted_things = [{}, {}]
+			self.boosted_things = [{CREATE_PROBE: [],
+                                                CREATE_ZEALOT: [],
+                                                WARP_IN_ZEALOT: [],
+                                                CREATE_STALKER: [],
+                                                WARP_IN_STALKER: [],
+                                                CREATE_SENTRY: [],
+                                                WARP_IN_SENTRY: [],
+                                                CREATE_OBSERVER: [],
+                                                CREATE_IMMORTAL: [],
+                                                CREATE_WARP_PRISM: [],
+                                                CREATE_COLOSSUS: [],
+                                                CREATE_PHOENIX: [],
+                                                CREATE_VOID_RAY: [],
+                                                CREATE_HIGH_TEMPLAR: [],
+                                                WARP_IN_HIGH_TEMPLAR: [],
+                                                CREATE_DARK_TEMPLAR: [],
+                                                WARP_IN_DARK_TEMPLAR: [],
+                                                CREATE_CARRIER: [],
+                                                CREATE_MOTHERSHIP: [],
+                                                CREATE_MOTHERSHIP_CORE: [],
+                                                CREATE_ORACLE: [],
+                                                CREATE_TEMPEST: [],
+                                                TRANSFORM_INTO_WARPGATE: [],
+                                                TRANSFORM_INTO_GATEWAY: [],
+                                                WARPGATE_ON_COOLDOWN: [],
+                                                RESEARCH_GROUND_WEAPONS_LEVEL_1: [],
+                                                RESEARCH_GROUND_WEAPONS_LEVEL_2: [],
+                                                RESEARCH_GROUND_WEAPONS_LEVEL_3: [],
+                                                RESEARCH_AIR_WEAPONS_LEVEL_1: [],
+                                                RESEARCH_AIR_WEAPONS_LEVEL_2: [],
+                                                RESEARCH_AIR_WEAPONS_LEVEL_3: [],
+                                                RESEARCH_GROUND_ARMOR_LEVEL_1: [],
+                                                RESEARCH_GROUND_ARMOR_LEVEL_2: [],
+                                                RESEARCH_GROUND_ARMOR_LEVEL_3: [],
+                                                RESEARCH_AIR_ARMOR_LEVEL_1: [],
+                                                RESEARCH_AIR_ARMOR_LEVEL_2: [],
+                                                RESEARCH_AIR_ARMOR_LEVEL_3: [],
+                                                RESEARCH_SHIELDS_LEVEL_1: [],
+                                                RESEARCH_SHIELDS_LEVEL_2: [],
+                                                RESEARCH_SHIELDS_LEVEL_3: [],
+                                                RESEARCH_CHARGE: [],
+                                                RESEARCH_GRAVITIC_BOOSTERS: [],
+                                                RESEARCH_GRAVITIC_DRIVE: [],
+                                                RESEARCH_ANION_PULSE_CRYSTALS: [],
+                                                RESEARCH_EXTENDED_THERMAL_LANCE: [],
+                                                RESEARCH_PSIONIC_STORM: [],
+                                                RESEARCH_HALLUCINATION: [],
+                                                RESEARCH_BLINK: [],
+                                                RESEARCH_GRAVITON_CATAPULT: [],
+                                                RESEARCH_WARP_GATE: []},                                          
+                                               {NEXUS: [],
+                                                GATEWAY: [],
+                                                FORGE: [],
+                                                CYBERNETICS_CORE: [],
+                                                ROBOTICS_FACILITY: [],
+                                                WARPGATE: [],
+						STARGATE: [],
+                                                TWILIGHT_COUNCIL: [],
+                                                ROBOTICS_BAY: [],
+                                                FLEET_BEACON: [],
+                                                TEMPLAR_ARCHIVES: []}]
 		else:
 			self.boosted_things = boosted_things # tracks Chrono Boosted events and structures: [{Event_Index: {[time_left, chrono_left]}, {Unit_Index: [chrono_left]}]
-
+		
 	def resource_rate(self):
 		"""
 		Calculates the resource collection rate
@@ -83,10 +143,10 @@ class Instance:
 		while index > 0:
 			index -= 1
 			if self.production[index][0][0] in self.boosted_things[0].keys():
-				for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
+                                for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
 					if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
 						self.production[index][1] -= .5 # boosted effect
-						self.boosted_things[0][self.production[index][0][0]][i][0] -= 1.5 # update time left
+						self.boosted_things[0][self.production[index][0][0]][i][1] -= .5
 						break
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
@@ -107,8 +167,6 @@ class Instance:
 						if kind == O:
 							for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
 								if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
-									if kind not in self.boosted_things[1]:
-										self.boosted_things[1][kind] = []
 									self.boosted_things[1][kind].append(self.boosted_things[0][self.production[index][0][0]][i][1])
 									del self.boosted_things[0][self.production[index][0][0]][i]
 				del self.production[index]
@@ -118,7 +176,8 @@ class Instance:
 			i = len(self.boosted_things[0][boosted_event])
 			while i > 0:
 				i -= 1
-				self.boosted_things[0][boosted_event][i][1] -= 1 # update chrono left
+				self.boosted_things[0][boosted_event][i][0] -= 1.5
+				self.boosted_things[0][boosted_event][i][1] -= .5 # update chrono left
 				if self.boosted_things[0][boosted_event][i][1] <= 0:
 					del self.boosted_things[0][boosted_event][i]
 		for boosted_structure in self.boosted_things[1].iterkeys():
@@ -152,7 +211,21 @@ class Instance:
 		return count
 
 	def army_value(self, include_defensive = False):
-		pass
+		"""
+		Returns [mineral,gas] of spending on army, optionally including defensive units
+		"""
+		value = [0,0]
+		army_counts = [[index, self.units[unit]] for index,unit in enumerate(self.units) if self.units[unit] > 0 and unit in army_units]
+		for index,count in army_counts:
+			value[0] += army_units[index][0] * count
+			value[1] += army_count[index][1] * count
+		if include_defensive:
+			defensive_counts = [[index, self.units[unit]] for index,unit in enumerate(self.units) if self.units[unit] > 0 and unit in defensive_units]
+			for index,count in defensive_counts:
+				value[0] += defensive_units[index][0] * count
+				value[1] += defensive_units[index][1] * count
+		return value
+
 
 	def __deepcopy__(self, memo = None):
 		return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva), copy.deepcopy(self.boosted_things))
@@ -186,8 +259,8 @@ class Order:
 				events_info[0] = int(raw_info.pop(0))
 				if events[events_info[0]].get_result() == boost:
 					events_info.append(None)
-					events_info.append(raw_info.pop())
-					events_info[2] = raw_info.pop()
+					events_info.append(int(raw_info.pop()))
+					events_info[2] = int(raw_info.pop())
 				events_info[1] = string.join(raw_info)
 				self.events.append(events_info)
 			f.close()
@@ -237,7 +310,7 @@ class Order:
 		now - whether to evaluate availability now or eventually
 		"""
 		# minerals, gas, supply
-		if self.at[order_index].minerals < events[event_index].cost[0]: # requires minerals
+		if self.at[order_index].minerals < events[event_index].cost[0]:# requires minerals
 			if now:
 				return False
 			else:
@@ -292,7 +365,7 @@ class Order:
 						return False
 					continue
 			if kind == NOT:
-				if self.at[order_index].units[unit] > 0:
+				if self.at[order_index].units[unit] > 0 or self.at[order_index].occupied[unit] > 0:
 					return False
 				for event,time in self.at[order_index].production:
 					event_index = event[0]
@@ -380,6 +453,7 @@ class Order:
 		Appends event to the build order
 		"""
 		self.events.append(event_info)
+		print "hello"
 		self.calculate_times()
 
 	def insert(self, event_info, index):
@@ -428,6 +502,7 @@ class Order:
 		self.at_time = [now]
 		impossible = False
 		for index, event_info in enumerate(self.events):
+			print event_info
 			order_index = index + 1
 			last = self.at[index]
 			now = copy.deepcopy(last)
@@ -474,7 +549,8 @@ class Order:
 				now.production.append([event_info,events[event_info[0]].time])
 			else:
 				impossible = True
-				self.at[order_index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units), copy.deepcopy(last.base_larva), copy.deepcopy(last.boosted_things))
+				self.at[order_index] = copy.deepcopy(last)
+				self.at[order_index].time = float('inf')
 
 class Team:
 	"""
@@ -512,6 +588,12 @@ class Team:
 	def append(self, event, player = 0):
 		self.builds[player].append(event)
 
+	def delete(self, index, player = 0):
+		"""
+		Deletes event at specified index for specified player
+		"""
+		self.builds[player].delete(index)
+
 	def sanity_check(self, check_individual = False):
 		"""
 		Returns whether the builds on the team make sense in a team context, specifically, that they:
@@ -531,7 +613,15 @@ class Team:
 		return True
 
 	def add_mineral_gift(self, giver = 0, receiever = 1, time = 360):
-		pass
+		if time < 360:
+			pass
+		else:
+			pass
 
 	def add_gas_gift(self, giver = 0, receiver = 1, time = 360):
-		pass
+		if time < 360:
+			pass
+		else:
+			pass
+			# find index at which to insert gift
+
