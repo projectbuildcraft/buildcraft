@@ -321,7 +321,16 @@ class Order:
 				return False
 			else:
 				if self.at[order_index].units[SCV_GAS] + self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[DRONE_GAS] == 0:
-					return False
+					for event_info,time in self.at[order_index].production:
+						if events[event_info[0]].get_result() == add: # necessarily means we just added a worker to gas
+							if PROBE_GAS in events[event_info[0]].get_args():
+								break
+							elif DRONE_GAS in events[event_info[0]].get_args():
+								break
+							elif SCV_GAS in events[event_info[0]].get_args():
+								break
+					else:
+						return False
 		if events[event_index].supply > 0: # requires supply
 			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
 				if now:
