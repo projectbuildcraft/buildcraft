@@ -48,7 +48,7 @@ class Instance:
 			self.boosted_things = [{}, {}]
 		else:
 			self.boosted_things = boosted_things # tracks Chrono Boosted events and structures: [{Event_Index: {[time_left, chrono_left]}, {Unit_Index: [chrono_left]}]
-
+		
 	def resource_rate(self):
 		"""
 		Calculates the resource collection rate
@@ -152,7 +152,21 @@ class Instance:
 		return count
 
 	def army_value(self, include_defensive = False):
-		pass
+		"""
+		Returns [mineral,gas] of spending on army, optionally including defensive units
+		"""
+		value = [0,0]
+		army_counts = [[index, self.units[unit]] for index,unit in enumerate(self.units) if self.units[unit] > 0 and unit in army_units]
+		for index,count in army_counts:
+			value[0] += army_units[index][0] * count
+			value[1] += army_count[index][1] * count
+		if include_defensive:
+			defensive_counts = [[index, self.units[unit]] for index,unit in enumerate(self.units) if self.units[unit] > 0 and unit in defensive_units]
+			for index,count in defensive_counts:
+				value[0] += defensive_units[index][0] * count
+				value[1] += defensive_units[index][1] * count
+		return value
+
 
 	def __deepcopy__(self, memo = None):
 		return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva), copy.deepcopy(self.boosted_things))
@@ -474,7 +488,8 @@ class Order:
 				now.production.append([event_info,events[event_info[0]].time])
 			else:
 				impossible = True
-				self.at[order_index] = Instance(float('inf'), copy.deepcopy(last.units), copy.deepcopy(last.occupied), copy.deepcopy(last.production), last.minerals, last.gas, last.supply, last.cap, last.blue, last.gold, copy.deepcopy(last.energy_units), copy.deepcopy(last.base_larva), copy.deepcopy(last.boosted_things))
+				self.at[order_index] = copy.deepcopy(last)
+				self.at[order_index].time = float('inf')
 
 class Team:
 	"""
@@ -512,6 +527,12 @@ class Team:
 	def append(self, event, player = 0):
 		self.builds[player].append(event)
 
+	def delete(self, index, player = 0):
+		"""
+		Deletes event at specified index for specified player
+		"""
+		self.builds[player].delete(index)
+
 	def sanity_check(self, check_individual = False):
 		"""
 		Returns whether the builds on the team make sense in a team context, specifically, that they:
@@ -531,7 +552,15 @@ class Team:
 		return True
 
 	def add_mineral_gift(self, giver = 0, receiever = 1, time = 360):
-		pass
+		if time < 360:
+			pass
+		else:
+			pass
 
 	def add_gas_gift(self, giver = 0, receiver = 1, time = 360):
-		pass
+		if time < 360:
+			pass
+		else:
+			pass
+			# find index at which to insert gift
+

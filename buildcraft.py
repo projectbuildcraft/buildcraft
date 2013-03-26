@@ -21,7 +21,7 @@ from constants import events
 from bcevent import boost
 import gui
 
-my_order = bcorder.Order(filename = "orders/4gate.bo")
+my_order = bcorder.Order()
 run = True
 racemap = {
 	0 : "P",
