@@ -734,6 +734,31 @@ energy = {
         NEXUS : (0,100,None),
 }
 
+can_be = { # because truck OOP
+
+	# this mapping is directional, acyclic, and recursive
+
+	BARRACKS : BARRACKS_REACTOR,
+	BARRACKS_REACTOR : REACTOR_BARRACKS,
+	REACTOR_BARRACKS : BARRACKS_TECH_LAB,
+	
+	FACTORY : FACTORY_REACTOR,
+	FACTORY_REACTOR : REACTOR_FACTORY,
+	REACTOR_FACTORY : FACTORY_TECH_LAB,
+
+	STARPORT : STARPORT_REACTOR,
+	STARPORT_REACTOR : REACTOR_STARPORT,
+	REACTOR_STARPORT : STARPORT_TECH_LAB,
+
+	COMMAND_CENTER : PLANETARY_FORTRESS,
+	PLANETARY_FORTRESS : ORBITAL_COMMAND, # planetary fortresses don't unlock anything in particular
+
+	HATCHERY : LAIR,
+	LAIR : HIVE,
+
+	OVERLORD : OVERSEER, # I don't know of any requirements here but just in case
+}
+
 army_units = { # UNIT: (MINERALS, GAS)
 	# TERRAN
 	MARINE : (50,0),
