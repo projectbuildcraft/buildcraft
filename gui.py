@@ -9,6 +9,7 @@ import random
 import math
 import tkFileDialog
 import bcorder
+from ToolTip import ToolTip
 
 class App:
 
@@ -23,11 +24,13 @@ class App:
 class EventWidget(Canvas):
 
     def __init__(self, app, index):
-        print index
         Canvas.__init__(self, app.master, height=20)
         self.event = app.my_order.events[index]
         self.at = app.my_order.at[index]
+        print ToolTip
+        self.tooltip = ToolTip(self,delay=50)
         start = self.at.time
+        print start
         current = app.scale.get()
         passed_time = current - start
         total_time = events[self.event[0]].time
@@ -36,6 +39,7 @@ class EventWidget(Canvas):
         self.create_rectangle(2,2,total_time*5,20)
         self.create_text(10,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
+        self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
 
     def echo(self,location=None):
         print self.event
@@ -47,6 +51,7 @@ class EventWidget(Canvas):
         total_time = events[self.event[0]].time
         actual_time = max(0,min(passed_time,total_time))
         self.coords(self.fill,2,2,actual_time*5,20)
+        self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
         
 
 def main_menu():
