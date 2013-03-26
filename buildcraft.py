@@ -17,11 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import bcorder
-from constants import events
+from constants import * 
 from bcevent import boost
 import gui
-
-my_order = bcorder.Order(filename = "orders/4gate.bo")
+my_order = bcorder.Order(filename = "orders/test_chrono.bo")
 run = True
 racemap = {
 	0 : "P",
@@ -52,7 +51,7 @@ while run:
 			print "Saved to", filename
 	elif menu_choice == 2:
 		index = int(raw_input("Insert at: "))
-		choices = [i for i in range(len(events)) if my_order.available(order_index = index, event_index = i)]
+		choices = [i for i in xrange(len(events)) if my_order.available(order_index = index, event_index = i)]
 		for choice_index,event_index in enumerate(choices):
 			print choice_index,bcorder.name(event_index)
 		choice = int(raw_input("=> "))
@@ -62,12 +61,22 @@ while run:
 			my_order.insert([choices[choice],''],index)
 		pass
 	elif menu_choice == 3:
-		choices = [i for i in range(len(events)) if my_order.available(order_index = len(my_order.events), event_index = i)]
+		choices = [i for i in xrange(len(events)) if my_order.available(order_index = len(my_order.events), event_index = i)]
 		for choice_index,event_index in enumerate(choices):
 			print choice_index,bcorder.name(event_index)
 		choice = int(raw_input("=> "))
 		if events[choices[choice]].get_result() == boost:
-			pass
+			boostable = []
+			for p in my_order.at[len(my_order.events)].production:
+				for r in bcorder.get_requirements(p[0][0]):
+					if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
+								  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
+						boostable.append([p[0][0], p[1]])
+						break
+			for boostable_index, boost_info in enumerate(boostable):
+				print boostable_index, events[boost_info[0]].get_name(), "with", boost_info[1], "sec remaining"
+			extra_choice = int(raw_input("=> "))
+			my_order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]])
 		else:
 			my_order.append([choices[choice],''])
 	elif menu_choice == 4:
