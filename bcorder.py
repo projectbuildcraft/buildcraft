@@ -158,6 +158,8 @@ class Instance:
 				for requirement in event.get_requirements():
 					unit, kind = requirement
 					if kind == O:
+						while(self.occupied[unit] == 0):
+							unit = can_be[unit] # if this fails it can be because of issues with availalbe and calculate_times
 						self.occupied[unit] -= 1
 						self.units[unit] += 1
 				if self.production[index][0][0] in self.boosted_things[0].keys():
@@ -340,7 +342,8 @@ class Order:
 				if difference > 0:
 					return False
 		# requirements
-		for requirement in events[event_index].get_requirements():
+		requirements = list(events[event_index].get_requirements()) # our dirty copy
+		for requirement in requirements:
 			unit, kind = requirement
 			if kind == ASSUMPTION:
 				if self.at[order_index].units[unit] > 0:
@@ -348,20 +351,32 @@ class Order:
 				if self.at[order_index].occupied[unit] > 0:
 					continue
 				if now:
-					return False
+					if unit in can_be: # can be other value
+						requirements.append((can_be[unit],ASSUMPTION))
+						continue
+					else:
+						return False
 				else:
 					for event_info,time in self.at[order_index].production:
 						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
 								break
 					else:
-						return False
+						if unit in can_be:
+							requirements.append((can_be[unit],ASSUMPTION))
+							continue
+						else:
+							return False
 				continue
 			if kind == OCCUPATION or kind == CONSUMPTION:
 				if self.at[order_index].units[unit] > 0:
 					continue
 				if now:
-					return False
+					if unit in can_be: # can be other value
+						requirements.append((can_be[unit],OCCUPATION))
+						continue
+					else:
+						return False
 				else:
 					if self.at[order_index].occupied[unit] > 0:
 						continue
@@ -370,7 +385,11 @@ class Order:
 							if unit in events[event_info[0]].get_args():
 								break
 					else:
-						return False
+						if unit in can_be: # can be other value
+							requirements.append((can_be[unit],OCCUPATION))
+							continue
+						else:
+							return False
 					continue
 			if kind == NOT:
 				if self.at[order_index].units[unit] > 0 or self.at[order_index].occupied[unit] > 0:
@@ -461,7 +480,6 @@ class Order:
 		Appends event to the build order
 		"""
 		self.events.append(event_info)
-		print "hello"
 		self.calculate_times()
 
 	def insert(self, event_info, index):
@@ -510,7 +528,6 @@ class Order:
 		self.at_time = [now]
 		impossible = False
 		for index, event_info in enumerate(self.events):
-			print event_info
 			order_index = index + 1
 			last = self.at[index]
 			now = copy.deepcopy(last)
@@ -526,6 +543,8 @@ class Order:
 				for requirement in get_requirements(event_info[0]):
 					unit, kind = requirement
 					if kind == O:
+						while(now.units[unit] == 0):
+							unit = can_be[unit] # if this is an error then there is a problem with available
 						now.units[unit] -= 1
 						now.occupied[unit] += 1
 						if kind in now.boosted_things[1].keys():
