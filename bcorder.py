@@ -306,7 +306,7 @@ class Order:
 						return False
 					continue
 			if kind == NOT:
-				if self.at[order_index].units[unit] > 0:
+				if self.at[order_index].units[unit] > 0 or self.at[order_index].occupied[unit] > 0:
 					return False
 				for event,time in self.at[order_index].production:
 					event_index = event[0]
