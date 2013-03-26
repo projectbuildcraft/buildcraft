@@ -729,3 +729,61 @@ energy = {
         ORACLE : (50,200,None),
         NEXUS : (0,100,None),
 }
+
+army_units = { # UNIT: (MINERALS, GAS)
+	# TERRAN
+	MARINE : (50,0),
+	MARAUDER : (100,25),
+	REAPER : (50,50),
+	GHOST : (200,100),
+	HELLION : (100,0),
+	WIDOW_MINE : (75,25),
+	SIEGE_TANK : (150,125),
+	HELLBAT : (100,0),
+	THOR : (300,200),
+	VIKING : (150,75),
+	MEDIVAC : (100,100),
+	RAVEN : (100,200),
+	BANSHEE : (150,100),
+	BATTLECRUISER : (400,300),
+	# ZERG
+	ZERGLING : (25,0),
+	BANELING : (50,25),
+	ROACH : (75,25),
+	HYDRALISK : (100,50),
+	SWARM_HOST : (200,100),
+	INFESTOR : (100,150),
+	ULTRALISK : (300,200),
+	MUTALISK : (100,100),
+	CORRUPTOR : (150,100),
+	VIPER : (100,200),
+	BROOD_LORD : (300,250),
+	# PROTOSS
+	ZEALOT : (100,0),
+	STALKER : (125,50),
+	SENTRY : (50,100),
+	HIGH_TEMPLAR : (50,150),
+	DARK_TEMPLAR : (125,125),
+	MOTHERSHIP_CORE : (100,100),
+	IMMORTAL : (250,100),
+	COLOSSUS : (300,200),
+	ARCHON : (175,275), # I picked the middle values
+	PHOENIX : (150,100),
+	VOID_RAY : (250,150),
+	ORACLE : (150,150),
+	CARRIER : (300,200),
+	TEMPEST : (300,200),
+	MOTHERSHIP : (400,400),
+}
+
+defensive_units = { # UNIT: (MINERALS, GAS)
+	PLANETARY_FORTRESS : (150,150), # I don't count the cost of CC because it doesn't count as defensive
+	MISSILE_TURRET : (125,0),
+	SENSOR_TOWER : (125,100),
+	QUEEN : (150,0),
+	SPINE_CRAWLER : (100,0),
+	SPORE_CRAWLER : (75,0),
+	OVERSEER : (50,50), # I don't count the cost of the overlord because the overlord doesn't count as defensive
+	OBSERVER : (25,75),
+	PHOTON_CANNON : (150,0),
+}
