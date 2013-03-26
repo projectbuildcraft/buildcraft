@@ -60,7 +60,7 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    app.my_order = bcorder.Order(filename = "orders/Widow Mine Expand.bo")
+    app.my_order = bcorder.Order(filename = "orders/OC Opening.bo")
 
     add_menu(app)
 
@@ -203,8 +203,8 @@ def add_instance_analysis(app):
     app.time_icon = Label(app.time_scale, image = app.time)
     app.time_icon.pack(side = LEFT)
     
-    app.scale = Scale(app.time_scale, from_=1,to=len(app.my_order.at_time), command=refresh, orient=HORIZONTAL)
-    app.scale.pack(side = LEFT, fill=X, expand = True) 
+    app.scale = Scale(app.time_scale, from_=1,to=len(app.my_order.at_time), length=300, command=refresh, orient=HORIZONTAL)
+    app.scale.pack(side = LEFT) 
 
 def add_event_list(app):
 

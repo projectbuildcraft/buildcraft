@@ -91,7 +91,6 @@ class Instance:
                                                 RESEARCH_ANION_PULSE_CRYSTALS: [],
                                                 RESEARCH_EXTENDED_THERMAL_LANCE: [],
                                                 RESEARCH_PSIONIC_STORM: [],
-                                                RESEARCH_HALLUCINATION: [],
                                                 RESEARCH_BLINK: [],
                                                 RESEARCH_GRAVITON_CATAPULT: [],
                                                 RESEARCH_WARP_GATE: []},                                          
