@@ -22,14 +22,32 @@ class App:
 
 class EventWidget(Canvas):
 
-    def __init__(self, master, event):
-        Canvas.__init__(self, master, height=20)
-        self.event = event
-        self.create_text(10,10,text=events[event[0]].name,anchor=W)
+    def __init__(self, app, index):
+        print index
+        Canvas.__init__(self, app.master, height=20)
+        self.event = app.my_order.events[index]
+        self.at = app.my_order.at[index]
+        start = self.at.time
+        current = app.scale.get()
+        passed_time = current - start
+        total_time = events[self.event[0]].time
+        actual_time = max(0,min(passed_time,total_time))
+        self.fill = self.create_rectangle(2,2,actual_time*5,20,fill='aquamarine',disabledoutline='')
+        self.create_rectangle(2,2,total_time*5,20)
+        self.create_text(10,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
 
     def echo(self,location=None):
         print self.event
+
+    def update(self,current):
+        print current
+        start = self.at.time
+        passed_time = current - start
+        total_time = events[self.event[0]].time
+        actual_time = max(0,min(passed_time,total_time))
+        self.coords(self.fill,2,2,actual_time*5,20)
+        
 
 def main_menu():
 
@@ -37,7 +55,7 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    app.my_order = bcorder.Order(filename = "orders/OC Opening.bo")
+    app.my_order = bcorder.Order(filename = "orders/Widow Mine Expand.bo")
 
     add_menu(app)
 
@@ -120,7 +138,6 @@ def new_order():
     app.images = []
     for i in range(3):
         text = modes[i]
-        print text
         image = Image.open('images/'+text+'.png')
         photo = ImageTk.PhotoImage(image.resize((50,50)))
         app.images.append(photo)
@@ -163,6 +180,12 @@ def add_instance_analysis(app):
     app.supply_value = app.canvas.create_text(80,150,anchor=W)
     
     def refresh(i):
+
+        i = int(i)
+
+        for e in app.events:
+            e.update(i)
+        
         i = app.my_order.at_time[int(i)-1]
 
         app.canvas.itemconfig(app.mineral_value,text=str(int(i.minerals)))
@@ -180,16 +203,18 @@ def add_instance_analysis(app):
 
 def add_event_list(app):
 
-    app.event_canvas = Canvas(app.master, width=0)
+    app.event_canvas = Canvas(app.master)
     app.event_frame = Frame(app.event_canvas)
     app.event_scrollbar = Scrollbar(app.master,orient='vertical',command=app.event_canvas.yview)
     app.event_canvas.configure(yscrollcommand = app.event_scrollbar.set)
     app.event_scrollbar.pack(side='left',fill='y')
     app.event_canvas.pack(side='right')
 
-    for e in app.my_order.events:
-        event_widget = EventWidget(app.master, e)
+    app.events = []
+    for i in range(len(app.my_order.events)):
+        event_widget = EventWidget(app,i)
         event_widget.pack()
+        app.events.append(event_widget)
 
 def analysis_update(app):
     app.scale.config(to=len(app.my_order.at_time))
