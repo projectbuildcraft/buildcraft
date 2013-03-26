@@ -1,4 +1,4 @@
-from bcevent import add, mule, idle, salvage, research, warp, boost, spawn_larva, Event, mule_dies
+from bcevent import add, mule, idle, salvage, research, warp, boost, spawn_larva, Event
 
 O = 1
 OCCUPATION = O
@@ -464,6 +464,8 @@ GIVE_MINERALS = 238
 GIVE_GAS = 239
 RECEIVE_MINERALS = 240
 RECEIVE_GAS = 241
+TRANSFORM_HELLBAT = 242
+TRANSFORM_HELLION = 243
 
 events = [
         Event('Build SCV',50,0,1,0,17,add,(SCV_MINERAL,),((COMMAND_CENTER,O),)),
@@ -483,7 +485,7 @@ events = [
         Event('Build Raven',100,200,2,0,60,add,(RAVEN,),((STARPORT_TECH_LAB,O),)),
         Event('Build Banshee',150,100,3,0,60,add,(BANSHEE,),((STARPORT_TECH_LAB,O),)),
         Event('Build Battlecruiser',400,300,6,0,90,add,(BATTLECRUISER,),((STARPORT_TECH_LAB,O),(FUSION_CORE,A))),
-        Event('Build Hellbat',100,0,2,0,30,add,(HELLBAT,),((FACTORY,O),(ARMORY,))),
+        Event('Build Hellbat',100,0,2,0,30,add,(HELLBAT,),((FACTORY,O),(ARMORY,A))),
         Event('Build Widow Mine',75,25,2,0,40,add,(WIDOW_MINE,),((FACTORY,O),)),
         Event('Build Command Center',400,0,0,11,100,add,(COMMAND_CENTER,),((SCV_MINERAL,O),)),
         Event('Upgrade to Orbital Command',150,0,0,0,35,add,(ORBITAL_COMMAND,),((COMMAND_CENTER,C),(BARRACKS,A))),
@@ -573,7 +575,7 @@ events = [
         Event('Spawn Zergling',50,0,1,0,24,add,(ZERGLING, ZERGLING,),((LARVA,C),(SPAWNING_POOL,A))),
         Event('Spawn Queen',150,0,2,0,50,add,(QUEEN,),((HATCHERY,O),(SPAWNING_POOL,A))),
         Event('Spawn Hydralisk',100,50,2,0,33,add,(HYDRALISK,),((LARVA,C),(HYDRALISK_DEN,A))),
-        Event('Morph Baneling',25,25,0,0,20,add,(BANELING,),((LARVA,C),(BANELING_NEST,A))),
+        Event('Morph Baneling',25,25,0,0,20,add,(BANELING,),((ZERGLING,C),(BANELING_NEST,A))),
         Event('Morph Overseer',50,50,0,0,17,add,(OVERSEER,),((LARVA,C),(LAIR,A))),
         Event('Spawn Roach',75,25,2,0,27,add,(ROACH,),((LARVA,C),(ROACH_WARREN,A))),
         Event('Spawn Infestor',100,150,2,0,50,add,(INFESTOR,),((LARVA,C),(INFESTATION_PIT,A))),
@@ -581,7 +583,7 @@ events = [
         Event('Spawn Corruptor',150,100,2,0,40,add,(CORRUPTOR,),((LARVA,C),(SPIRE,A))),
         Event('Spawn Nydus Worm',100,100,0,0,20,add,(NYDUS_WORM,),((NYDUS_NETWORK,A),)),
         Event('Spawn Ultralisk',300,200,6,0,55,add,(ULTRALISK,),((LARVA,C),(ULTRALISK_CAVERN,A))),
-        Event('Morph Brood Lord',150,150,2,0,34,add,(BROOD_LORD,),((LARVA,C),(GREATER_SPIRE,A))),
+        Event('Morph Brood Lord',150,150,2,0,34,add,(BROOD_LORD,),((CORRUPTOR,C),(GREATER_SPIRE,A))),
         Event('Spawn Swarm Host',200,100,3,0,40,add,(SWARM_HOST,),((LARVA,C),(INFESTATION_PIT,A))),
         Event('Spawn Viper',100,200,3,0,40,add,(VIPER,),((LARVA,C),(SPIRE,A))),
         Event('Morph Hatchery',300,0,-1,2,100,add,(HATCHERY,),((DRONE_MINERAL,C),)),
@@ -708,6 +710,8 @@ events = [
         Event('Give Gas',0,50,0,0,0,idle,(None,),((COMMAND_CENTER,A),(COMMAND_CENTER,N))),
         Event('Receive Minerals',0,0,0,0,0,salvage,(50, 0,),((COMMAND_CENTER,A),(COMMAND_CENTER,N))),
         Event('Receive Gas',0,0,0,0,0,salvage,(0, 50,),((COMMAND_CENTER,A),(COMMAND_CENTER,N))),
+        Event('Transform Hellbat',0,0,0,0,4,add,(HELLBAT,),((HELLION,C),(TRANSFORMATION_SERVOS,A))),
+        Event('Transform Hellion',0,0,0,0,4,add,(HELLION,),((HELLBAT,C),(TRANSFORMATION_SERVOS,A))),
 ]
 
 energy = {
