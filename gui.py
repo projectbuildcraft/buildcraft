@@ -78,7 +78,7 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    app.my_order = bcorder.Order(filename = "orders/SCVs.bo")
+    app.my_order = bcorder.Order(filename = "orders/OC Opening.bo")
 
     add_menu(app)
 
@@ -249,6 +249,10 @@ def event_update(app):
         app.events.append(event_widget)
 
 def insert_event_choose(app, index):
+
+    
+    for w in app.event_frame.children.values():
+        w.destroy()
     
     def command(choice):
         insert_event(app, index, choice)
@@ -257,10 +261,8 @@ def insert_event_choose(app, index):
 
     available = ['Choose Event']+[events[i].name for i in app.my_order.all_available(index)]
 
-    menu = OptionMenu(app.event_frame, variable, available, command=command) 
+    menu = OptionMenu(app.event_frame,variable,available, ) 
         
-    for w in app.event_frame.children.values():
-        w.destroy()
     app.events = []
     for i in range(len(app.my_order.events)):
         if i == index:
