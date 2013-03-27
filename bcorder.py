@@ -217,12 +217,12 @@ class Instance:
 		Returns [mineral,gas] of spending on army, optionally including defensive units
 		"""
 		value = [0,0]
-		army_counts = [[index, self.units[unit]] for index,unit in enumerate(self.units) if self.units[unit] > 0 and unit in army_units]
+		army_counts = [[index, self.units[index]] for index in range(NUM_UNITS) if self.units[index] > 0 and index in army_units]
 		for index,count in army_counts:
 			value[0] += army_units[index][0] * count
-			value[1] += army_count[index][1] * count
+			value[1] += army_units[index][1] * count
 		if include_defensive:
-			defensive_counts = [[index, self.units[unit]] for index,unit in enumerate(self.units) if self.units[unit] > 0 and unit in defensive_units]
+			defensive_counts = [[index, self.units[index]] for index in range(NUM_UNITS) if self.units[index] > 0 and index in defensive_units]
 			for index,count in defensive_counts:
 				value[0] += defensive_units[index][0] * count
 				value[1] += defensive_units[index][1] * count
@@ -386,6 +386,8 @@ class Order:
 					for event_info,time in self.at[order_index].production:
 						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
+								break
+						elif unit == LARVA and events[event_info[0]].get_result() == spawn_larva:
 								break
 					else:
 						if unit in can_be: # can be other value
