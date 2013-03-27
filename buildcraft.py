@@ -53,7 +53,7 @@ while run:
 			print "Saved to", filename
 	elif menu_choice == 2:
 		index = int(raw_input("Insert at: "))
-		choices = [i for i in xrange(len(events)) if my_order.available(order_index = index, event_index = i)]
+		choices = my_order.all_available(index)
 		for choice_index,event_index in enumerate(choices):
 			print choice_index,bcorder.name(event_index)
 		choice = int(raw_input("=> "))
@@ -63,7 +63,7 @@ while run:
 			my_order.insert([choices[choice],''],index)
 		pass
 	elif menu_choice == 3:
-		choices = [i for i in xrange(len(events)) if my_order.available(order_index = len(my_order.events), event_index = i)]
+		choices = my_order.all_available()
 		for choice_index,event_index in enumerate(choices):
 			print choice_index,bcorder.name(event_index)
 		choice = int(raw_input("=> "))

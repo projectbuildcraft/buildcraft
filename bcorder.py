@@ -423,6 +423,10 @@ class Order:
 			continue
 		return True
 
+        def all_available(self, order_index = -1):
+                return [i for i in xrange(len(events)) if self.available(order_index = order_index, event_index = i)]
+		
+
 	def sanity_check(self):
 		"""
 		Concept: Rejects build orders that are illogical during optimization search
@@ -474,7 +478,7 @@ class Order:
 						return False
 					delta_gas = 1
 		return True
-				
+		
 	def append(self, event_info):
 		"""
 		Appends event to the build order

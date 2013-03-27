@@ -10,6 +10,7 @@ import math
 import tkFileDialog
 import bcorder
 from ToolTip import ToolTip
+from ScrolledFrame import ScrolledFrame
 
 class App:
 
@@ -24,13 +25,11 @@ class App:
 class EventWidget(Canvas):
 
     def __init__(self, app, index):
-        Canvas.__init__(self, app.master, height=20)
+        Canvas.__init__(self, app.event_frame, height=20)
         self.event = app.my_order.events[index]
         self.at = app.my_order.at[index+1]
-        print ToolTip
         self.tooltip = ToolTip(self,delay=50)
         start = self.at.time
-        print start
         current = app.scale.get()
         passed_time = current - start
         total_time = events[self.event[0]].time
@@ -41,18 +40,35 @@ class EventWidget(Canvas):
         self.bind('<Button-1>',self.echo)
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
 
+        self.rMenu = Menu(self, tearoff=0)
+        self.rMenu.add_command(label='Insert above',command=self.insert_above)
+        self.rMenu.add_command(label='Insert below',command=self.insert_below)
+        self.rMenu.add_command(label='Delete',command=self.delete)
+        self.bind('<Button-3>',self.popup)
+
     def echo(self,location=None):
         print self.event
 
     def update(self,current):
-        print current
         start = self.at.time
         passed_time = current - start
         total_time = events[self.event[0]].time
         actual_time = max(0,min(passed_time,total_time))
         self.coords(self.fill,2,2,actual_time*5,20)
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
-        
+
+    def popup(self, event):
+        print 'here'
+        self.rMenu.post(event.x_root, event.y_root)
+
+    def insert_above(self):
+        print 'Insert above'
+
+    def insert_below(self):
+        print 'Insert below'
+
+    def delete(self):
+        print 'Delete'
 
 def main_menu():
 
@@ -60,7 +76,7 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    app.my_order = bcorder.Order(filename = "orders/OC Opening.bo")
+    app.my_order = bcorder.Order(filename = "orders/SCVs.bo")
 
     add_menu(app)
 
@@ -207,19 +223,15 @@ def add_instance_analysis(app):
     app.scale.pack(side = LEFT) 
 
 def add_event_list(app):
-
-    app.event_canvas = Canvas(app.master)
-    app.event_frame = Frame(app.event_canvas)
-    app.event_scrollbar = Scrollbar(app.master,orient='vertical',command=app.event_canvas.yview)
-    app.event_canvas.configure(yscrollcommand = app.event_scrollbar.set)
-    app.event_scrollbar.pack(side='left',fill='y')
-    app.event_canvas.pack(side='right')
-
+    
+    app.event_frame = ScrolledFrame(app.master, scrollside = LEFT)
     app.events = []
     for i in range(len(app.my_order.events)):
         event_widget = EventWidget(app,i)
         event_widget.pack()
         app.events.append(event_widget)
+    app.event_frame.pack()
+
 
 def analysis_update(app):
     app.scale.config(to=len(app.my_order.at_time))
