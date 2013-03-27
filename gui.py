@@ -237,7 +237,7 @@ def add_event_list(app):
         event_widget = EventWidget(app,i)
         event_widget.pack()
         app.events.append(event_widget)
-    app.event_frame.pack(fill = BOTH)
+    app.event_frame.pack(side = RIGHT, fill = Y)
 
 def event_update(app):
     for w in app.event_frame.children.values():
@@ -247,6 +247,7 @@ def event_update(app):
         event_widget = EventWidget(app,i)
         event_widget.pack()
         app.events.append(event_widget)
+    
 
 def insert_event_choose(app, index):
     for w in app.event_frame.children.values():
@@ -262,14 +263,15 @@ def insert_event_choose(app, index):
     menu = OptionMenu(app.event_frame,variable,*available,command=command) 
         
     app.events = []
-    for i in range(len(app.my_order.events)):
-        if i == index:
-            menu.pack(anchor=W)
+    for i in xrange(index):
         event_widget = EventWidget(app,i)
         event_widget.pack()
         app.events.append(event_widget)
-    if i > len(app.my_order.events):
-        menu.pack(anchor=W)
+    menu.pack(anchor=W)
+    for i in xrange(index,len(app.my_order.events)):
+        event_widget = EventWidget(app,i)
+        event_widget.pack()
+        app.events.append(event_widget)
 
 def insert_event(app, index, choice):
     e = 0
