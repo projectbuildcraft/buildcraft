@@ -49,7 +49,7 @@ class EventWidget(Canvas):
         self.bind('<Button-3>',self.popup)
 
     def echo(self,location=None):
-        print self.event
+        pass
 
     def update(self,current):
         start = self.at.time
@@ -66,7 +66,7 @@ class EventWidget(Canvas):
         insert_event_choose(self.app,self.index)
 
     def insert_below(self):
-        print 'Insert below'
+        insert_event_choose(self.app,self.index+1)
 
     def delete(self):
         self.app.my_order.delete(self.index)
@@ -231,13 +231,13 @@ def refresh(app):
 
 def add_event_list(app):
     
-    app.event_frame = ScrolledFrame(app.master, scrollside = LEFT)
+    app.event_frame = ScrolledFrame(app.master, scrollside = LEFT, height = 500)
     app.events = []
     for i in range(len(app.my_order.events)):
         event_widget = EventWidget(app,i)
         event_widget.pack()
         app.events.append(event_widget)
-    app.event_frame.pack()
+    app.event_frame.pack(fill = BOTH)
 
 def event_update(app):
     for w in app.event_frame.children.values():
@@ -249,8 +249,6 @@ def event_update(app):
         app.events.append(event_widget)
 
 def insert_event_choose(app, index):
-
-    
     for w in app.event_frame.children.values():
         w.destroy()
     
@@ -259,19 +257,26 @@ def insert_event_choose(app, index):
 
     variable = StringVar(app.event_frame)
 
-    available = ['Choose Event']+[events[i].name for i in app.my_order.all_available(index)]
+    available = [events[i].name for i in app.my_order.all_available(index)]
 
-    menu = OptionMenu(app.event_frame,variable,available, ) 
+    menu = OptionMenu(app.event_frame,variable,*available,command=command) 
         
     app.events = []
     for i in range(len(app.my_order.events)):
         if i == index:
-            print 'menu'
-            menu.pack()
+            menu.pack(anchor=W)
         event_widget = EventWidget(app,i)
         event_widget.pack()
         app.events.append(event_widget)
-        print i
+    if i > len(app.my_order.events):
+        menu.pack(anchor=W)
+
+def insert_event(app, index, choice):
+    e = 0
+    while events[e].name != choice:
+        e += 1
+    app.my_order.insert([e,''],index)
+    refresh(app)
 
 def analysis_update(app):
     app.scale.config(to=len(app.my_order.at_time))
