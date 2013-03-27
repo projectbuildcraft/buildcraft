@@ -587,8 +587,10 @@ class Order:
 				impossible = True
 				self.at[order_index] = copy.deepcopy(last)
 				self.at[order_index].time = float('inf')
-		while len(self.at_time[-1].production): # calculate finishing times
-			self.at_time.append(copy.deepcopy(self.at_time[-1]).increment())
+		while len(self.at_time[-1].production) > 0: # simulate through remaining production
+			last = copy.deepcopy(self.at_time[-1])
+			last.increment()
+			self.at_time.append(last)
 
 class Team:
 	"""
