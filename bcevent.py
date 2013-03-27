@@ -72,7 +72,7 @@ def warp(result,instance):
 	from constants import WARPGATE_ON_COOLDOWN, WARPGATE
 	unit, cooldown = result
 	add_unit(unit,instance)
-	instance.production.append([WARPGATE_ON_COOLDOWN],cooldown)
+	instance.production.append([[WARPGATE_ON_COOLDOWN],cooldown])
 	# negate effect of removing warpgate
 	instance.units[WARPGATE] -= 1
 	instance.occupied[WARPGATE] += 1
@@ -92,7 +92,7 @@ def spawn_larva(auto,instance):
 		if min_larva >= 3:
 			print "ERROR: Larva fault"
 		if min_larva < 2:
-			instance.production.append([AUTO_SPAWN_LARVA, events[AUTO_SPAWN_LARVA].time])
+			instance.production.append([[AUTO_SPAWN_LARVA], events[AUTO_SPAWN_LARVA].time])
 		# test for additional spawn
 	else:
 		instance.units[LARVA] += 4
