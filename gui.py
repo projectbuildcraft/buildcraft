@@ -26,6 +26,8 @@ class EventWidget(Canvas):
 
     def __init__(self, app, index):
         Canvas.__init__(self, app.event_frame, height=20)
+        self.app = app
+        self.index = index
         self.event = app.my_order.events[index]
         self.at = app.my_order.at[index+1]
         self.tooltip = ToolTip(self,delay=50)
@@ -58,7 +60,6 @@ class EventWidget(Canvas):
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
 
     def popup(self, event):
-        print 'here'
         self.rMenu.post(event.x_root, event.y_root)
 
     def insert_above(self):
@@ -68,7 +69,8 @@ class EventWidget(Canvas):
         print 'Insert below'
 
     def delete(self):
-        print 'Delete'
+        self.app.my_order.delete(self.index)
+        refresh(self.app)
 
 def main_menu():
 
@@ -222,6 +224,10 @@ def add_instance_analysis(app):
     app.scale = Scale(app.time_scale, from_=1,to=len(app.my_order.at_time), length=300, command=refresh, orient=HORIZONTAL)
     app.scale.pack(side = LEFT) 
 
+def refresh(app):
+    analysis_update(app)
+    event_update(app)
+
 def add_event_list(app):
     
     app.event_frame = ScrolledFrame(app.master, scrollside = LEFT)
@@ -232,7 +238,15 @@ def add_event_list(app):
         app.events.append(event_widget)
     app.event_frame.pack()
 
-
+def event_update(app):
+    for w in app.event_frame.children.values():
+        w.destroy()
+    app.events = []
+    for i in range(len(app.my_order.events)):
+        event_widget = EventWidget(app,i)
+        event_widget.pack()
+        app.events.append(event_widget)
+        
 def analysis_update(app):
     app.scale.config(to=len(app.my_order.at_time))
 
