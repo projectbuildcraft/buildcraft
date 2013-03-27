@@ -387,6 +387,8 @@ class Order:
 						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
 								break
+						elif unit == LARVA and events[event_info[0]].get_result() == spawn_larva:
+								break
 					else:
 						if unit in can_be: # can be other value
 							requirements.append((can_be[unit],OCCUPATION))
