@@ -63,7 +63,7 @@ class EventWidget(Canvas):
         self.rMenu.post(event.x_root, event.y_root)
 
     def insert_above(self):
-        print 'Insert above'
+        insert_event_choose(self.app,self.index)
 
     def insert_below(self):
         print 'Insert below'
@@ -211,8 +211,9 @@ def add_instance_analysis(app):
         
         i = app.my_order.at_time[int(i)-1]
 
-        app.canvas.itemconfig(app.mineral_value,text=str(int(i.minerals)))
-        app.canvas.itemconfig(app.gas_value,text=str(int(i.gas)))
+        min_rate, gas_rate = i.resource_rate()
+        app.canvas.itemconfig(app.mineral_value,text=str(int(i.minerals))+' + '+str(int(min_rate))+'/min')
+        app.canvas.itemconfig(app.gas_value,text=str(int(i.gas))+' + '+str(int(gas_rate))+'/min')
         app.canvas.itemconfig(app.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
 
     app.time_scale = Frame(app.instance)
@@ -246,7 +247,30 @@ def event_update(app):
         event_widget = EventWidget(app,i)
         event_widget.pack()
         app.events.append(event_widget)
+
+def insert_event_choose(app, index):
+    
+    def command(choice):
+        insert_event(app, index, choice)
+
+    variable = StringVar(app.event_frame)
+
+    available = ['Choose Event']+[events[i].name for i in app.my_order.all_available(index)]
+
+    menu = OptionMenu(app.event_frame, variable, available, command=command) 
         
+    for w in app.event_frame.children.values():
+        w.destroy()
+    app.events = []
+    for i in range(len(app.my_order.events)):
+        if i == index:
+            print 'menu'
+            menu.pack()
+        event_widget = EventWidget(app,i)
+        event_widget.pack()
+        app.events.append(event_widget)
+        print i
+
 def analysis_update(app):
     app.scale.config(to=len(app.my_order.at_time))
 
