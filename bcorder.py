@@ -155,6 +155,7 @@ class Instance:
 				else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
+				self.cap = min(self.cap, 200)
 				for requirement in event.get_requirements():
 					unit, kind = requirement
 					if kind == O:
@@ -333,6 +334,8 @@ class Order:
 					else:
 						return False
 		if events[event_index].supply > 0: # requires supply
+			if (self.at[order_index].supply) + (events[event_index].supply) > 200: # will max out supply
+				return False
 			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
 				if now:
 					return False
