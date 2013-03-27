@@ -15,7 +15,7 @@ from ScrolledFrame import ScrolledFrame
 class App:
 
     def __init__(self, master, **options):
-        frame = Frame(master,options)
+        frame = Frame(master, **options)
         frame.grid()
         self.master = master
 
@@ -92,19 +92,13 @@ def main_menu():
 
 def load(app):
     f = tkFileDialog.askopenfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')])
-    app.my_order = bcorder.Order(filename = f)
-    analysis_update(app)
+    if f:
+        app.my_order = bcorder.Order(filename = f)
+        refresh(app)
 
 def save(app):
     name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')])
     app.my_order.save(name)
-
-def new(app):
-    new_options = new_order()
-    if new_options:
-        name, race = new_options
-        app.my_order = bcorder.Order(name=name, race=race)
-        analysis_update(app)
 
 def graph(app,f):
     f(app.my_order)
@@ -133,51 +127,38 @@ def add_graph_buttons(app):
     app.resources = Button(app.bottom_buttons, text='Resources',command=lambda:graph(app,resource_graph))
     app.resources.grid(row=1,column=1,sticky=E+W)
 
-def new_order():
+def new(app):
     root = Toplevel()
     root.wm_title('New Order')
-    app = App(root)
-    app.w = Label(root, text = "Create a new build order")
-    app.w.grid(row = 0, columnspan = 3)
+    new_order = App(root)
+    new_order.label = Label(root, text = "Create a new build order")
+    new_order.label.grid(row = 0, columnspan = 3)
 
-    app.e = Entry(root)
-    app.e.grid(row = 1, columnspan = 3,sticky = E+W)
+    new_order.entry = Entry(root)
+    new_order.entry.grid(row = 1, columnspan = 3,sticky = E+W)
 
     modes = ("Terran","Protoss","Zerg")
 
-    app.here = True
+    def submit(app, new_order):
+        app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
+        refresh(app)
+        new_order.master.destroy()
 
-    def submit(app):
-        app.proceed = (app.e.get(), app.v.get())
-        app.get_master().destroy()
-
-    def _destroy(event):
-        app.here = False
-
-    root.bind("<Destroy>", _destroy)
-
-    app.v = StringVar()
-    app.v.set('T')
-    app.images = []
+    new_order.v = StringVar()
+    new_order.v.set('T')
+    new_order.images = []
     for i in range(3):
         text = modes[i]
         image = Image.open('images/'+text+'.png')
         photo = ImageTk.PhotoImage(image.resize((50,50)))
-        app.images.append(photo)
-        b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=app.v, value=text[0])
+        new_order.images.append(photo)
+        b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=new_order.v, value=text[0])
         b.grid(row = 2,column = i)
 
-    app.b = Button(root, text="Done", command=lambda:submit(app))
-    app.b.grid(row = 3, columnspan = 3, sticky = E+W)
-
-    app.proceed = ()
+    new_order.b = Button(root, text="Done", command=lambda:submit(app, new_order))
+    new_order.b.grid(row = 3, columnspan = 3, sticky = E+W)
 
     root.mainloop()
-
-    while app.here:
-        pass
-
-    return app.proceed
 
 default_colors = ['red','blue','green','yellow','purple','orange']
 
@@ -232,22 +213,12 @@ def refresh(app):
 def add_event_list(app):
     
     app.event_frame = ScrolledFrame(app.master, scrollside = LEFT, height = 500)
-    app.events = []
-    for i in range(len(app.my_order.events)):
-        event_widget = EventWidget(app,i)
-        event_widget.pack()
-        app.events.append(event_widget)
     app.event_frame.pack(side = RIGHT, fill = Y)
 
+    event_update(app)
+
 def event_update(app):
-    for w in app.event_frame.children.values():
-        w.destroy()
-    app.events = []
-    for i in range(len(app.my_order.events)):
-        event_widget = EventWidget(app,i)
-        event_widget.pack()
-        app.events.append(event_widget)
-    
+    insert_event_choose(app, len(app.my_order.events))
 
 def insert_event_choose(app, index):
     for w in app.event_frame.children.values():
