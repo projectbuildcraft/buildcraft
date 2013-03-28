@@ -160,7 +160,7 @@ class Instance:
 					unit, kind = requirement
 					if kind == O:
 						while(self.occupied[unit] == 0):
-							unit = can_be[unit] # if this fails it can be because of issues with availalbe and calculate_times
+							unit = can_be[unit] # if this fails it can be because of issues with available and calculate_times
 						self.occupied[unit] -= 1
 						self.units[unit] += 1
 				if self.production[index][0][0] in self.boosted_things[0].keys():
@@ -303,13 +303,14 @@ class Order:
 				print "\t{}: {}".format(i[1], events[i[0][0]].get_name())
 				# should include chrono information
 
-	def available(self, order_index, event_index, now = False):
+	def available(self, order_index, event_index, now = False, gas_trick = False):
 		"""
 		Evaluates whether event is available at this order
 		Arguments:
 		order_index - location in build order
 		event_index - event desired
 		now - whether to evaluate availability now or eventually
+		gas_trick - whether this is a zerg player who will break supply barriers with gas tricks
 		"""
 		# minerals, gas, supply
 		if self.at[order_index].minerals < events[event_index].cost[0]:# requires minerals
@@ -433,8 +434,8 @@ class Order:
 			continue
 		return True
 
-	def all_available(self, order_index = -1):
-		return [i for i in xrange(len(events)) if self.available(order_index = order_index, event_index = i)]
+	def all_available(self, order_index = -1, gas_trick = False):
+		return [i for i in xrange(len(events)) if self.available(order_index = order_index, event_index = i, now = False, gas_trick = gas_trick)]
 		
 
 	def sanity_check(self):
