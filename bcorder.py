@@ -380,7 +380,7 @@ class Order:
 				if self.at[order_index].units[unit] > 0:
 					continue
 				if now:
-					if unit in can_be: # can be other value
+					if kind == OCCUPATION and unit in can_be: # can be other value
 						requirements.append((can_be[unit],OCCUPATION))
 						continue
 					else:
@@ -395,7 +395,7 @@ class Order:
 						elif unit == LARVA and events[event_info[0]].get_result() == spawn_larva:
 								break
 					else:
-						if unit in can_be: # can be other value
+						if kind == OCCUPATION and unit in can_be: # can be other value
 							requirements.append((can_be[unit],OCCUPATION))
 							continue
 						else:
