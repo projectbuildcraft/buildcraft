@@ -252,15 +252,17 @@ class Order:
 			f = open(filename, 'r')
 			lines = f.readlines()
 			self.name = lines.pop(0).rstrip()
-			self.race = lines.pop(0).rstrip()
+			self.race = lines.pop(0).rstrip() # "Z" "T" or "P"
 			self.events = [] # [[event_index, note, targeted_event, time_left]]
 			for line in lines:
 				line = line.rstrip()
 				raw_info = string.split(line)
 				events_info = [None,None]
 				events_info[0] = int(raw_info.pop(0))
-				if events[events_info[0]].get_result() == boost:
-					events_info.append(None)
+				if race == "Z":
+					events_info.append(raw_info.pop()) # whether or not to allow extractor trick on this event
+				elif events[events_info[0]].get_result() == boost:
+					events_info.append(None) # dummy
 					events_info.append(int(raw_info.pop()))
 					events_info[2] = int(raw_info.pop())
 				events_info[1] = string.join(raw_info)
@@ -312,8 +314,36 @@ class Order:
 		now - whether to evaluate availability now or eventually
 		gas_trick - whether this is a zerg player who will break supply barriers with gas tricks
 		"""
-		# minerals, gas, supply
-		if self.at[order_index].minerals < events[event_index].cost[0]:# requires minerals
+		# supply, minerals, gas
+		required_tricks = 0 # we only really care about this if now because it effects mineral cost
+		if events[event_index].supply > 0: # requires supply
+			if (self.at[order_index].supply) + (events[event_index].supply) > 200: # will max out supply
+				if gas_trick:
+					required_tricks += 200 - (self.at[order_index].supply + events[event_index.supply])
+				else:
+					return False
+			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
+				if now:
+					if gas_trick:
+						required_tricks += self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
+					else:
+						return False
+				else:
+					difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
+					for event,time in self.at[order_index].production:
+						difference -= events[event[0]].capacity
+					if difference > 0:
+						if not gas_trick:
+							return False
+			if gas_trick and now and required_tricks > self.at[order_index].units[DRONE_MINERAL] + self.at[order_index].units[DRONE_SCOUT] + self.at[order_index].units[DRONE_SCOUT]:
+				return False
+		if gas_trick:
+			gas_tricks = min(required_gas_tricks, self.at[order_index].units[DRONE_SCOUT] + 2 * (self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]) - self.at[order_index].units[ASSIMILATOR])
+			evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
+			mineral_cost = events[event_index].cost[0] + 25 * gas_tricks + 75 * evo_tricks
+		else:
+			mineral_cost = events[event_index].cost[0]
+		if self.at[order_index].minerals < mineral_cost: # requires minerals
 			if now:
 				return False
 			else:
@@ -334,17 +364,6 @@ class Order:
 								break
 					else:
 						return False
-		if events[event_index].supply > 0: # requires supply
-			if (self.at[order_index].supply) + (events[event_index].supply) > 200: # will max out supply
-				return False
-			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
-				if now:
-					return False
-				difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
-				for event,time in self.at[order_index].production:
-					difference -= events[event[0]].capacity
-				if difference > 0:
-					return False
 		# requirements
 		requirements = list(events[event_index].get_requirements()) # our dirty copy
 		for requirement in requirements:
@@ -494,6 +513,8 @@ class Order:
 		"""
 		Appends event to the build order
 		"""
+		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
+			event_info.append(0)
 		self.events.append(event_info)
 		self.calculate_times()
 
@@ -501,6 +522,8 @@ class Order:
 		"""
 		Inserts event at index
 		"""
+		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
+			event_info.append(0)
 		self.events.insert(index, event_info)
 		self.calculate_times()
 
@@ -547,12 +570,16 @@ class Order:
 			last = self.at[index]
 			now = copy.deepcopy(last)
 			self.at.append(now)
-			if (not impossible) and (self.available(order_index, event_info[0], False)):
-				while not self.available(order_index, event_info[0], True):
+			using_tricks = self.race == "Z" and len(event_info) > 2 and event_info[2] == 1
+			if (not impossible) and (self.available(order_index, event_info[0], False,using_tricks)):
+				while not self.available(order_index, event_info[0], True,using_tricks):
 					now.increment()
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
-				now.minerals -= events[event_info[0]].cost[0]
+				mineral_cost = events[event_info[0]].cost[0]
+				if using_tricks: 
+					pass # update mineral_cost
+				now.minerals -= mineral_cost
 				now.gas -= events[event_info[0]].cost[1]
 				now.supply += events[event_info[0]].supply
 				for requirement in get_requirements(event_info[0]):
