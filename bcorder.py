@@ -301,6 +301,9 @@ class Order:
 		print self.name, self.race_name()
 		for index, event_info in enumerate(self.events):
 			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap, index + 1), self.at[index + 1].time, name(event_info[0]), event_info[1]
+			if self.can_trick(index):
+				if self.uses_trick(index) == 1:
+					print "(uses supply trick)"
 			for i in self.at[index + 1].production:
 				print "\t{}: {}".format(i[1], events[i[0][0]].get_name())
 				# should include chrono information
@@ -624,6 +627,32 @@ class Order:
 			last = copy.deepcopy(self.at_time[-1])
 			last.increment()
 			self.at_time.append(last)
+
+	def get_note(self,index):
+		return self.events[index][1]
+
+	def set_note(self,index,note):
+		self.events[index][1] = note
+
+	def can_trick(self,index):
+		return self.race == "Z" and events[self.events[index][0]].supply > 0
+
+	def uses_trick(self,index):
+		if len(self.events[index]) > 2:
+			return self.events[index] == 1
+		else:
+			return False
+
+	def toggle_trick(self,index):
+		"""
+		Assumes can_trick(index); otherwise will result in unexpected behavior
+		"""
+		if len(self.events[index]) == 2:
+			self.events[index].append(1)
+		elif self.events[index][2] == 0:
+			self.events[index][2] = 1
+		else:
+			self.events[index][2] = 0
 
 class Team:
 	"""
