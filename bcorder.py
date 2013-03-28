@@ -302,7 +302,7 @@ class Order:
 		for index, event_info in enumerate(self.events):
 			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap, index + 1), self.at[index + 1].time, name(event_info[0]), event_info[1]
 			if self.can_trick(index):
-				if self.uses_trick(index) == 1:
+				if self.uses_trick(index):
 					print "(uses supply trick)"
 			for i in self.at[index + 1].production:
 				print "\t{}: {}".format(i[1], events[i[0][0]].get_name())
@@ -312,8 +312,8 @@ class Order:
 		"""
 		Evaluates whether event is available at this order
 		Arguments:
-		order_index - location in build order
-		event_index - event desired
+		order_index - location in build order (indexes self.at)
+		event_index - event desired (indexes events)
 		now - whether to evaluate availability now or eventually
 		gas_trick - whether this is a zerg player who will break supply barriers with gas tricks
 		"""
@@ -341,7 +341,7 @@ class Order:
 			if gas_trick and now and required_tricks > self.at[order_index].units[DRONE_MINERAL] + self.at[order_index].units[DRONE_SCOUT] + self.at[order_index].units[DRONE_SCOUT]:
 				return False
 		if gas_trick:
-			gas_tricks = min(required_gas_tricks, self.at[order_index].units[DRONE_SCOUT] + 2 * (self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]) - self.at[order_index].units[ASSIMILATOR])
+			gas_tricks = min(required_tricks, self.at[order_index].units[DRONE_SCOUT] + 2 * (self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]) - self.at[order_index].units[ASSIMILATOR])
 			evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
 			mineral_cost = events[event_index].cost[0] + 25 * gas_tricks + 75 * evo_tricks
 		else:
@@ -573,9 +573,9 @@ class Order:
 			last = self.at[index]
 			now = copy.deepcopy(last)
 			self.at.append(now)
-			using_tricks = self.race == "Z" and len(event_info) > 2 and event_info[2] == 1
-			if (not impossible) and (self.available(order_index, event_info[0], False,using_tricks)):
-				while not self.available(order_index, event_info[0], True,using_tricks):
+			using_tricks = self.uses_trick(index)
+			if (not impossible) and (self.available(order_index, event_info[0], False, using_tricks)):
+				while not self.available(order_index, event_info[0], True, using_tricks):
 					now.increment()
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
@@ -629,23 +629,36 @@ class Order:
 			self.at_time.append(last)
 
 	def get_note(self,index):
+		"""
+		index: index in self.events, not self.at
+		"""
 		return self.events[index][1]
 
 	def set_note(self,index,note):
+		"""
+		index: index in self.events, not self.at
+		"""
 		self.events[index][1] = note
 
 	def can_trick(self,index):
+		"""
+		index: index in self.events, not self.at
+		"""
 		return self.race == "Z" and events[self.events[index][0]].supply > 0
 
 	def uses_trick(self,index):
+		"""
+		index: index in self.events, not self.at
+		"""
 		if len(self.events[index]) > 2:
-			return self.events[index] == 1
+			return self.events[index][2] == 1
 		else:
 			return False
 
 	def toggle_trick(self,index):
 		"""
 		Assumes can_trick(index); otherwise will result in unexpected behavior
+		index: index in self.events, not self.at
 		"""
 		if len(self.events[index]) == 2:
 			self.events[index].append(1)
@@ -653,6 +666,7 @@ class Order:
 			self.events[index][2] = 1
 		else:
 			self.events[index][2] = 0
+		self.calculate_times()
 
 class Team:
 	"""
