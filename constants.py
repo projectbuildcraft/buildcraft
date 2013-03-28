@@ -562,7 +562,7 @@ events = [
         Event('Research Transformation Servos',100,100,0,0,110,research,(TRANSFORMATION_SERVOS,),((TECH_LAB_FACTORY,O),(TRANSFORMATION_SERVOS,N),(ARMORY,A))),
         Event('Research Drilling Claws',150,150,0,0,110,research,(DRILLING_CLAWS,),((TECH_LAB_FACTORY,O),(DRILLING_CLAWS,N),(ARMORY,A))),
         Event('Auto Spawn Larva',0,0,0,0,15,spawn_larva,(False,),((HATCHERY,A),(HATCHERY,N))),
-        Event('Spawn Larva',0,0,0,0,2.5,spawn_larva,(True,),((QUEEN,25),(HATCHERY,A))),
+        Event('Spawn Larva',0,0,0,0,40,spawn_larva,(True,),((QUEEN,25),(HATCHERY,A))),
         Event('Spawn Drone',50,0,1,0,17,add,(DRONE_MINERAL,),((LARVA,C),)),
         Event('Switch Drone to Gas',0,0,0,0,0,add,(DRONE_GAS,),((DRONE_MINERAL,C),(EXTRACTOR,A))),
         Event('Switch Drone to Minerals',0,0,0,0,0,add,(DRONE_MINERAL,),((DRONE_GAS,C),)),
