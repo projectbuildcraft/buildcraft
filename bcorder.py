@@ -367,7 +367,7 @@ class Order:
 				return False
 			else:
 				if self.at[order_index].units[SCV_GAS] + self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[DRONE_GAS] == 0:
-					for event_info,time in self.at[order_index].production:
+					for event_info,time, index in self.at[order_index].production:
 						if events[event_info[0]].get_result() == add: # necessarily means we just added a worker to gas
 							if PROBE_GAS in events[event_info[0]].get_args():
 								break
