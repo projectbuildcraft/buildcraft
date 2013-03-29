@@ -488,11 +488,19 @@ class Order:
 
 	def insert_chrono(self, boosted_index, chrono_index):
 		"""
-		Addes a chrono boost for the event in the given index
+		Adds a chrono boost for the event in the given index
+		Because one does not simply insert a chrono
 		"""
 		event_info = [CHRONO_BOOST, "", self.events[boosted_index], boosted_index]
 		self.events.insert(chrono_index, event_info)
 		self.calculate_times()
+
+	def can_chrono(self, boosted_index, chrono_index):
+		"""
+		Returns whether a chrono boost can be applied at chrono_index for an event at boosted_index
+		"""
+		pass # this is a dummy function for now
+		return True
 
 	def delete(self, index):
 		"""
