@@ -62,10 +62,11 @@ class EventWidget(Canvas):
         self.bind('<Button-3>',self.popup)
 
     def chrono_check(self, chrono_index):
+        print self.full_time
         if self.app.my_order.can_chrono(self.index, chrono_index):
-            self.full_time.configure(dash = (4,4))
+            self.itemconfig(self.full_time, dash = (4,4))
         else:
-            self.full_time.configure(dash = None)
+            self.itemconfig(self.full_time, dash = None)
 
     def echo(self,location=None):
         print 'echo'
