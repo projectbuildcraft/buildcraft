@@ -259,14 +259,16 @@ class Order:
 				raw_info = string.split(line)
 				events_info = [None,None]
 				events_info[0] = int(raw_info.pop(0))
-				if race == "Z":
-					events_info.append(raw_info.pop()) # whether or not to allow extractor trick on this event
+				if self.race == "Z":
+					events_info.append(int(raw_info.pop())) # whether or not to allow extractor trick on this event
 				elif events[events_info[0]].get_result() == boost:
 					events_info.append(None) # dummy
 					events_info.append(int(raw_info.pop()))
 					events_info[2] = int(raw_info.pop())
 				events_info[1] = string.join(raw_info)
 				self.events.append(events_info)
+				print self.events[-1][2]
+				print self.uses_trick(-1)
 			f.close()
 		else:
 			self.name = name
