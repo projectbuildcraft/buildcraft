@@ -64,7 +64,7 @@ class EventWidget(Canvas):
     def echo(self,location=None):
         print 'echo'
         if self.app.chrono >= 0:
-            insert_chrono(self.app, self.event)
+            insert_chrono(self.app, self.index)
             self.app.chrono = -1
 
     def update(self,current):
@@ -307,7 +307,10 @@ def insert_event(app, index, event):
     refresh(app)
 
 def insert_chrono(app, target):
+    print target, app.chrono
     app.my_order.insert_chrono(target, app.chrono)
+    app.chrono = -1
+    refresh(app)
 
 def analysis_update(app):
     print len(app.my_order.at_time)
