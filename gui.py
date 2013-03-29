@@ -4,6 +4,7 @@
 """
 from Tkinter import *
 from constants import events
+from constants import CHRONO_BOOST
 from PIL import Image, ImageTk
 import random
 import math
@@ -15,8 +16,8 @@ from ScrolledFrame import ScrolledFrame
 class App:
 
     def __init__(self, master, **options):
-        frame = Frame(master, **options)
-        frame.grid()
+        self.frame = Frame(master, **options)
+        self.frame.grid()
         self.master = master
 
     def get_master(self):
@@ -47,10 +48,21 @@ class EventWidget(Canvas):
         self.rMenu.add_command(label='Insert above',command=self.insert_above)
         self.rMenu.add_command(label='Insert below',command=self.insert_below)
         self.rMenu.add_command(label='Delete',command=self.delete)
+        self.rMenu.add_command(label='Edit note',command=self.note)
+        if app.my_order.can_trick(index):
+            if app.my_order.uses_trick(index):
+                label = 'Disable gas trick'
+            else:
+                label = 'Enable gas trick'
+            self.rMenu.add_command(label=label,command=self.toggle_trick)
+            
         self.bind('<Button-3>',self.popup)
 
     def echo(self,location=None):
-        pass
+        print 'echo'
+        if self.app.chrono >= 0:
+            insert_chrono(self.app, self.event)
+            self.app.chrono = -1
 
     def update(self,current):
         start = self.at.time
@@ -71,6 +83,30 @@ class EventWidget(Canvas):
 
     def delete(self):
         self.app.my_order.delete(self.index)
+        refresh(self.app)
+
+    def note(self):
+        root = Toplevel()
+        comment = App(root)
+        comment.label = Label(root, text='Comment: ')
+        comment.label.pack(side = LEFT)
+        comment.entry = Entry(root)
+        comment.entry.insert(0,self.app.my_order.get_note(self.index))
+        comment.entry.pack(padx = 3, side = LEFT)
+
+        def submit():
+            self.app.my_order.set_note(self.index, comment.entry.get())
+            comment.master.destroy()
+
+        comment.button = Button(root, text='OK',command=submit)
+        comment.button.pack(side = LEFT)
+
+        commend.bind('<FocusOut>',gain_focus)
+
+        root.mainloop()
+
+    def toggle_trick(self):
+        self.app.my_order.toggle_trick(self.index)
         refresh(self.app)
 
 def main_menu():
@@ -132,10 +168,15 @@ def graph_buttons_update(app):
 
     app.army.config(state= NORMAL if has_army(app.my_order) else DISABLED)
 
+
+def gain_focus(frame):
+    frame.force_focus()
+
 def new(app):
     root = Toplevel()
     root.wm_title('New Order')
     new_order = App(root)
+    new_order.frame.bind('<FocusOut>',gain_focus)
     new_order.label = Label(root, text = "Create a new build order")
     new_order.label.grid(row = 0, columnspan = 3)
 
@@ -145,6 +186,7 @@ def new(app):
     modes = ("Terran","Protoss","Zerg")
 
     def submit(app, new_order):
+        print 'a'
         app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
         refresh(app)
         new_order.master.destroy()
@@ -231,7 +273,13 @@ def insert_event_choose(app, index):
         w.destroy()
     
     def command(choice):
-        insert_event(app, index, choice)
+        e = 0
+        while events[e].name != choice:
+            e += 1
+        if e == CHRONO_BOOST:
+            app.chrono = index
+        else:
+            insert_event(app, index, e)
 
     variable = StringVar(app.event_frame)
 
@@ -249,15 +297,17 @@ def insert_event_choose(app, index):
         event_widget = EventWidget(app,i)
         event_widget.pack()
         app.events.append(event_widget)
+    app.chrono = -1
 
-def insert_event(app, index, choice):
-    e = 0
-    while events[e].name != choice:
-        e += 1
-    app.my_order.insert([e,''],index)
+def insert_event(app, index, event):
+    app.my_order.insert([event,''],index)
     refresh(app)
 
+def insert_chrono(app, target):
+    app.my_order.insert_chrono(app.chrono, target)
+
 def analysis_update(app):
+    print len(app.my_order.at_time)
     app.scale.config(to=len(app.my_order.at_time))
 
 def supply_graph(order):
