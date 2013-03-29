@@ -150,6 +150,7 @@ class Instance:
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
                                 for st_index, start_time in enumerate(start_times):
+                                        print self.production[index]
                                         if start_time[0] == self.production[index][2]:
                                                 end_times[st_index] = self.time
 				event = events[self.production[index][0][0]]
@@ -668,7 +669,7 @@ class Order:
 				self.at[order_index].time = float('inf')
 		while len(self.at_time[-1].production) > 0: # simulate through remaining production
 			last = copy.deepcopy(self.at_time[-1])
-			last.increment()
+			last.increment(start_times, end_times)
 			self.at_time.append(last)
 		for i in xrange(len(start_times)):
                         print start_times[i][1], end_times[i]

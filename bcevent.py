@@ -46,7 +46,7 @@ def mule(nonsense,instance):
 	from constants import MULE, events, MULE_LIFE
 	instance.units[MULE] += 1
 	# add mule dies event
-	instance.production.append([[MULE_LIFE],events[MULE_LIFE].time])
+	instance.production.append([[MULE_LIFE],events[MULE_LIFE].time, -1])
 
 def mule_dies(nonsense,instance):
 	from constants import MULE
@@ -72,7 +72,7 @@ def warp(result,instance):
 	from constants import WARPGATE_ON_COOLDOWN, WARPGATE
 	unit, cooldown = result
 	add_unit(unit,instance)
-	instance.production.append([[WARPGATE_ON_COOLDOWN],cooldown])
+	instance.production.append([[WARPGATE_ON_COOLDOWN],cooldown, -1])
 	# negate effect of removing warpgate
 	instance.units[WARPGATE] -= 1
 	instance.occupied[WARPGATE] += 1
@@ -92,7 +92,7 @@ def spawn_larva(auto,instance):
 		if min_larva >= 3:
 			print "ERROR: Larva fault"
 		if min_larva < 2:
-			instance.production.append([[AUTO_SPAWN_LARVA], events[AUTO_SPAWN_LARVA].time])
+			instance.production.append([[AUTO_SPAWN_LARVA], events[AUTO_SPAWN_LARVA].time, -1])
 		# test for additional spawn
 	else:
 		instance.units[LARVA] += 4
