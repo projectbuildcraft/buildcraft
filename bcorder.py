@@ -45,55 +45,7 @@ class Instance:
 		else:
 			self.base_larva = base_larva # tracks larva [larva_count]
 		if boosted_things == None:
-			self.boosted_things = [{CREATE_PROBE: [],
-						CREATE_ZEALOT: [],
-						WARP_IN_ZEALOT: [],
-						CREATE_STALKER: [],
-						WARP_IN_STALKER: [],
-						CREATE_SENTRY: [],
-						WARP_IN_SENTRY: [],
-						CREATE_OBSERVER: [],
-						CREATE_IMMORTAL: [],
-						CREATE_WARP_PRISM: [],
-						CREATE_COLOSSUS: [],
-						CREATE_PHOENIX: [],
-						CREATE_VOID_RAY: [],
-						CREATE_HIGH_TEMPLAR: [],
-						WARP_IN_HIGH_TEMPLAR: [],
-						CREATE_DARK_TEMPLAR: [],
-						WARP_IN_DARK_TEMPLAR: [],
-						CREATE_CARRIER: [],
-						CREATE_MOTHERSHIP: [],
-						CREATE_MOTHERSHIP_CORE: [],
-						CREATE_ORACLE: [],
-						CREATE_TEMPEST: [],
-						TRANSFORM_INTO_WARPGATE: [],
-						TRANSFORM_INTO_GATEWAY: [],
-						WARPGATE_ON_COOLDOWN: [],
-						RESEARCH_GROUND_WEAPONS_LEVEL_1: [],
-						RESEARCH_GROUND_WEAPONS_LEVEL_2: [],
-						RESEARCH_GROUND_WEAPONS_LEVEL_3: [],
-						RESEARCH_AIR_WEAPONS_LEVEL_1: [],
-						RESEARCH_AIR_WEAPONS_LEVEL_2: [],
-						RESEARCH_AIR_WEAPONS_LEVEL_3: [],
-						RESEARCH_GROUND_ARMOR_LEVEL_1: [],
-						RESEARCH_GROUND_ARMOR_LEVEL_2: [],
-						RESEARCH_GROUND_ARMOR_LEVEL_3: [],
-						RESEARCH_AIR_ARMOR_LEVEL_1: [],
-						RESEARCH_AIR_ARMOR_LEVEL_2: [],
-						RESEARCH_AIR_ARMOR_LEVEL_3: [],
-						RESEARCH_SHIELDS_LEVEL_1: [],
-						RESEARCH_SHIELDS_LEVEL_2: [],
-						RESEARCH_SHIELDS_LEVEL_3: [],
-						RESEARCH_CHARGE: [],
-						RESEARCH_GRAVITIC_BOOSTERS: [],
-						RESEARCH_GRAVITIC_DRIVE: [],
-						RESEARCH_ANION_PULSE_CRYSTALS: [],
-						RESEARCH_EXTENDED_THERMAL_LANCE: [],
-						RESEARCH_PSIONIC_STORM: [],
-						RESEARCH_BLINK: [],
-						RESEARCH_GRAVITON_CATAPULT: [],
-						RESEARCH_WARP_GATE: []},                                          
+			self.boosted_things = [dict(),                                          
 					       {NEXUS: [],
 						GATEWAY: [],
 						FORGE: [],
@@ -106,7 +58,7 @@ class Instance:
 						FLEET_BEACON: [],
 						TEMPLAR_ARCHIVES: []}]
 		else:
-			self.boosted_things = boosted_things # tracks Chrono Boosted events and structures: [{Event_Index: {[time_left, chrono_left]}, {Unit_Index: [chrono_left]}]
+			self.boosted_things = boosted_things # tracks Chrono Boosted events and structures: [{Order_Index: chrono_left}, {Unit_Index: [chrono_left]}]
 		
 	def resource_rate(self):
 		"""
@@ -141,21 +93,19 @@ class Instance:
 			self.gas += gas_rate / float(60)
 		while index > 0:
 			index -= 1
-			if self.production[index][0][0] in self.boosted_things[0].keys():
+			if self.production[index][2] in self.boosted_things[0].keys() and self.boosted_things[self.production[index][2]] > 0:
 				for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
-					if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
+					if self.boosted_things[0][self.production[index][0][0]] > 0:
 						self.production[index][1] -= .5 # boosted effect
-						self.boosted_things[0][self.production[index][0][0]][i][1] -= .5
 						break
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
                                 for st_index, start_time in enumerate(start_times):
-                                        print self.production[index]
                                         if start_time[0] == self.production[index][2]:
                                                 end_times[st_index] = self.time
 				event = events[self.production[index][0][0]]
 				if events[self.production[index][0][0]].get_result() == boost: # has special parameters
-					boost(self.production[index][0][2], self.production[index][0][3], self)
+					boost(self.production[index][2], self)
 				else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
@@ -171,28 +121,18 @@ class Instance:
 					for requirement in event.get_requirements():
 						unit, kind = requirement
 						if kind == O:
-							for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
-								if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
-									self.boosted_things[1][kind].append(self.boosted_things[0][self.production[index][0][0]][i][1])
-									del self.boosted_things[0][self.production[index][0][0]][i]
+							self.boosted_things[1][kind].append(self.boosted_things[0][self.production[index][2]])
+							del self.boosted_things[0][self.production[index][2]]
 				del self.production[index]
 		for energy_unit in self.energy_units:
 			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
-		for boosted_event in self.boosted_things[0].iterkeys():
-			i = len(self.boosted_things[0][boosted_event])
-			while i > 0:
-				i -= 1
-				self.boosted_things[0][boosted_event][i][0] -= 1.5
-				self.boosted_things[0][boosted_event][i][1] -= .5 # update chrono left
-				if self.boosted_things[0][boosted_event][i][1] <= 0:
-					del self.boosted_things[0][boosted_event][i]
+		for boosted_event_index in self.boosted_things[0].iterkeys():
+                        self.boosted_things[0][boosted_event_index] -= 1
 		for boosted_structure in self.boosted_things[1].iterkeys():
 			i = len(self.boosted_things[1][boosted_structure])
 			while i > 0:
 				i -= 1
 				self.boosted_things[1][boosted_structure][i] -= 1
-				if self.boosted_things[1][boosted_structure][i] <= 0:
-					del self.boosted_things[1][boosted_structure][i]
 
 	def active_worker_count(self, include_scouts = False, include_occupied = False):
 		count = 0
@@ -546,6 +486,13 @@ class Order:
 		self.events.insert(index, event_info)
 		self.calculate_times()
 
+	def insert_chrono(self, boosted_index, chrono_index):
+                """
+                Addes a chrono boost for the event in the given index
+                """
+                event_info = [CHRONO_BOOST, "", self.events[boosted_index], boosted_index]
+                self.events.insert(chrono_index, event_info)
+
 	def delete(self, index):
 		"""
 		Deletes event at index
@@ -598,26 +545,24 @@ class Order:
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
 				if event_info[0] == CHRONO_BOOST:
-					found = False
-					already_boosted = []
-					not_boosted = []
-					for i in now.boosted_things[0][event_info[2]]:
-						already_boosted.append(i[0])
-					for i in now.production:
-                                                repeat = False
-						if i[0][0] == event_info[2]:
-							if event_info[3] in already_boosted:
-								already_boosted.remove(event_info[3])
-								repeat = True
-								break
-                                                        if not repeat:
-                                                                not_boosted.append(i[1])
-					if event_info[3] not in not_boosted:
-						if len(not_boosted) > 0:
-							event_info[3] = min(not_boosted)
-						else:
-							self.delete(index)
-							return
+                                        print "hi"
+                                        found = False
+                                        for i in xrange(len(now.production)):
+                                                print now.production[i][2], event_info[3]
+                                                if now.production[i][2] == event_info[3]:
+                                                        print "hello"
+                                                        found = True
+                                                        if now.production[i][0][0] != event_info[2]:
+                                                                for j in xrange(len(now.production)):
+                                                                        if now.production[j][0][0] == event_info[2]:
+                                                                                event_info[3] = now.production[j][2]
+                                                                                break
+                                                                        self.delete(index)
+                                                                        return
+                                                        break
+                                        if not found:
+                                                self.delete(index)
+                                                return
 				mineral_cost = events[event_info[0]].cost[0]
 				if using_tricks: 
 					required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
@@ -672,9 +617,7 @@ class Order:
 			last.increment(start_times, end_times)
 			self.at_time.append(last)
 		for i in xrange(len(start_times)):
-                        print start_times[i][1], end_times[i]
                         self.time_taken.append(end_times[i] - start_times[i][1])
-                print self.time_taken
 
 	def get_note(self,index):
 		"""

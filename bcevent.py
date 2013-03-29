@@ -63,10 +63,8 @@ def research(topics,instance):
 	for topic in topics:
 		instance.units[topic] = 1
 
-def boost(event_index, time_remaining, instance):
-        if event_index not in instance.boosted_things[0]:
-                instance.boosted_things[0][event_index] = []
-        instance.boosted_things[0][event_index].append([time_remaining, 20])
+def boost(order_index, instance):
+        instance.boosted_things[0][order_index] = 20
 
 def warp(result,instance):
 	from constants import WARPGATE_ON_COOLDOWN, WARPGATE
