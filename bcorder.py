@@ -590,6 +590,27 @@ class Order:
 					now.increment()
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
+				if event_info[0] == CHRONO_BOOST:
+                                        found = False
+                                        already_boosted = []
+                                        not_boosted = []
+                                        for i in now.boosted_things[0][event_info[2]]:
+                                                already_boosted.append(i[0])
+                                        for i in now.production:
+                                                repeat = False
+                                                if i[0][0] == event_info[2]:
+                                                        if event_info[3] in already_boosted:
+                                                                already_boosted.remove(event_info[3])
+                                                                repeat = True
+                                                                break
+                                                if not repeat:
+                                                        not_boosted.append(i[1])
+                                        if event_info[3] not in not_boosted:
+                                                if len(non_boosted) > 0:
+                                                        event_info[3] = min(not_boosted)
+                                                else:
+                                                        self.delete(order_index)
+                                                        return
 				mineral_cost = events[event_info[0]].cost[0]
 				if using_tricks: 
 					required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
