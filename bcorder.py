@@ -487,11 +487,12 @@ class Order:
 		self.calculate_times()
 
 	def insert_chrono(self, boosted_index, chrono_index):
-                """
-                Addes a chrono boost for the event in the given index
-                """
-                event_info = [CHRONO_BOOST, "", self.events[boosted_index], boosted_index]
-                self.events.insert(chrono_index, event_info)
+		"""
+		Addes a chrono boost for the event in the given index
+		"""
+		event_info = [CHRONO_BOOST, "", self.events[boosted_index], boosted_index]
+		self.events.insert(chrono_index, event_info)
+		self.calculate_times()
 
 	def delete(self, index):
 		"""
