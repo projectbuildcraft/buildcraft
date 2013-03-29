@@ -321,9 +321,7 @@ class Order:
 		required_tricks = 0 # we only really care about this if now because it effects mineral cost
 		if events[event_index].supply > 0: # requires supply
 			if (self.at[order_index].supply) + (events[event_index].supply) > 200: # will max out supply
-				if gas_trick:
-					required_tricks += 200 - (self.at[order_index].supply + events[event_index.supply])
-				else:
+				if not gas_trick:
 					return False
 			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
 				if now:
@@ -343,7 +341,7 @@ class Order:
 		if gas_trick:
 			gas_tricks = min(required_tricks, self.at[order_index].units[DRONE_SCOUT] + 2 * (self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]) - self.at[order_index].units[ASSIMILATOR])
 			evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
-			mineral_cost = events[event_index].cost[0] + 25 * gas_tricks + 75 * evo_tricks
+			mineral_cost = events[event_index].cost[0] + events[MORPH_EXTRACTOR].cost[0] * gas_tricks + events[MORPH_EVOLUTION_CHAMBER].cost[0] * evo_tricks
 		else:
 			mineral_cost = events[event_index].cost[0]
 		if self.at[order_index].minerals < mineral_cost: # requires minerals
@@ -581,7 +579,10 @@ class Order:
 				# now effect costs
 				mineral_cost = events[event_info[0]].cost[0]
 				if using_tricks: 
-					pass # update mineral_cost
+					required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
+					gas_tricks = min(required_tricks, now.units[DRONE_SCOUT] + 2 * (now.units[HATCHERY] + now.units[LAIR] + now.units[HIVE]) - now.units[ASSIMILATOR])
+					evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
+					mineral_cost += 6 * gas_tricks + 18 * evo_tricks
 				now.minerals -= mineral_cost
 				now.gas -= events[event_info[0]].cost[1]
 				now.supply += events[event_info[0]].supply
