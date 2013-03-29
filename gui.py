@@ -25,6 +25,8 @@ class App:
 
 class EventWidget(Canvas):
 
+    supply_width = 60
+    
     def __init__(self, app, index):
         self.height = 20
         Canvas.__init__(self, app.event_frame, height=self.height)
@@ -38,9 +40,10 @@ class EventWidget(Canvas):
         passed_time = current - start
         total_time = events[self.event[0]].time
         actual_time = max(0,min(passed_time,total_time))
-        self.fill = self.create_rectangle(2,2,actual_time*5,self.height,fill='aquamarine',disabledoutline='')
-        self.create_rectangle(2,2,total_time*5,self.height)
-        self.create_text(10,10,text=events[self.event[0]].name,anchor=W)
+        self.fill = self.create_rectangle(EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height,fill='aquamarine',disabledoutline='')
+        self.create_text(2,2,text=str(self.at.supply)+'/'+str(self.at.cap),anchor=N+W)
+        self.create_rectangle(EventWidget.supply_width,2,total_time*5+EventWidget.supply_width,self.height)
+        self.create_text(EventWidget.supply_width + 5,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
 
@@ -69,7 +72,7 @@ class EventWidget(Canvas):
         passed_time = current - start
         total_time = events[self.event[0]].time
         actual_time = max(0,min(passed_time,total_time))
-        self.coords(self.fill,2,2,actual_time*5,self.height)
+        self.coords(self.fill,EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height)
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
 
     def popup(self, event):
@@ -304,7 +307,7 @@ def insert_event(app, index, event):
     refresh(app)
 
 def insert_chrono(app, target):
-    app.my_order.insert_chrono(app.chrono, target)
+    app.my_order.insert_chrono(target, app.chrono)
 
 def analysis_update(app):
     print len(app.my_order.at_time)
