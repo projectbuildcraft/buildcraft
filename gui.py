@@ -42,7 +42,7 @@ class EventWidget(Canvas):
         actual_time = max(0,min(passed_time,total_time))
         self.fill = self.create_rectangle(EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height,fill='aquamarine',disabledoutline='')
         self.create_text(2,2,text=str(self.at.supply)+'/'+str(self.at.cap),anchor=N+W)
-        self.create_rectangle(EventWidget.supply_width,2,total_time*5+EventWidget.supply_width,self.height)
+        self.full_time = self.create_rectangle(EventWidget.supply_width,2,total_time*5+EventWidget.supply_width,self.height)
         self.create_text(EventWidget.supply_width + 5,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
@@ -60,6 +60,12 @@ class EventWidget(Canvas):
             self.rMenu.add_command(label=label,command=self.toggle_trick)
             
         self.bind('<Button-3>',self.popup)
+
+    def chrono_check(self, chrono_index):
+        if self.app.my_order.can_chrono(self.index, chrono_index):
+            self.full_time.configure(dash = (4,4))
+        else:
+            self.full_time.configure(dash = None)
 
     def echo(self,location=None):
         print 'echo'
@@ -271,6 +277,11 @@ def add_event_list(app):
 def event_update(app):
     insert_event_choose(app, len(app.my_order.events))
 
+def chrono_check(app, index):
+    app.chrono = index
+    for e in app.events:
+        e.chrono_check(index)
+
 def insert_event_choose(app, index):
     for w in app.event_frame.children.values():
         w.destroy()
@@ -280,7 +291,7 @@ def insert_event_choose(app, index):
         while events[e].name != choice:
             e += 1
         if e == CHRONO_BOOST:
-            app.chrono = index
+            chrono_check(app, index)
         else:
             insert_event(app, index, e)
 
