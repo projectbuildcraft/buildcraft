@@ -484,6 +484,10 @@ class Order:
 		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
 			event_info.append(0)
 		self.events.insert(index, event_info)
+		while index < len(self.events):
+			if events[self.events[index][0]].get_result() == boost:
+				self.events[index][3] += 1
+			index += 1
 		self.calculate_times()
 
 	def insert_chrono(self, boosted_index, chrono_index):
@@ -507,6 +511,10 @@ class Order:
 		Deletes event at index
 		"""
 		del self.events[index]
+		while index < len(self.events):
+			if events[self.events[index][0]].get_result() == boost:
+				self.events[index][3] -= 1
+			index += 1
 		self.calculate_times()
 
 	def delete_many(self, indices):
@@ -515,7 +523,6 @@ class Order:
 		"""
 		for index in indices.sort().reverse():
 			self.delete(index)
-		self.calculate_times()
 
 	def calculate_times(self):
 		"""
