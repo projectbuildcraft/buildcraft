@@ -228,6 +228,14 @@ class Instance:
 				value[1] += defensive_units[index][1] * count
 		return value
 
+	def larva_in_production(self):
+		larva = 0
+		for event_info,time in self.production:
+			if event_info[0] == SPAWN_LARVA:
+				larva += 4
+			elif event_info[0] == AUTO_SPAWN_LARVA:
+				larva += 1
+		return larva
 
 	def __deepcopy__(self, memo = None):
 		return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva), copy.deepcopy(self.boosted_things))
@@ -673,6 +681,7 @@ class Order:
 		else:
 			self.events[index][2] = 0
 		self.calculate_times()
+
 
 class Team:
 	"""
