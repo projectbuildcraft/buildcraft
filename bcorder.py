@@ -531,7 +531,7 @@ class Order:
 			now.base_larva = [3]
 		now.blue = 1
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
-		self.at_time = [now]
+		self.at_time = []
 		impossible = False
 		for index, event_info in enumerate(self.events):
 			order_index = index + 1
@@ -541,8 +541,8 @@ class Order:
 			using_tricks = self.uses_trick(index)
 			if (not impossible) and (self.available(order_index, event_info[0], False, using_tricks)):
 				while not self.available(order_index, event_info[0], True, using_tricks):
-					now.increment(start_times, end_times)
 					self.at_time.append(copy.deepcopy(now))
+					now.increment(start_times, end_times)
 				# now effect costs
 				if event_info[0] == CHRONO_BOOST:
                                         print "hi"
@@ -612,6 +612,7 @@ class Order:
 				impossible = True
 				self.at[order_index] = copy.deepcopy(last)
 				self.at[order_index].time = float('inf')
+		self.at_time.append(self.at[-1])
 		while len(self.at_time[-1].production) > 0: # simulate through remaining production
 			last = copy.deepcopy(self.at_time[-1])
 			last.increment(start_times, end_times)
