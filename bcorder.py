@@ -29,7 +29,7 @@ class Instance:
 		if production == None:
 			self.production = []
 		else:
-			self.production = production # [[Event_Info], Time_Remaining]]
+			self.production = production # [[Event_Info], Time_Remaining, Order_Index]]
 		self.minerals = minerals
 		self.gas = gas
 		self.supply = supply
@@ -129,7 +129,7 @@ class Instance:
 		# http://www.teamliquid.net/forum/viewmessage.php?topic_id=140055
 		return (59 * workers_on_gold + 42 * workers_on_blue + 25 * saturated_on_gold + 18 * saturated_on_blue + 170 * mules, gassers * 38)
 			
-	def increment(self):
+	def increment(self, start_times, end_times):
 		"""
 		Moves the instance forward one second
 		"""
@@ -149,6 +149,9 @@ class Instance:
 						break
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
+                                for st_index, start_time in enumerate(start_times):
+                                        if start_time[0] == self.production[index][2]:
+                                                end_times[st_index] = self.time
 				event = events[self.production[index][0][0]]
 				if events[self.production[index][0][0]].get_result() == boost: # has special parameters
 					boost(self.production[index][0][2], self.production[index][0][3], self)
@@ -340,7 +343,7 @@ class Order:
 						return False
 				else:
 					difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
-					for event,time in self.at[order_index].production:
+					for event,time, index in self.at[order_index].production:
 						difference -= events[event[0]].capacity
 					if difference > 0:
 						if not gas_trick:
@@ -386,7 +389,7 @@ class Order:
 			if kind == ASSUMPTION:
 				if now and unit in [EXTRACTOR, ASSIMILATOR, REFINERY]: # should we wait for another to finish?
 					if self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[SCV_GAS] + self.at[order_index].units[DRONE_GAS] >= 3 * (self.at[order_index].units[EXTRACTOR] + self.at[order_index].units[ASSIMILATOR] + self.at[order_index].units[REFINERY]): # it certainly seems so
-						for event_info,time in self.at[order_index].production: # let's check
+						for event_info,time, index in self.at[order_index].production: # let's check
 							if events[event_info[0]].get_result() == add and events[event_info[0]].get_args()[0] in [EXTRACTOR, ASSIMILATOR, REFINERY]: # there is in fact another on the way
 								return False # I'll wait then
 				if self.at[order_index].units[unit] > 0:
@@ -400,7 +403,7 @@ class Order:
 					else:
 						return False
 				else:
-					for event_info,time in self.at[order_index].production:
+					for event_info,time, index in self.at[order_index].production:
 						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
 								break
@@ -423,7 +426,7 @@ class Order:
 				else:
 					if self.at[order_index].occupied[unit] > 0:
 						continue
-					for event_info,time in self.at[order_index].production:
+					for event_info,time, index in self.at[order_index].production:
 						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
 								break
@@ -439,7 +442,7 @@ class Order:
 			if kind == NOT:
 				if self.at[order_index].units[unit] > 0 or self.at[order_index].occupied[unit] > 0:
 					return False
-				for event,time in self.at[order_index].production:
+				for event,time, index in self.at[order_index].production:
 					event_index = event[0]
 					if events[event_index].get_result() == research or events[event_index].get_result() == add:
 						if unit in events[event_index].get_args():
@@ -459,7 +462,7 @@ class Order:
 			else: # must be in production
 				if now:
 					return False
-				for event_info,time in self.at[order_index].production:
+				for event_info,time, index in self.at[order_index].production:
 					if events[event_info[0]].get_result() == add:
 						if unit in events[event_info[0]].get_args():
 							break
@@ -590,7 +593,7 @@ class Order:
 			using_tricks = self.uses_trick(index)
 			if (not impossible) and (self.available(order_index, event_info[0], False, using_tricks)):
 				while not self.available(order_index, event_info[0], True, using_tricks):
-					now.increment()
+					now.increment(start_times, end_times)
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
 				if event_info[0] == CHRONO_BOOST:
@@ -612,8 +615,6 @@ class Order:
 						if len(not_boosted) > 0:
 							event_info[3] = min(not_boosted)
 						else:
-                                                        print index
-                                                        print self.events[index]
 							self.delete(index)
 							return
 				mineral_cost = events[event_info[0]].cost[0]
@@ -658,7 +659,9 @@ class Order:
 									greatest_energy == energy_energy
 									greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
 						now.energy_units[greatest_index][1] -= kind
-				now.production.append([event_info,events[event_info[0]].time])
+				start_times.append([index, now.time])
+				end_times.append(0)
+				now.production.append([event_info,events[event_info[0]].time, index])
 			else:
 				impossible = True
 				self.at[order_index] = copy.deepcopy(last)
@@ -667,6 +670,10 @@ class Order:
 			last = copy.deepcopy(self.at_time[-1])
 			last.increment()
 			self.at_time.append(last)
+		for i in xrange(len(start_times)):
+                        print start_times[i][1], end_times[i]
+                        self.time_taken.append(end_times[i] - start_times[i][1])
+                print self.time_taken
 
 	def get_note(self,index):
 		"""
