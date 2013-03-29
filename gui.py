@@ -25,7 +25,8 @@ class App:
 class EventWidget(Canvas):
 
     def __init__(self, app, index):
-        Canvas.__init__(self, app.event_frame, height=20)
+        self.height = 20
+        Canvas.__init__(self, app.event_frame, height=self.height)
         self.app = app
         self.index = index
         self.event = app.my_order.events[index]
@@ -36,8 +37,8 @@ class EventWidget(Canvas):
         passed_time = current - start
         total_time = events[self.event[0]].time
         actual_time = max(0,min(passed_time,total_time))
-        self.fill = self.create_rectangle(2,2,actual_time*5,20,fill='aquamarine',disabledoutline='')
-        self.create_rectangle(2,2,total_time*5,20)
+        self.fill = self.create_rectangle(2,2,actual_time*5,self.height,fill='aquamarine',disabledoutline='')
+        self.create_rectangle(2,2,total_time*5,self.height)
         self.create_text(10,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
@@ -56,7 +57,7 @@ class EventWidget(Canvas):
         passed_time = current - start
         total_time = events[self.event[0]].time
         actual_time = max(0,min(passed_time,total_time))
-        self.coords(self.fill,2,2,actual_time*5,20)
+        self.coords(self.fill,2,2,actual_time*5,self.height)
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
 
     def popup(self, event):
@@ -97,7 +98,7 @@ def load(app):
         refresh(app)
 
 def save(app):
-    name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')])
+    name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')], initialfile = app.my_order.name)
     app.my_order.save(name)
 
 def graph(app,f):
@@ -118,7 +119,7 @@ def add_graph_buttons(app):
     app.supply = Button(app.bottom_buttons, text='Supply',command=lambda:graph(app,supply_graph))
     app.supply.grid(row=0,column=0,sticky=E+W)
 
-    app.army = Button(app.bottom_buttons, text='Army Value',command=lambda:graph(app,army_value_graph))
+    app.army = Button(app.bottom_buttons, text='Army Value',state=NORMAL if has_army(app.my_order) else DISABLED, command=lambda:graph(app,army_value_graph))
     app.army.grid(row=1,column=0,sticky=E+W)
 
     app.resource_rate = Button(app.bottom_buttons, text='Resource Collection Rate',command=lambda:graph(app,resource_collection_rate_graph))
@@ -126,6 +127,10 @@ def add_graph_buttons(app):
 
     app.resources = Button(app.bottom_buttons, text='Resources',command=lambda:graph(app,resource_graph))
     app.resources.grid(row=1,column=1,sticky=E+W)
+
+def graph_buttons_update(app):
+
+    app.army.config(state= NORMAL if has_army(app.my_order) else DISABLED)
 
 def new(app):
     root = Toplevel()
@@ -208,6 +213,7 @@ def add_instance_analysis(app):
 
 def refresh(app):
     analysis_update(app)
+    graph_buttons_update(app)
     event_update(app)
 
 def add_event_list(app):
@@ -265,6 +271,12 @@ def supply_graph(order):
         cap[i.time] = i.cap
 
     create_graph([supply,worker_supply,cap],title='Supply',fill=[True,True,False],colors=['red','blue','green'])
+
+def has_army(order):
+    for i in order.at_time:
+        if sum(i.army_value(False)):
+            return True
+    return False
 
 def army_value_graph(order):
     minerals = dict()
@@ -408,3 +420,6 @@ def get_image(src, size = ()):
     if size:
         image = image.resize(size[0],size[1])
     return ImageTk.PhotoImage(image)
+
+if __name__ == '__main__':
+    main_menu()
