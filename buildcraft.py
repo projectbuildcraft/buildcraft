@@ -22,7 +22,7 @@ from bcevent import boost
 import gui
 
 
-my_order = bcorder.Order(filename = "orders/OC Opening.bo")
+my_order = bcorder.Order(filename = "orders/7RR.bo")
 run = True
 racemap = {
 	0 : "P",

@@ -46,65 +46,65 @@ class Instance:
 			self.base_larva = base_larva # tracks larva [larva_count]
 		if boosted_things == None:
 			self.boosted_things = [{CREATE_PROBE: [],
-                                                CREATE_ZEALOT: [],
-                                                WARP_IN_ZEALOT: [],
-                                                CREATE_STALKER: [],
-                                                WARP_IN_STALKER: [],
-                                                CREATE_SENTRY: [],
-                                                WARP_IN_SENTRY: [],
-                                                CREATE_OBSERVER: [],
-                                                CREATE_IMMORTAL: [],
-                                                CREATE_WARP_PRISM: [],
-                                                CREATE_COLOSSUS: [],
-                                                CREATE_PHOENIX: [],
-                                                CREATE_VOID_RAY: [],
-                                                CREATE_HIGH_TEMPLAR: [],
-                                                WARP_IN_HIGH_TEMPLAR: [],
-                                                CREATE_DARK_TEMPLAR: [],
-                                                WARP_IN_DARK_TEMPLAR: [],
-                                                CREATE_CARRIER: [],
-                                                CREATE_MOTHERSHIP: [],
-                                                CREATE_MOTHERSHIP_CORE: [],
-                                                CREATE_ORACLE: [],
-                                                CREATE_TEMPEST: [],
-                                                TRANSFORM_INTO_WARPGATE: [],
-                                                TRANSFORM_INTO_GATEWAY: [],
-                                                WARPGATE_ON_COOLDOWN: [],
-                                                RESEARCH_GROUND_WEAPONS_LEVEL_1: [],
-                                                RESEARCH_GROUND_WEAPONS_LEVEL_2: [],
-                                                RESEARCH_GROUND_WEAPONS_LEVEL_3: [],
-                                                RESEARCH_AIR_WEAPONS_LEVEL_1: [],
-                                                RESEARCH_AIR_WEAPONS_LEVEL_2: [],
-                                                RESEARCH_AIR_WEAPONS_LEVEL_3: [],
-                                                RESEARCH_GROUND_ARMOR_LEVEL_1: [],
-                                                RESEARCH_GROUND_ARMOR_LEVEL_2: [],
-                                                RESEARCH_GROUND_ARMOR_LEVEL_3: [],
-                                                RESEARCH_AIR_ARMOR_LEVEL_1: [],
-                                                RESEARCH_AIR_ARMOR_LEVEL_2: [],
-                                                RESEARCH_AIR_ARMOR_LEVEL_3: [],
-                                                RESEARCH_SHIELDS_LEVEL_1: [],
-                                                RESEARCH_SHIELDS_LEVEL_2: [],
-                                                RESEARCH_SHIELDS_LEVEL_3: [],
-                                                RESEARCH_CHARGE: [],
-                                                RESEARCH_GRAVITIC_BOOSTERS: [],
-                                                RESEARCH_GRAVITIC_DRIVE: [],
-                                                RESEARCH_ANION_PULSE_CRYSTALS: [],
-                                                RESEARCH_EXTENDED_THERMAL_LANCE: [],
-                                                RESEARCH_PSIONIC_STORM: [],
-                                                RESEARCH_BLINK: [],
-                                                RESEARCH_GRAVITON_CATAPULT: [],
-                                                RESEARCH_WARP_GATE: []},                                          
-                                               {NEXUS: [],
-                                                GATEWAY: [],
-                                                FORGE: [],
-                                                CYBERNETICS_CORE: [],
-                                                ROBOTICS_FACILITY: [],
-                                                WARPGATE: [],
+						CREATE_ZEALOT: [],
+						WARP_IN_ZEALOT: [],
+						CREATE_STALKER: [],
+						WARP_IN_STALKER: [],
+						CREATE_SENTRY: [],
+						WARP_IN_SENTRY: [],
+						CREATE_OBSERVER: [],
+						CREATE_IMMORTAL: [],
+						CREATE_WARP_PRISM: [],
+						CREATE_COLOSSUS: [],
+						CREATE_PHOENIX: [],
+						CREATE_VOID_RAY: [],
+						CREATE_HIGH_TEMPLAR: [],
+						WARP_IN_HIGH_TEMPLAR: [],
+						CREATE_DARK_TEMPLAR: [],
+						WARP_IN_DARK_TEMPLAR: [],
+						CREATE_CARRIER: [],
+						CREATE_MOTHERSHIP: [],
+						CREATE_MOTHERSHIP_CORE: [],
+						CREATE_ORACLE: [],
+						CREATE_TEMPEST: [],
+						TRANSFORM_INTO_WARPGATE: [],
+						TRANSFORM_INTO_GATEWAY: [],
+						WARPGATE_ON_COOLDOWN: [],
+						RESEARCH_GROUND_WEAPONS_LEVEL_1: [],
+						RESEARCH_GROUND_WEAPONS_LEVEL_2: [],
+						RESEARCH_GROUND_WEAPONS_LEVEL_3: [],
+						RESEARCH_AIR_WEAPONS_LEVEL_1: [],
+						RESEARCH_AIR_WEAPONS_LEVEL_2: [],
+						RESEARCH_AIR_WEAPONS_LEVEL_3: [],
+						RESEARCH_GROUND_ARMOR_LEVEL_1: [],
+						RESEARCH_GROUND_ARMOR_LEVEL_2: [],
+						RESEARCH_GROUND_ARMOR_LEVEL_3: [],
+						RESEARCH_AIR_ARMOR_LEVEL_1: [],
+						RESEARCH_AIR_ARMOR_LEVEL_2: [],
+						RESEARCH_AIR_ARMOR_LEVEL_3: [],
+						RESEARCH_SHIELDS_LEVEL_1: [],
+						RESEARCH_SHIELDS_LEVEL_2: [],
+						RESEARCH_SHIELDS_LEVEL_3: [],
+						RESEARCH_CHARGE: [],
+						RESEARCH_GRAVITIC_BOOSTERS: [],
+						RESEARCH_GRAVITIC_DRIVE: [],
+						RESEARCH_ANION_PULSE_CRYSTALS: [],
+						RESEARCH_EXTENDED_THERMAL_LANCE: [],
+						RESEARCH_PSIONIC_STORM: [],
+						RESEARCH_BLINK: [],
+						RESEARCH_GRAVITON_CATAPULT: [],
+						RESEARCH_WARP_GATE: []},                                          
+					       {NEXUS: [],
+						GATEWAY: [],
+						FORGE: [],
+						CYBERNETICS_CORE: [],
+						ROBOTICS_FACILITY: [],
+						WARPGATE: [],
 						STARGATE: [],
-                                                TWILIGHT_COUNCIL: [],
-                                                ROBOTICS_BAY: [],
-                                                FLEET_BEACON: [],
-                                                TEMPLAR_ARCHIVES: []}]
+						TWILIGHT_COUNCIL: [],
+						ROBOTICS_BAY: [],
+						FLEET_BEACON: [],
+						TEMPLAR_ARCHIVES: []}]
 		else:
 			self.boosted_things = boosted_things # tracks Chrono Boosted events and structures: [{Event_Index: {[time_left, chrono_left]}, {Unit_Index: [chrono_left]}]
 		
@@ -142,7 +142,7 @@ class Instance:
 		while index > 0:
 			index -= 1
 			if self.production[index][0][0] in self.boosted_things[0].keys():
-                                for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
+				for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
 					if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
 						self.production[index][1] -= .5 # boosted effect
 						self.boosted_things[0][self.production[index][0][0]][i][1] -= .5
@@ -228,6 +228,14 @@ class Instance:
 				value[1] += defensive_units[index][1] * count
 		return value
 
+	def larva_in_production(self):
+		larva = 0
+		for event_info,time in self.production:
+			if event_info[0] == SPAWN_LARVA:
+				larva += 4
+			elif event_info[0] == AUTO_SPAWN_LARVA:
+				larva += 1
+		return larva
 
 	def __deepcopy__(self, memo = None):
 		return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva), copy.deepcopy(self.boosted_things))
@@ -259,8 +267,8 @@ class Order:
 				raw_info = string.split(line)
 				events_info = [None,None]
 				events_info[0] = int(raw_info.pop(0))
-				if race == "Z":
-					events_info.append(raw_info.pop()) # whether or not to allow extractor trick on this event
+				if self.race == "Z":
+					events_info.append(int(raw_info.pop())) # whether or not to allow extractor trick on this event
 				elif events[events_info[0]].get_result() == boost:
 					events_info.append(None) # dummy
 					events_info.append(int(raw_info.pop()))
@@ -276,6 +284,7 @@ class Order:
 				self.events = []
 			else:
 				self.events = events_list
+		self.time_taken = []
 		self.calculate_times()
 
 	def save(self,filename):
@@ -321,9 +330,7 @@ class Order:
 		required_tricks = 0 # we only really care about this if now because it effects mineral cost
 		if events[event_index].supply > 0: # requires supply
 			if (self.at[order_index].supply) + (events[event_index].supply) > 200: # will max out supply
-				if gas_trick:
-					required_tricks += 200 - (self.at[order_index].supply + events[event_index.supply])
-				else:
+				if not gas_trick:
 					return False
 			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
 				if now:
@@ -343,7 +350,7 @@ class Order:
 		if gas_trick:
 			gas_tricks = min(required_tricks, self.at[order_index].units[DRONE_SCOUT] + 2 * (self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]) - self.at[order_index].units[ASSIMILATOR])
 			evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
-			mineral_cost = events[event_index].cost[0] + 25 * gas_tricks + 75 * evo_tricks
+			mineral_cost = events[event_index].cost[0] + events[MORPH_EXTRACTOR].cost[0] * gas_tricks + events[MORPH_EVOLUTION_CHAMBER].cost[0] * evo_tricks
 		else:
 			mineral_cost = events[event_index].cost[0]
 		if self.at[order_index].minerals < mineral_cost: # requires minerals
@@ -367,6 +374,11 @@ class Order:
 								break
 					else:
 						return False
+		if now and event_index == SPAWN_LARVA: # then we need to make sure there is a free hatchery
+			num_hatcheries = self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]
+			num_injections = len([event_info[0] for event_info, time in self.at[order_index].production if event_info[0] == SPAWN_LARVA])
+			if num_injections >= num_hatcheries:
+				return False
 		# requirements
 		requirements = list(events[event_index].get_requirements()) # our dirty copy
 		for requirement in requirements:
@@ -550,6 +562,8 @@ class Order:
 		Evaluates the times at which all events occur
 		"""
 		now = Instance()
+		start_times = []
+		end_times = []
 		if self.race == "P":
 			now.units[PROBE_MINERAL] = 6
 			now.units[NEXUS] = 1
@@ -579,9 +593,35 @@ class Order:
 					now.increment()
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
+				if event_info[0] == CHRONO_BOOST:
+					found = False
+					already_boosted = []
+					not_boosted = []
+					for i in now.boosted_things[0][event_info[2]]:
+						already_boosted.append(i[0])
+					for i in now.production:
+                                                repeat = False
+						if i[0][0] == event_info[2]:
+							if event_info[3] in already_boosted:
+								already_boosted.remove(event_info[3])
+								repeat = True
+								break
+                                                        if not repeat:
+                                                                not_boosted.append(i[1])
+					if event_info[3] not in not_boosted:
+						if len(not_boosted) > 0:
+							event_info[3] = min(not_boosted)
+						else:
+                                                        print index
+                                                        print self.events[index]
+							self.delete(index)
+							return
 				mineral_cost = events[event_info[0]].cost[0]
 				if using_tricks: 
-					pass # update mineral_cost
+					required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
+					gas_tricks = min(required_tricks, now.units[DRONE_SCOUT] + 2 * (now.units[HATCHERY] + now.units[LAIR] + now.units[HIVE]) - now.units[ASSIMILATOR])
+					evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
+					mineral_cost += 6 * gas_tricks + 18 * evo_tricks
 				now.minerals -= mineral_cost
 				now.gas -= events[event_info[0]].cost[1]
 				now.supply += events[event_info[0]].supply
@@ -667,6 +707,14 @@ class Order:
 		else:
 			self.events[index][2] = 0
 		self.calculate_times()
+
+	def event_length(self, index):
+                """
+                Returns how long the event at the index will take, factoring in chrono boosts
+                index: index in self.events, not self.at
+                """
+                return events[self.events[index]].time
+
 
 class Team:
 	"""
