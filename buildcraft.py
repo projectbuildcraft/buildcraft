@@ -22,7 +22,11 @@ from bcevent import boost
 import gui
 
 
+<<<<<<< HEAD
 my_order = bcorder.Order(filename = "orders/test_chrono.bo")
+=======
+my_order = bcorder.Order(filename = "orders/7RR.bo")
+>>>>>>> 10d6d78cf4f916e8890e08702546374cade79938
 run = True
 racemap = {
 	0 : "P",
@@ -40,6 +44,9 @@ while run:
 	print "[5] Quit"
 	print "[6] Anaylsis"
 	print "[7] Graph"
+	print "[8] Set note"
+	if my_order.race == "Z":
+		print "[9] Toggle gas trick"
 	menu_choice = int(raw_input("=>\t"))
 	if menu_choice == 0:
 		filename = str(raw_input("Load file: "))
@@ -61,7 +68,6 @@ while run:
 			pass
 		else:
 			my_order.insert([choices[choice],''],index)
-		pass
 	elif menu_choice == 3:
 		choices = my_order.all_available()
 		for choice_index,event_index in enumerate(choices):
@@ -106,4 +112,14 @@ while run:
 			gui.resource_collection_rate_graph(my_order)
 		elif menu_choice_2 == 3:
 			gui.resource_graph(my_order)
-		
+	elif menu_choice == 8:
+		choice = int(raw_input("Index: "))
+		print "Note was", my_order.get_note(choice)
+		my_order.set_note(choice,str(raw_input("Set note to: ")))
+	elif menu_choice == 9:
+		index = int(raw_input("Index: "))
+		if my_order.can_trick(index):
+			my_order.toggle_trick(index)
+			print "Toggled"
+		else:
+			print "Can't trick there"
