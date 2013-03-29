@@ -546,48 +546,70 @@ class Order:
 			last = self.at[index]
 			now = copy.deepcopy(last)
 			self.at.append(now)
+			skip = False
 			if (not impossible) and (self.available(order_index, event_info[0], False)):
 				while not self.available(order_index, event_info[0], True):
 					now.increment()
 					self.at_time.append(copy.deepcopy(now))
 				# now effect costs
-				now.minerals -= events[event_info[0]].cost[0]
-				now.gas -= events[event_info[0]].cost[1]
-				now.supply += events[event_info[0]].supply
-				for requirement in get_requirements(event_info[0]):
-					unit, kind = requirement
-					if kind == O:
-						while(now.units[unit] == 0):
-							unit = can_be[unit] # if this is an error then there is a problem with available
-						now.units[unit] -= 1
-						now.occupied[unit] += 1
-						if kind in now.boosted_things[1].keys():
-							if len(now.boosted_things[1][kind]) > 0:
-								now.boosted_things[0][event_info[0]].append([events[event_info[0]].time, now.boosted_things[1][kind][0]]) 
-								del now.boosted_things[1][kind][0]
-					if kind == C:
-						now.units[unit] -= 1
-						if unit == LARVA:
-							# assume larva from base with most larva
-							max_index = 0
-							max_larva = 0
-							for curr_index, larva in enumerate(now.base_larva):
-								if larva > max_larva:
-									max_index = curr_index
-									max_larva = larva
-							if max_larva == 3:
-								now.production.append([[AUTO_SPAWN_LARVA,''], events[AUTO_SPAWN_LARVA].time])
-							now.base_larva[max_index] -= 1
-					if kind > 20: # energy
-						greatest_index = 0
-						greatest_energy = 0
-						for energy_index, [energy_unit, energy_energy] in enumerate(now.energy_units):
-							if energy_unit == unit:
-								if energy_energy > greatest_energy:
-									greatest_energy == energy_energy
-									greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
-						now.energy_units[greatest_index][1] -= kind
-				now.production.append([event_info,events[event_info[0]].time])
+                                if event_info[0] == CHRONO_BOOST:
+                                        found = False
+                                        already_boosted = []
+                                        not_boosted = []
+                                        for i in now.boosted_things[0][event_info[2]]:
+                                                already_boosted.append(i[0])
+                                        for i in now.production:
+                                                repeat = False
+                                                if i[0][0] == event_index:
+                                                        if time_remaining in already_boosted:
+                                                                already_boosted.remove(event_info[3])
+                                                                repeat = True
+                                                                break
+                                                if not repeat:
+                                                        not_boosted.append(i[1])
+                                        if event_info[3] not in not_boosted:
+                                                if len(non_boosted) > 0:
+                                                        event_info[3] = min(not_boosted)
+                                                else:
+                                                        skip = True
+                                if not skip:
+                                        now.minerals -= events[event_info[0]].cost[0]
+                                        now.gas -= events[event_info[0]].cost[1]
+                                        now.supply += events[event_info[0]].supply
+                                        for requirement in get_requirements(event_info[0]):
+                                                unit, kind = requirement
+                                                if kind == O:
+                                                        while(now.units[unit] == 0):
+                                                                unit = can_be[unit] # if this is an error then there is a problem with available
+                                                        now.units[unit] -= 1
+                                                        now.occupied[unit] += 1
+                                                        if kind in now.boosted_things[1].keys():
+                                                                if len(now.boosted_things[1][kind]) > 0:
+                                                                        now.boosted_things[0][event_info[0]].append([events[event_info[0]].time, now.boosted_things[1][kind][0]]) 
+                                                                        del now.boosted_things[1][kind][0]
+                                                if kind == C:
+                                                        now.units[unit] -= 1
+                                                        if unit == LARVA:
+                                                                # assume larva from base with most larva
+                                                                max_index = 0
+                                                                max_larva = 0
+                                                                for curr_index, larva in enumerate(now.base_larva):
+                                                                        if larva > max_larva:
+                                                                                max_index = curr_index
+                                                                                max_larva = larva
+                                                                if max_larva == 3:
+                                                                        now.production.append([[AUTO_SPAWN_LARVA,''], events[AUTO_SPAWN_LARVA].time])
+                                                                now.base_larva[max_index] -= 1
+                                                if kind > 20: # energy
+                                                        greatest_index = 0
+                                                        greatest_energy = 0
+                                                        for energy_index, [energy_unit, energy_energy] in enumerate(now.energy_units):
+                                                                if energy_unit == unit:
+                                                                        if energy_energy > greatest_energy:
+                                                                                greatest_energy == energy_energy
+                                                                                greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
+                                                        now.energy_units[greatest_index][1] -= kind
+                                        now.production.append([event_info,events[event_info[0]].time])
 			else:
 				impossible = True
 				self.at[order_index] = copy.deepcopy(last)
