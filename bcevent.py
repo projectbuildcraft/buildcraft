@@ -77,6 +77,8 @@ def warp(result,instance):
 
 def spawn_larva(auto,instance):
 	from constants import LARVA, AUTO_SPAWN_LARVA, events
+	auto = auto[0] # get it out of the tuple
+	print auto
 	if auto:
 		instance.units[LARVA] += 1
 		# assume added to least
@@ -106,7 +108,7 @@ def spawn_larva(auto,instance):
 			# find most recent AUTO_SPAWN_LARVA and stop it
 			spawn_index = None
 			max_time = 0
-			for index, (event_index, time_remaining) in instance.production:
+			for index, (event_index, time_remaining, order_index) in enumerate(instance.production):
 				if event_index == AUTO_SPAWN_LARVA:
 					if time > max_time:
 						spawn_index = index
