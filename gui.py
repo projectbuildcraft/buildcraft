@@ -38,7 +38,8 @@ class EventWidget(Canvas):
         start = self.at.time
         current = app.scale.get()
         passed_time = current - start
-        total_time = events[self.event[0]].time
+        print self.index
+        total_time = self.app.my_order.event_length(self.index)
         actual_time = max(0,min(passed_time,total_time))
         self.fill = self.create_rectangle(EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height,fill='aquamarine',disabledoutline='')
         self.create_text(2,2,text=str(self.at.supply)+'/'+str(self.at.cap),anchor=N+W)
@@ -77,7 +78,7 @@ class EventWidget(Canvas):
     def update(self,current):
         start = self.at.time
         passed_time = current - start
-        total_time = events[self.event[0]].time
+        total_time = self.app.my_order.event_length(self.index)
         actual_time = max(0,min(passed_time,total_time))
         self.coords(self.fill,EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height)
         self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))

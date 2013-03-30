@@ -676,7 +676,7 @@ class Order:
                 Returns how long the event at the index will take, factoring in chrono boosts
                 index: index in self.events, not self.at
                 """
-                return time_taken[index]
+                return self.time_taken[index]
 
 
 class Team:
