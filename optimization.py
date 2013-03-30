@@ -16,7 +16,6 @@ def when_meets(order, constraints):
 		if has_constraints(instance):
 			return instance.time
 	return float('inf')
-		
 
 def has_constraints(instance, constraints):
 	"""
@@ -29,6 +28,22 @@ def has_constraints(instance, constraints):
 
 def randomly_fit(race,constraints):
 	"""
-	Returns a random build order that fits the given constraints
+	Returns a random build order that fits the given constraints or fills supply
 	"""
-	pass
+	order = bcorder.Order(race = race)
+	while not has_constraints(order.at_time[-1]) and order.at_time[-1].supply <= 200 and order.at_time[-1].time < float('inf'):
+		choices = my_order.all_available()
+		choice = random.randint(0,len(choices) - 1)
+		if events[choices[choice]].get_result() == boost:
+			boostable = []
+			for p in my_order.at[len(my_order.events)].production:
+				for r in bcorder.get_requirements(p[0][0]):
+					if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
+								  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
+						boostable.append([p[0][0], p[1]])
+						break
+			extra_choice = random.randint(0,len(boostable) - 1)
+			my_order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]])
+		else:
+			my_order.append([choices[choice],''])
+	return order
