@@ -148,7 +148,7 @@ class Instance:
 	def worker_supply(self, include_production = True):
 		count = self.active_worker_count(include_scouts = True, include_occupied = True)
 		if include_production:
-			for event_info, time in self.production:
+			for event_info, time, index in self.production:
 				event = events[event_info[0]]
 				if event.get_result() == add:
 					for unit in event.get_args():
