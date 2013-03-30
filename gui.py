@@ -125,7 +125,7 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    app.my_order = bcorder.Order(filename = "orders/OC Opening.bo")
+    load(app, False)
 
     add_menu(app)
 
@@ -137,11 +137,12 @@ def main_menu():
 
     root.mainloop()
 
-def load(app):
+def load(app, r = True):
     f = tkFileDialog.askopenfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')])
     if f:
         app.my_order = bcorder.Order(filename = f)
-        refresh(app)
+        if r:
+            refresh(app)
 
 def save(app):
     name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')], initialfile = app.my_order.name)
@@ -233,15 +234,18 @@ def add_instance_analysis(app):
     app.supply = get_image('supply.gif')
     app.larva = get_image('larva.gif')
 
-    app.canvas.create_image(50,50,image=app.minerals)
-    app.canvas.create_image(50,100,image=app.gas)
-    app.canvas.create_image(50,150,image=app.supply)
-    app.canvas.create_image(50,200,image=app.larva)
+    app.canvas.mineral_image = app.canvas.create_image(50,50,image=app.minerals)
+    app.canvas.gas_image = app.canvas.create_image(50,100,image=app.gas)
+    app.canvas.supply_image = app.canvas.create_image(50,150,image=app.supply)
+    app.canvas.larva_image = app.canvas.create_image(50,200,image=app.larva)
 
-    app.mineral_value = app.canvas.create_text(80,50,anchor=W)
-    app.gas_value = app.canvas.create_text(80,100,anchor=W)
-    app.supply_value = app.canvas.create_text(80,150,anchor=W)
-    app.larva_count = app.canvas.create_text(90,200,anchor=W)
+    app.canvas.mineral_value = app.canvas.create_text(80,50,anchor=W)
+    app.canvas.gas_value = app.canvas.create_text(80,100,anchor=W)
+    app.canvas.supply_value = app.canvas.create_text(80,150,anchor=W)
+    app.canvas.larva_count = app.canvas.create_text(90,200,anchor=W)
+
+    app.canvas.zerg_only = (app.canvas.larva_image, app.canvas.larva_count)
+
     
     def refresh(i):
 
@@ -253,10 +257,10 @@ def add_instance_analysis(app):
         i = app.my_order.at_time[int(i)-1]
 
         min_rate, gas_rate = i.resource_rate()
-        app.canvas.itemconfig(app.mineral_value,text=str(int(i.minerals))+' + '+str(int(min_rate))+'/min')
-        app.canvas.itemconfig(app.gas_value,text=str(int(i.gas))+' + '+str(int(gas_rate))+'/min')
-        app.canvas.itemconfig(app.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
-        app.canvas.itemconfig(app.larva_count,text=str(i.units[LARVA]))
+        app.canvas.itemconfig(app.canvas.mineral_value,text=str(int(i.minerals))+' + '+str(int(min_rate))+'/min')
+        app.canvas.itemconfig(app.canvas.gas_value,text=str(int(i.gas))+' + '+str(int(gas_rate))+'/min')
+        app.canvas.itemconfig(app.canvas.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
+        app.canvas.itemconfig(app.canvas.larva_count,text=str(i.units[LARVA]))
 
     app.time_scale = Frame(app.instance)
     app.time_scale.pack(side = TOP)
@@ -266,6 +270,15 @@ def add_instance_analysis(app):
     
     app.scale = Scale(app.time_scale, from_=1,to=len(app.my_order.at_time), length=300, command=refresh, orient=HORIZONTAL)
     app.scale.pack(side = LEFT) 
+
+    analysis_update(app)
+
+def analysis_update(app):
+    app.scale.config(to=len(app.my_order.at_time))
+    zerg = NORMAL if app.my_order.race == 'Z' else HIDDEN
+    for z in app.canvas.zerg_only:
+        app.canvas.itemconfig(z, state = zerg)
+        
 
 def refresh(app):
     analysis_update(app)
@@ -327,10 +340,6 @@ def insert_chrono(app, target):
     app.my_order.insert_chrono(target, app.chrono)
     app.chrono = -1
     refresh(app)
-
-def analysis_update(app):
-    print len(app.my_order.at_time)
-    app.scale.config(to=len(app.my_order.at_time))
 
 def supply_graph(order):
     worker_supply = dict()
@@ -493,5 +502,4 @@ def get_image(src, size = ()):
         image = image.resize(size[0],size[1])
     return ImageTk.PhotoImage(image)
 
-if __name__ == '__main__':
-    main_menu()
+main_menu()
