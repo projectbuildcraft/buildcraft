@@ -94,9 +94,7 @@ class Instance:
 		while index > 0:
 			index -= 1
 			if self.production[index][2] in self.boosted_things[0].keys() and self.boosted_things[0][self.production[index][2]] > 0:
-                                print "BOOST"
                                 self.production[index][1] -= .5 # boosted effect
-                                print self.production[index][1]
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
                                 for st_index, start_time in enumerate(start_times):
@@ -496,6 +494,7 @@ class Order:
 		"""
 		event_info = [CHRONO_BOOST, "", self.events[boosted_index], boosted_index]
 		self.events.insert(chrono_index, event_info)
+		print self.events
 		self.calculate_times()
 
 	def can_chrono(self, boosted_index, chrono_index):
@@ -621,7 +620,6 @@ class Order:
 				start_times.append([index, now.time])
 				end_times.append(0)
 				now.production.append([event_info,events[event_info[0]].time, index])
-				print index
 			else:
 				impossible = True
 				self.at[order_index] = copy.deepcopy(last)
@@ -633,7 +631,6 @@ class Order:
 			self.at_time.append(last)
 		for i in xrange(len(start_times)):
                         self.time_taken.append(end_times[i] - start_times[i][1])
-                print self.time_taken
 
 	def get_note(self,index):
 		"""
@@ -755,4 +752,3 @@ class Team:
 		else:
 			pass
 			# find index at which to insert gift
-
