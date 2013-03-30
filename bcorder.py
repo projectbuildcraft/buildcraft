@@ -492,9 +492,8 @@ class Order:
 		Adds a chrono boost for the event in the given index
 		Because one does not simply insert a chrono
 		"""
-		event_info = [CHRONO_BOOST, "", self.events[boosted_index], boosted_index]
-		self.events.insert(chrono_index, event_info)
-		print self.events
+		event_info = [CHRONO_BOOST, "", self.events[boosted_index][0], boosted_index]
+                self.events.insert(chrono_index, event_info)
 		self.calculate_times()
 
 	def can_chrono(self, boosted_index, chrono_index):
