@@ -530,6 +530,7 @@ class Order:
 		now = Instance()
 		start_times = []
 		end_times = []
+		self.time_taken = []
 		if self.race == "P":
 			now.units[PROBE_MINERAL] = 6
 			now.units[NEXUS] = 1
