@@ -8,3 +8,5 @@ babies:
 	fortune | cowsay
 pull:
 	git pull origin master
+gui:
+	./buildcraft
