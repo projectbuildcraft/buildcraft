@@ -114,12 +114,12 @@ class Instance:
 							unit = can_be[unit] # if this fails it can be because of issues with available and calculate_times
 						self.occupied[unit] -= 1
 						self.units[unit] += 1
-				if self.production[index][0][0] in self.boosted_things[0].keys():
-					for requirement in event.get_requirements():
+				if self.production[index][2] in self.boosted_things[0].keys():
+                                        for requirement in event.get_requirements():
 						unit, kind = requirement
 						if kind == O:
-							self.boosted_things[1][unit].append(self.boosted_things[0][self.production[index][0][3]])
-							del self.boosted_things[0][self.production[index][0][3]]
+							self.boosted_things[1][unit].append(self.boosted_things[0][self.production[index][2]])
+							del self.boosted_things[0][self.production[index][2]]
 				del self.production[index]
 		for energy_unit in self.energy_units:
 			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
@@ -590,10 +590,10 @@ class Order:
 							unit = can_be[unit] # if this is an error then there is a problem with available
 						now.units[unit] -= 1
 						now.occupied[unit] += 1
-						if kind in now.boosted_things[1].keys():
-							if len(now.boosted_things[1][kind]) > 0:
-								now.boosted_things[0][event_info[0]].append([events[event_info[0]].time, now.boosted_things[1][kind][0]]) 
-								del now.boosted_things[1][kind][0]
+						if unit in now.boosted_things[1].keys():
+							if len(now.boosted_things[1][unit]) > 0:
+								now.boosted_things[0][index] = now.boosted_things[1][unit][0] 
+								del now.boosted_things[1][unit][0]
 					if kind == C:
 						now.units[unit] -= 1
 						if unit == LARVA:
