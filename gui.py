@@ -4,7 +4,7 @@
 """
 from Tkinter import *
 from constants import events
-from constants import CHRONO_BOOST
+from constants import CHRONO_BOOST, LARVA
 from PIL import Image, ImageTk
 import random
 import math
@@ -231,14 +231,17 @@ def add_instance_analysis(app):
     app.gas = get_image('vespene.gif')
     app.time = get_image('time.gif')
     app.supply = get_image('supply.gif')
+    app.larva = get_image('larva.gif')
 
     app.canvas.create_image(50,50,image=app.minerals)
     app.canvas.create_image(50,100,image=app.gas)
     app.canvas.create_image(50,150,image=app.supply)
+    app.canvas.create_image(50,200,image=app.larva)
 
     app.mineral_value = app.canvas.create_text(80,50,anchor=W)
     app.gas_value = app.canvas.create_text(80,100,anchor=W)
     app.supply_value = app.canvas.create_text(80,150,anchor=W)
+    app.larva_count = app.canvas.create_text(90,200,anchor=W)
     
     def refresh(i):
 
@@ -253,6 +256,7 @@ def add_instance_analysis(app):
         app.canvas.itemconfig(app.mineral_value,text=str(int(i.minerals))+' + '+str(int(min_rate))+'/min')
         app.canvas.itemconfig(app.gas_value,text=str(int(i.gas))+' + '+str(int(gas_rate))+'/min')
         app.canvas.itemconfig(app.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
+        app.canvas.itemconfig(app.larva_count,text=str(i.units[LARVA]))
 
     app.time_scale = Frame(app.instance)
     app.time_scale.pack(side = TOP)
