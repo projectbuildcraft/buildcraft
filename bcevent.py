@@ -78,7 +78,6 @@ def warp(result,instance):
 def spawn_larva(auto,instance):
 	from constants import LARVA, AUTO_SPAWN_LARVA, events
 	auto = auto[0] # get it out of the tuple
-	print auto
 	if auto:
 		instance.units[LARVA] += 1
 		# assume added to least
