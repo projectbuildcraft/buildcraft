@@ -93,11 +93,10 @@ class Instance:
 			self.gas += gas_rate / float(60)
 		while index > 0:
 			index -= 1
-			if self.production[index][2] in self.boosted_things[0].keys() and self.boosted_things[self.production[index][2]] > 0:
-				for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
-					if self.boosted_things[0][self.production[index][0][0]] > 0:
-						self.production[index][1] -= .5 # boosted effect
-						break
+			if self.production[index][2] in self.boosted_things[0].keys() and self.boosted_things[0][self.production[index][2]] > 0:
+                                print "BOOST"
+                                self.production[index][1] -= .5 # boosted effect
+                                print self.production[index][1]
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
                                 for st_index, start_time in enumerate(start_times):
@@ -105,7 +104,7 @@ class Instance:
                                                 end_times[st_index] = self.time
 				event = events[self.production[index][0][0]]
 				if events[self.production[index][0][0]].get_result() == boost: # has special parameters
-					boost(self.production[index][2], self)
+					boost(self.production[index][0][3], self)
 				else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
@@ -121,8 +120,8 @@ class Instance:
 					for requirement in event.get_requirements():
 						unit, kind = requirement
 						if kind == O:
-							self.boosted_things[1][kind].append(self.boosted_things[0][self.production[index][2]])
-							del self.boosted_things[0][self.production[index][2]]
+							self.boosted_things[1][unit].append(self.boosted_things[0][self.production[index][0][3]])
+							del self.boosted_things[0][self.production[index][0][3]]
 				del self.production[index]
 		for energy_unit in self.energy_units:
 			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
@@ -561,12 +560,9 @@ class Order:
 					now.increment(start_times, end_times)
 				# now effect costs
 				if event_info[0] == CHRONO_BOOST:
-                                        print "hi"
                                         found = False
                                         for i in xrange(len(now.production)):
-                                                print now.production[i][2], event_info[3]
                                                 if now.production[i][2] == event_info[3]:
-                                                        print "hello"
                                                         found = True
                                                         if now.production[i][0][0] != event_info[2]:
                                                                 for j in xrange(len(now.production)):
@@ -624,6 +620,7 @@ class Order:
 				start_times.append([index, now.time])
 				end_times.append(0)
 				now.production.append([event_info,events[event_info[0]].time, index])
+				print index
 			else:
 				impossible = True
 				self.at[order_index] = copy.deepcopy(last)
@@ -635,6 +632,7 @@ class Order:
 			self.at_time.append(last)
 		for i in xrange(len(start_times)):
                         self.time_taken.append(end_times[i] - start_times[i][1])
+                print self.time_taken
 
 	def get_note(self,index):
 		"""
