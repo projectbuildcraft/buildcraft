@@ -139,7 +139,7 @@ def main_menu():
     root.mainloop()
 
 def load(app, r = True):
-    f = tkFileDialog.askopenfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')])
+    f = tkFileDialog.askopenfilename(defaultextension = '.bo', initialdir='orders', filetypes = [('All files','.*'),('Build order files','.bo')])
     if f:
         app.my_order = bcorder.Order(filename = f)
         if r:
