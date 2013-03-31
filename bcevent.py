@@ -66,11 +66,11 @@ def research(topics,instance):
 def boost(order_index, instance):
         instance.boosted_things[0][order_index] = 20
 
-def warp(result,instance):
+def warp(result,instance, order_index = 1):
 	from constants import WARPGATE_ON_COOLDOWN, WARPGATE
 	unit, cooldown = result
 	add_unit(unit,instance)
-	instance.production.append([[WARPGATE_ON_COOLDOWN],cooldown, -1])
+	instance.production.append([[WARPGATE_ON_COOLDOWN],cooldown, -order_index])
 	# negate effect of removing warpgate
 	instance.units[WARPGATE] -= 1
 	instance.occupied[WARPGATE] += 1
