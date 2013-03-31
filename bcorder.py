@@ -678,6 +678,12 @@ class Order:
                 """
                 return self.time_taken[index]
 
+	def get_warp_cooldown(self, index):
+		"""
+		Given an event index, return the total cooldown time, and 0 if it isn't a warp
+		"""
+		return 0
+
 
 class Team:
 	"""
