@@ -219,7 +219,7 @@ class Order:
 			f.close()
 		else:
 			self.name = name
-			self.default_location = "orders/" + self.name + ".bo"
+			self.default_location = False
 			self.race = race
 			if events_list == None:
 				self.events = []
@@ -234,6 +234,8 @@ class Order:
 		"""
 		if filename == "":
 			filename = self.default_location
+		else:
+			self.default_location = filename
 		f = open(filename, 'w')
 		f.write(self.name + "\n")
 		f.write(self.race + "\n")
@@ -682,7 +684,12 @@ class Order:
 		"""
 		Given an event index, return the total cooldown time, and 0 if it isn't a warp
 		"""
-		return 0
+		if self.events[index] not in [WARP_IN_ZEALOT, WARP_IN_STALKER, WARP_IN_SENTRY, WARP_IN_DARK_TEMPLAR, WARP_IN_HIGH_TEMPLAR]:
+			return 0
+		start_time = self.at[index + 1].time
+		end_time = self.at[index + 1].time # needs to be the actual time
+		pass
+		return end_time - start_time
 
 
 class Team:
