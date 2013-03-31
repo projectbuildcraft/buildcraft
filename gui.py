@@ -52,7 +52,8 @@ class EventWidget(Canvas):
         self.full_time = self.create_rectangle(EventWidget.supply_width,2,total_time*5+EventWidget.supply_width,self.height)
         self.create_text(EventWidget.supply_width + 5,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
-        self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
+        self.passed_str = str(actual_time)+'/'+str(total_time)
+        self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
         
         self.rMenu = Menu(self, tearoff=0)
         self.rMenu.add_command(label='Insert above',command=self.insert_above)
@@ -93,7 +94,8 @@ class EventWidget(Canvas):
         if self.cooldown:
             cooldown_passed = max(0,min(self.cooldown,current - start))
             self.coords(self.cooldown_fill,EventWidget.supply_width,2,EventWidget.supply_width + cooldown_passed*5,self.height)
-        self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
+        self.passed_str = str(actual_time)+'/'+str(total_time)
+        self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
 
     def popup(self, event):
         """ Creates right-click menu """
@@ -124,12 +126,11 @@ class EventWidget(Canvas):
 
         def submit():
             self.app.my_order.set_note(self.index, comment.entry.get())
+            self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
             comment.master.destroy()
 
         comment.button = Button(root, text='OK',command=submit)
         comment.button.pack(side = LEFT)
-
-        commend.bind('<FocusOut>',gain_focus)
 
         root.mainloop()
 
