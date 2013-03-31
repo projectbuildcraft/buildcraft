@@ -97,10 +97,8 @@ class Instance:
                                 self.production[index][1] -= .5 # boosted effect
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
-                                for st_index, start_time in enumerate(start_times):
-                                        if start_time[0] == self.production[index][2]:
-                                                end_times[st_index] = self.time
-				event = events[self.production[index][0][0]]
+                                end_times[self.production[index][2]] = self.time
+                                event = events[self.production[index][0][0]]
 				if events[self.production[index][0][0]].get_result() == boost: # has special parameters
 					boost(self.production[index][0][3], self)
 				else:
@@ -528,9 +526,9 @@ class Order:
 		Evaluates the times at which all events occur
 		"""
 		now = Instance()
-		start_times = []
-		end_times = []
-		self.time_taken = []
+		start_times = {}
+		end_times = {}
+		self.time_taken = {}
 		if self.race == "P":
 			now.units[PROBE_MINERAL] = 6
 			now.units[NEXUS] = 1
@@ -618,8 +616,7 @@ class Order:
 									greatest_energy == energy_energy
 									greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
 						now.energy_units[greatest_index][1] -= kind
-				start_times.append([index, now.time])
-				end_times.append(0)
+				start_times[index] = now.time
 				now.production.append([event_info,events[event_info[0]].time, index])
 			else:
 				impossible = True
@@ -631,8 +628,8 @@ class Order:
 			last.increment(start_times, end_times)
 			self.at_time.append(last)
 		for i in xrange(len(start_times)):
-                        self.time_taken.append(end_times[i] - start_times[i][1])
-
+                        self.time_taken[i] = end_times[i] - start_times[i]
+                        
 	def get_note(self,index):
 		"""
 		index: index in self.events, not self.at
@@ -680,16 +677,14 @@ class Order:
                 """
                 return self.time_taken[index]
 
-	def get_warp_cooldown(self, index):
-		"""
-		Given an event index, return the total cooldown time, and 0 if it isn't a warp
-		"""
-		if self.events[index] not in [WARP_IN_ZEALOT, WARP_IN_STALKER, WARP_IN_SENTRY, WARP_IN_DARK_TEMPLAR, WARP_IN_HIGH_TEMPLAR]:
-			return 0
-		start_time = self.at[index + 1].time
-		end_time = self.at[index + 1].time # needs to be the actual time
-		pass
-		return end_time - start_time
+        def get_warp_cooldown(self, index):
+                """
+                Returns the length of the cooldown associated with the warp in the given index
+                index: index in self.events, not self.at
+                """
+                if -index in self.time_taken.keys():
+                        return self.time_taken[-index]
+                return 0
 
 
 class Team:
