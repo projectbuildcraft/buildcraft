@@ -495,7 +495,7 @@ events = [
         Event('Upgrade Supply Depot',0,0,0,8,4,add,(SUPPLY_DEPOT_EXTRA,),((SUPPLY_DEPOT,C),(ORBITAL_COMMAND,50))),
         Event('Build Refinery',75,0,0,0,30,add,(REFINERY,),((SCV_MINERAL,O),)),
         Event('Build Barracks',150,0,0,0,65,add,(BARRACKS,),((SCV_MINERAL,O),(SUPPLY_DEPOT,A))),
-        Event('Build Engineering Bay',125,0,0,0,35,add,(ENGINEERING_BAY,),((SCV_MINERAL,O),(SUPPLY_DEPOT,A))),
+        Event('Build Engineering Bay',125,0,0,0,35,add,(ENGINEERING_BAY,),((SCV_MINERAL,O),)),
         Event('Build Bunker',100,0,0,0,40,add,(BUNKER,),((SCV_MINERAL,O),(BARRACKS,A))),
         Event('Salvage Bunker',0,0,0,0,0,salvage,(75,),((BUNKER,C),)),
         Event('Build Missile Turret',100,0,0,0,25,add,(MISSILE_TURRET,),((SCV_MINERAL,O),(ENGINEERING_BAY,A))),
