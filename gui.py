@@ -170,7 +170,10 @@ def save(app):
 
 def save_as(app):
     name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', initialdir='orders',filetypes = [('All files','.*'),('Build order files','.bo')], initialfile = app.my_order.name)
-    app.my_order.save(name)
+    if name:
+        app.my_order.save(name)
+        return True
+    return False
 
 def graph(app,f):
     f(app.my_order)
@@ -342,7 +345,10 @@ def insert_event_choose(app, index):
     available = [events[i].name for i in app.my_order.all_available(index)]
 
     menu = OptionMenu(app.event_frame,variable,*available,command=command) 
-        
+
+    title = Label(app.event_frame,text=app.my_order.name)
+    title.pack()
+    
     app.events = []
     for i in xrange(index):
         event_widget = EventWidget(app,i)
