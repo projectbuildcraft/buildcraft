@@ -143,7 +143,7 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    load(app, False)
+    app.my_order = bcorder.Order(name='',race='T')
 
     add_menu(app)
 
@@ -163,7 +163,13 @@ def load(app, r = True):
             refresh(app)
 
 def save(app):
-    name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')], initialfile = app.my_order.name)
+    if app.my_order.default_location:
+        app.my_order.save('')
+    else:
+        save_as(app)
+
+def save_as(app):
+    name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', initialdir='orders',filetypes = [('All files','.*'),('Build order files','.bo')], initialfile = app.my_order.name)
     app.my_order.save(name)
 
 def graph(app,f):
@@ -174,6 +180,7 @@ def add_menu(app):
     app.menubar = Menu(app.master)
     app.menubar.add_command(label='Load',command=lambda:load(app))
     app.menubar.add_command(label='Save',command=lambda:save(app))
+    app.menubar.add_command(label='Save as',command=lambda:save_as(app))
     app.menubar.add_command(label='New',command=lambda:new(app))
     app.master.config(menu=app.menubar)
 
