@@ -519,12 +519,17 @@ footer .owner p a {
 }
 
 /*Buildcraft*/
-.main_image {
+.main-image {
 	width: 100%;
 }
 
-.graph_image {
+.graph-image {
 	width: 49%;
+}
+
+.download-description {
+	text-align: right;
+	color: #63a52a;
 }
 	
 
