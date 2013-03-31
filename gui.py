@@ -30,30 +30,30 @@ class EventWidget(Canvas):
     
     def __init__(self, app, index):
         self.height = 20
-        Canvas.__init__(self, app.event_frame, height=self.height)
         self.app = app
         self.index = index
         self.event = app.my_order.events[index]
         self.at = app.my_order.at[index+1]
-        self.tooltip = ToolTip(self,delay=50)
         start = self.at.time
         current = app.scale.get()
         passed_time = current - start
         total_time = self.app.my_order.event_length(self.index)
         actual_time = max(0,min(passed_time,total_time))
-        
         self.cooldown = self.app.my_order.get_warp_cooldown(self.index)
+        Canvas.__init__(self, app.event_frame, height=self.height, width = EventWidget.supply_width + max(self.cooldown,total_time)*5)
+
         if self.cooldown:
             cooldown_passed = max(0,min(self.cooldown,current - start))
             self.cooldown_rect = self.create_rectangle(EventWidget.supply_width,2,EventWidget.supply_width + self.cooldown*5,self.height)
             self.cooldown_fill = self.create_rectangle(EventWidget.supply_width,2,EventWidget.supply_width + cooldown_passed*5,self.height,fill='pink')
-        
+
         self.fill = self.create_rectangle(EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height,fill='aquamarine',disabledoutline='')
         self.create_text(2,2,text=str(self.at.supply)+'/'+str(self.at.cap),anchor=N+W)
         self.full_time = self.create_rectangle(EventWidget.supply_width,2,total_time*5+EventWidget.supply_width,self.height)
         self.create_text(EventWidget.supply_width + 5,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
         self.passed_str = str(actual_time)+'/'+str(total_time)
+        self.tooltip = ToolTip(self,delay=50)
         self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
         
         self.rMenu = Menu(self, tearoff=0)
@@ -316,8 +316,8 @@ def refresh(app):
 
 def add_event_list(app):
     
-    app.event_frame = ScrolledFrame(app.master, scrollside = LEFT, height = 500)
-    app.event_frame.pack(side = RIGHT, fill = Y)
+    app.event_frame = ScrolledFrame(app.master, scroll=X+Y,scrollside = LEFT)
+    app.event_frame.pack(side = LEFT, fill = BOTH)
 
     event_update(app)
 
@@ -358,7 +358,7 @@ def insert_event_choose(app, index):
     app.events = []
     for i in xrange(index):
         event_widget = EventWidget(app,i)
-        event_widget.pack()
+        event_widget.pack(anchor=W)
         app.events.append(event_widget)
     frame.pack(anchor=W)
     for i in xrange(index,len(app.my_order.events)):
