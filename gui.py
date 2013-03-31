@@ -38,16 +38,23 @@ class EventWidget(Canvas):
         start = self.at.time
         current = app.scale.get()
         passed_time = current - start
-        print self.index
         total_time = self.app.my_order.event_length(self.index)
         actual_time = max(0,min(passed_time,total_time))
+        
+        self.cooldown = self.app.my_order.get_warp_cooldown(self.index)
+        if self.cooldown:
+            cooldown_passed = max(0,min(self.cooldown,current - start))
+            self.cooldown_rect = self.create_rectangle(EventWidget.supply_width,2,EventWidget.supply_width + self.cooldown*5,self.height)
+            self.cooldown_fill = self.create_rectangle(EventWidget.supply_width,2,EventWidget.supply_width + cooldown_passed*5,self.height,fill='pink')
+        
         self.fill = self.create_rectangle(EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height,fill='aquamarine',disabledoutline='')
         self.create_text(2,2,text=str(self.at.supply)+'/'+str(self.at.cap),anchor=N+W)
         self.full_time = self.create_rectangle(EventWidget.supply_width,2,total_time*5+EventWidget.supply_width,self.height)
         self.create_text(EventWidget.supply_width + 5,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
-        self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
-
+        self.passed_str = str(actual_time)+'/'+str(total_time)
+        self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
+        
         self.rMenu = Menu(self, tearoff=0)
         self.rMenu.add_command(label='Insert above',command=self.insert_above)
         self.rMenu.add_command(label='Insert below',command=self.insert_below)
@@ -63,40 +70,52 @@ class EventWidget(Canvas):
         self.bind('<Button-3>',self.popup)
 
     def chrono_check(self, chrono_index):
-        print self.full_time
+        """ Changes this event to be dashed if able to be Chrono Boosted from chrono_index """
+        
         if self.app.my_order.can_chrono(self.index, chrono_index):
             self.itemconfig(self.full_time, dash = (4,4))
         else:
             self.itemconfig(self.full_time, dash = None)
 
     def echo(self,location=None):
-        print 'echo'
+        """ On click, check if Chrono Boost is active, and if so, Chrono Boost this event """
         if self.app.chrono >= 0:
             insert_chrono(self.app, self.index)
             self.app.chrono = -1
 
     def update(self,current):
+        """ Updates the time completion of this event given current time """
+        
         start = self.at.time
         passed_time = current - start
         total_time = self.app.my_order.event_length(self.index)
         actual_time = max(0,min(passed_time,total_time))
         self.coords(self.fill,EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height)
-        self.tooltip.configure(text=str(actual_time)+'/'+str(total_time))
+        if self.cooldown:
+            cooldown_passed = max(0,min(self.cooldown,current - start))
+            self.coords(self.cooldown_fill,EventWidget.supply_width,2,EventWidget.supply_width + cooldown_passed*5,self.height)
+        self.passed_str = str(actual_time)+'/'+str(total_time)
+        self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
 
     def popup(self, event):
+        """ Creates right-click menu """
         self.rMenu.post(event.x_root, event.y_root)
 
     def insert_above(self):
+        """ Insert event option above this event """
         insert_event_choose(self.app,self.index)
 
     def insert_below(self):
+        """ Insert event option below this event """
         insert_event_choose(self.app,self.index+1)
 
     def delete(self):
+        """ Remove this event from the build order """
         self.app.my_order.delete(self.index)
         refresh(self.app)
 
     def note(self):
+        """ Allow user to edit note describing this event in a separate window """
         root = Toplevel()
         comment = App(root)
         comment.label = Label(root, text='Comment: ')
@@ -107,12 +126,11 @@ class EventWidget(Canvas):
 
         def submit():
             self.app.my_order.set_note(self.index, comment.entry.get())
+            self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
             comment.master.destroy()
 
         comment.button = Button(root, text='OK',command=submit)
         comment.button.pack(side = LEFT)
-
-        commend.bind('<FocusOut>',gain_focus)
 
         root.mainloop()
 
@@ -126,7 +144,7 @@ def main_menu():
     root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
     app = App(root)
 
-    load(app, False)
+    app.my_order = bcorder.Order(name='',race='T')
 
     add_menu(app)
 
@@ -146,8 +164,17 @@ def load(app, r = True):
             refresh(app)
 
 def save(app):
-    name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', filetypes = [('All files','.*'),('Build order files','.bo')], initialfile = app.my_order.name)
-    app.my_order.save(name)
+    if app.my_order.default_location:
+        app.my_order.save('')
+    else:
+        save_as(app)
+
+def save_as(app):
+    name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', initialdir='orders',filetypes = [('All files','.*'),('Build order files','.bo')], initialfile = app.my_order.name)
+    if name:
+        app.my_order.save(name)
+        return True
+    return False
 
 def graph(app,f):
     f(app.my_order)
@@ -157,6 +184,7 @@ def add_menu(app):
     app.menubar = Menu(app.master)
     app.menubar.add_command(label='Load',command=lambda:load(app))
     app.menubar.add_command(label='Save',command=lambda:save(app))
+    app.menubar.add_command(label='Save as',command=lambda:save_as(app))
     app.menubar.add_command(label='New',command=lambda:new(app))
     app.master.config(menu=app.menubar)
 
@@ -198,7 +226,6 @@ def new(app):
     modes = ("Terran","Protoss","Zerg")
 
     def submit(app, new_order):
-        print 'a'
         app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
         refresh(app)
         new_order.master.destroy()
@@ -319,7 +346,10 @@ def insert_event_choose(app, index):
     available = [events[i].name for i in app.my_order.all_available(index)]
 
     menu = OptionMenu(app.event_frame,variable,*available,command=command) 
-        
+
+    title = Label(app.event_frame,text=app.my_order.name)
+    title.pack()
+    
     app.events = []
     for i in xrange(index):
         event_widget = EventWidget(app,i)
@@ -337,7 +367,6 @@ def insert_event(app, index, event):
     refresh(app)
 
 def insert_chrono(app, target):
-    print target, app.chrono
     app.my_order.insert_chrono(target, app.chrono)
     app.chrono = -1
     refresh(app)
@@ -348,7 +377,7 @@ def supply_graph(order):
     cap = dict()
 
     for i in order.at_time:
-        worker_supply[i.time] = i.worker_supply()
+        worker_supply[i.time] = i.worker_supply(True)
         supply[i.time] = i.supply
         cap[i.time] = i.cap
 
