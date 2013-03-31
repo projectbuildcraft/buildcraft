@@ -518,9 +518,15 @@ footer .owner p a {
   @include box-sizing(border-box);
 }
 
+/*Buildcraft*/
 .main_image {
 	width: 100%;
 }
+
+.graph_image {
+	width: 50%;
+}
+	
 
 .highlight  { background: #ffffff; }
 .highlight .c { color: #999988; font-style: italic } /* Comment */
