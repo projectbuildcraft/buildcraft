@@ -3,7 +3,7 @@ import math
 
 max_ticks = 10
 
-def create_graph(data, fill = None, title = '', colors = None, labels = None, size = (600,400), label_width = 150, padding = (50,30,30,30)):
+def create_graph(data, fill = None, title = '', colors = None, labels = None, size = (600,400), label_width = 150, padding = (50,50,50,50)):
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 

@@ -41,16 +41,22 @@ class EventWidget(Canvas):
         total_time = self.app.my_order.event_length(self.index)
         actual_time = max(0,min(passed_time,total_time))
         self.cooldown = self.app.my_order.get_warp_cooldown(self.index)
-        Canvas.__init__(self, app.event_frame, height=self.height, width = max(400,EventWidget.supply_width + max(self.cooldown,total_time)*5))
+        if app.place_by_time:
+            time_width = EventWidget.supply_width + len(self.app.my_order.at_time)*5
+            disp = start*5 - 1
+        else:
+            time_width = max(400,EventWidget.supply_width + max(self.cooldown,total_time)*5)
+            disp = 0
+        Canvas.__init__(self, app.event_frame, height=self.height, width = time_width)
         if self.cooldown:
             cooldown_passed = max(0,min(self.cooldown,current - start))
-            self.cooldown_rect = self.create_rectangle(EventWidget.supply_width,2,EventWidget.supply_width + self.cooldown*5,self.height)
-            self.cooldown_fill = self.create_rectangle(EventWidget.supply_width,2,EventWidget.supply_width + cooldown_passed*5,self.height,fill='pink')
+            self.cooldown_rect = self.create_rectangle(EventWidget.supply_width+disp,2,EventWidget.supply_width + self.cooldown*5 + disp,self.height)
+            self.cooldown_fill = self.create_rectangle(EventWidget.supply_width+disp,2,EventWidget.supply_width + cooldown_passed*5 + disp,self.height,fill='pink')
 
-        self.fill = self.create_rectangle(EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height,fill='aquamarine',disabledoutline='')
+        self.fill = self.create_rectangle(EventWidget.supply_width+disp,2,actual_time*5+EventWidget.supply_width+disp,self.height,fill='aquamarine',disabledoutline='')
         self.create_text(2,2,text=str(self.at.supply)+'/'+str(self.at.cap),anchor=N+W)
-        self.full_time = self.create_rectangle(EventWidget.supply_width,2,total_time*5+EventWidget.supply_width,self.height)
-        self.create_text(EventWidget.supply_width + 5,10,text=events[self.event[0]].name,anchor=W)
+        self.full_time = self.create_rectangle(EventWidget.supply_width+disp,2,total_time*5+EventWidget.supply_width+disp,self.height)
+        self.create_text(EventWidget.supply_width + 5 + disp,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
         self.passed_str = str(actual_time)+'/'+str(total_time)
         self.tooltip = ToolTip(self,delay=50)
@@ -88,13 +94,17 @@ class EventWidget(Canvas):
         """ Updates the time completion of this event given current time """
         
         start = self.at.time
+        if self.app.place_by_time:
+            disp = start*5 - 1
+        else:
+            disp = 0
         passed_time = current - start
         total_time = self.app.my_order.event_length(self.index)
         actual_time = max(0,min(passed_time,total_time))
-        self.coords(self.fill,EventWidget.supply_width,2,actual_time*5+EventWidget.supply_width,self.height)
+        self.coords(self.fill,EventWidget.supply_width+disp,2,actual_time*5+EventWidget.supply_width+disp,self.height)
         if self.cooldown:
             cooldown_passed = max(0,min(self.cooldown,current - start))
-            self.coords(self.cooldown_fill,EventWidget.supply_width,2,EventWidget.supply_width + cooldown_passed*5,self.height)
+            self.coords(self.cooldown_fill,EventWidget.supply_width+disp,2,EventWidget.supply_width + cooldown_passed*5 + disp,self.height)
         self.passed_str = str(actual_time)+'/'+str(total_time)
         self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
 
@@ -149,7 +159,7 @@ def main_menu():
 
     add_menu(app)
 
-    add_graph_buttons(app)
+    #add_graph_buttons(app)
 
     add_instance_analysis(app)
 
@@ -180,6 +190,10 @@ def save_as(app):
 def graph(app,f):
     f(app.my_order)
 
+def toggle_display(app):
+    app.place_by_time = not app.place_by_time
+    refresh(app)
+
 def add_menu(app):
 
     app.menubar = Menu(app.master)
@@ -187,6 +201,13 @@ def add_menu(app):
     app.menubar.add_command(label='Save',command=lambda:save(app))
     app.menubar.add_command(label='Save as',command=lambda:save_as(app))
     app.menubar.add_command(label='New',command=lambda:new(app))
+    app.graphs = graphs = Menu(app.menubar, tearoff = 0)
+    app.menubar.add_cascade(label='Graphs',menu=graphs)
+    graphs.add_command(label='Supply',command=lambda:graph(app,supply_graph))
+    graphs.add_command(label='Army Value',state=NORMAL if has_army(app.my_order) else DISABLED,command=lambda:graph(app,army_value_graph))
+    graphs.add_command(label='Resource Collection Rate',command=lambda:graph(app,resource_collection_rate_graph))
+    graphs.add_command(label='Resources',command=lambda:graph(app,resource_graph))
+    app.menubar.add_command(label='Toggle Display',command=lambda:toggle_display(app))
     app.master.config(menu=app.menubar)
 
 def add_graph_buttons(app):
@@ -207,7 +228,7 @@ def add_graph_buttons(app):
 
 def graph_buttons_update(app):
 
-    app.army.config(state= NORMAL if has_army(app.my_order) else DISABLED)
+    app.graphs.entryconfig('Army Value',state= NORMAL if has_army(app.my_order) else DISABLED)
 
 
 def gain_focus(frame):
@@ -315,9 +336,11 @@ def refresh(app):
     event_update(app)
 
 def add_event_list(app):
+
+    app.place_by_time = False
     
     app.event_frame = ScrolledFrame(app.master, scroll=X+Y,scrollside = LEFT)
-    app.event_frame.pack(side = LEFT, fill = BOTH)
+    app.event_frame.pack(side = LEFT, fill = BOTH, expand = 1)
 
     event_update(app)
 
@@ -363,7 +386,7 @@ def insert_event_choose(app, index):
     frame.pack(anchor=W)
     for i in xrange(index,len(app.my_order.events)):
         event_widget = EventWidget(app,i)
-        event_widget.pack()
+        event_widget.pack(anchor=W)
         app.events.append(event_widget)
     app.chrono = -1
 
