@@ -104,8 +104,7 @@ class Instance:
                                 elif events[self.production[index][0][0]].get_result() == warp:
                                         start_times[-self.production[index][2]] = self.time
                                         warp(event.get_args(), self, self.production[index][2])
-                                        print self.production
-				else:
+                                else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
 				self.cap = min(self.cap, 200)
@@ -324,6 +323,14 @@ class Order:
 			num_injections = len([event_info[0] for event_info, time, index in self.at[order_index].production if event_info[0] == SPAWN_LARVA])
 			if num_injections >= num_hatcheries:
 				return False
+		if now and event_index == CHRONO_BOOST:
+                        chrono_target = self.events[order_index - 1][3]
+                        for p in self.at[order_index].production:
+                                if p[0][0] == CHRONO_BOOST and p[0][3] == chrono_target:
+                                        return False
+                        if chrono_target in self.at[order_index].boosted_things[0]:
+                                if self.at[order_index].boosted_things[0][chrono_target] > 0:
+                                        return False
 		# requirements
 		requirements = list(events[event_index].get_requirements()) # our dirty copy
 		for requirement in requirements:
@@ -633,7 +640,6 @@ class Order:
 			self.at_time.append(last)
 		for i in start_times.iterkeys():
                         self.time_taken[i] = end_times[i] - start_times[i]
-                        
 	def get_note(self,index):
 		"""
 		index: index in self.events, not self.at
