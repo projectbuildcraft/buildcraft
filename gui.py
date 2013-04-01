@@ -29,6 +29,7 @@ class EventWidget(Canvas):
     supply_width = 60
     
     def __init__(self, app, index):
+        print index
         self.height = 20
         self.app = app
         self.index = index
@@ -41,7 +42,6 @@ class EventWidget(Canvas):
         actual_time = max(0,min(passed_time,total_time))
         self.cooldown = self.app.my_order.get_warp_cooldown(self.index)
         Canvas.__init__(self, app.event_frame, height=self.height, width = max(400,EventWidget.supply_width + max(self.cooldown,total_time)*5))
-
         if self.cooldown:
             cooldown_passed = max(0,min(self.cooldown,current - start))
             self.cooldown_rect = self.create_rectangle(EventWidget.supply_width,2,EventWidget.supply_width + self.cooldown*5,self.height)
@@ -402,7 +402,7 @@ def army_value_graph(order):
         minerals[i.time], gas = i.army_value(False)
         total[i.time] = minerals[i.time] + gas
 
-    create_graph([total, minerals],title='Army Value',fill=[True,True],colors=['green','blue'],labels=['minerals','gas'])
+    create_graph([total, minerals],title='Army Value',fill=[True,True],colors=['green','blue'],labels=['gas','minerals'])
 
 def resource_collection_rate_graph(order):
     mineral_rate = dict()
