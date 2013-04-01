@@ -66,7 +66,7 @@ def research(topics,instance):
 def boost(order_index, instance):
         instance.boosted_things[0][order_index] = 20
 
-def warp(result,instance, order_index = 1):
+def warp(result, instance, order_index):
 	from constants import WARPGATE_ON_COOLDOWN, WARPGATE
 	unit, cooldown = result
 	add_unit(unit,instance)

@@ -101,6 +101,10 @@ class Instance:
                                 event = events[self.production[index][0][0]]
 				if events[self.production[index][0][0]].get_result() == boost: # has special parameters
 					boost(self.production[index][0][3], self)
+                                elif events[self.production[index][0][0]].get_result() == warp:
+                                        start_times[-self.production[index][2]] = self.time
+                                        warp(event.get_args(), self, self.production[index][2])
+                                        print self.production
 				else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
@@ -627,7 +631,7 @@ class Order:
 			last = copy.deepcopy(self.at_time[-1])
 			last.increment(start_times, end_times)
 			self.at_time.append(last)
-		for i in xrange(len(start_times)):
+		for i in start_times.iterkeys():
                         self.time_taken[i] = end_times[i] - start_times[i]
                         
 	def get_note(self,index):
