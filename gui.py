@@ -40,7 +40,7 @@ class EventWidget(Canvas):
         total_time = self.app.my_order.event_length(self.index)
         actual_time = max(0,min(passed_time,total_time))
         self.cooldown = self.app.my_order.get_warp_cooldown(self.index)
-        Canvas.__init__(self, app.event_frame, height=self.height, width = EventWidget.supply_width + max(self.cooldown,total_time)*5)
+        Canvas.__init__(self, app.event_frame, height=self.height, width = max(400,EventWidget.supply_width + max(self.cooldown,total_time)*5))
 
         if self.cooldown:
             cooldown_passed = max(0,min(self.cooldown,current - start))
