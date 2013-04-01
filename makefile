@@ -12,3 +12,4 @@ gui:
 	./buildcraft
 release:
 	cd linux; python freeze.py ../gui.py ; make
+	cp -R images linux/images

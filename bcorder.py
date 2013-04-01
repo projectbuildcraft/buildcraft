@@ -147,7 +147,7 @@ class Instance:
 				event = events[event_info[0]]
 				if event.get_result() == add:
 					for unit in event.get_args():
-						if unit in [SCV_MINERAL, PROBE_MINERAL, DRONE_MINERAL]:
+						if unit in [SCV_MINERAL, PROBE_MINERAL, DRONE_MINERAL, SCV_GAS, PROBE_GAS, DRONE_GAS, SCV_SCOUT, PROBE_SCOUT, DRONE_SCOUT]:
 							count += 1
 		return count
 
