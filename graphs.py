@@ -3,7 +3,7 @@ import math
 
 max_ticks = 10
 
-def create_graph(data, fill = None, title = '', colors = None, labels = None, size = (600,400), label_width = 150, padding = (50,50,50,50)):
+def create_graph(data, fill = None, title = '', colors = None, labels = None, size = (600,400), side_scale = None, label_width = 150, padding = (50,50,50,50), end_value = 0):
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 
@@ -34,7 +34,10 @@ def create_graph(data, fill = None, title = '', colors = None, labels = None, si
     g.c.create_rectangle(0,0,width,height,fill='white')
     g.c.create_line(p_left,p_top,p_left,height - p_bottom)
     g.c.create_line(p_left,height - p_bottom,width - p_right - label_width,height - p_bottom)
+    if side_scale:
+        g.c.create_line(width - p_right - label_width,p_top,width - p_right - label_width,height - p_bottom)
     g.c.create_text(width/2,p_top/2,text = title)
+
 
     max_y = max([max(d.values()) for d in data])
     max_x = final_x = max([max(d.keys()) for d in data])
@@ -59,6 +62,9 @@ def create_graph(data, fill = None, title = '', colors = None, labels = None, si
             y = plot_y(i)
             g.c.create_line(p_left - 3,y,p_left,y)
             g.c.create_text(p_left - 5,y,text = str(i),anchor = E)
+            if side_scale:
+                g.c.create_line(width - p_right - label_width,y,width - p_right - label_width + 3, y)
+                g.c.create_text(width - p_right - label_width + 5,y,text = str(i/side_scale),anchor = W)
         k += y_ticks
 
     k = 0
@@ -69,7 +75,7 @@ def create_graph(data, fill = None, title = '', colors = None, labels = None, si
             g.c.create_line(x,height - p_bottom + 3,x,height - p_bottom)
             g.c.create_text(x,height - p_bottom + 5,text = str(i),anchor = N)
         k += x_ticks
-
+        
     for i, d in enumerate(data):
         coords = []
         if fill[i]:
@@ -82,6 +88,10 @@ def create_graph(data, fill = None, title = '', colors = None, labels = None, si
             g.c.create_polygon(coords, fill=colors[i])
         else:
             g.c.create_line(coords, fill=colors[i])
+
+    if end_value:
+        x = plot_x(end_value)
+        g.c.create_line(x,p_top,x,height - p_bottom,fill='gray')
 
     # labels
     if labels:
