@@ -638,6 +638,8 @@ class Order:
 				impossible = True
 				self.at[order_index] = copy.deepcopy(last)
 				self.at[order_index].time = float('inf')
+				start_times[index] = float('inf')
+				end_times[index] = float('inf')
 		self.at_time.append(self.at[-1])
 		while len(self.at_time[-1].production) > 0: # simulate through remaining production
 			last = copy.deepcopy(self.at_time[-1])
@@ -645,6 +647,7 @@ class Order:
 			self.at_time.append(last)
 		for i in start_times.iterkeys():
 			self.time_taken[i] = end_times[i] - start_times[i]
+
 	def get_note(self,index):
 		"""
 		index: index in self.events, not self.at
