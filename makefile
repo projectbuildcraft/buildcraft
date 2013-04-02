@@ -8,3 +8,8 @@ babies:
 	fortune | cowsay
 pull:
 	git pull origin master
+gui:
+	./buildcraft
+release:
+	cd linux; python freeze.py ../gui.py ; make
+	cp -R images linux/images

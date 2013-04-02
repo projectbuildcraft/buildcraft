@@ -22,11 +22,7 @@ from bcevent import boost
 import gui
 
 
-<<<<<<< HEAD
-my_order = bcorder.Order(filename = "orders/test_chrono.bo")
-=======
 my_order = bcorder.Order(filename = "orders/7RR.bo")
->>>>>>> 10d6d78cf4f916e8890e08702546374cade79938
 run = True
 racemap = {
 	0 : "P",

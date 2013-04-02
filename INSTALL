@@ -1,0 +1,49 @@
+This file outlines how to run Buildcraft on your machine. For a description of what this program does, see README.
+For the licence, see LICENCE.
+
+0. CONTENTS
+
+The following is an outline of this file.
+
+0. Contents
+How to run on:
+1. Linux
+2. Windows
+3. Mac OS X
+4. Wine
+
+1. LINUX
+
+On Debian-based machines, you can simply run install.sh. Alternatively, you can install everything manually as follows.
+
+To run on linux, make sure that you have installed the following packages:
+
+-python
+
+-python-tk
+
+-python-imaging-tk
+
+To install these packages on a Debian-based distro such as Ubuntu, type the following. This will require an administrative password.
+
+sudo apt-get update
+sudo apt-get install python python-tk python-imaging-tk
+
+The python interpreter is assumed to be installed at /usr/bin/python, which should be the default on most Linux distros.
+
+You can run buildcraft by changing into this directory and running the following command.
+
+./buildcraft
+
+You may have to give it executable permissions:
+
+chmod +x buildcraft
+
+We're working to support full installation in the future.
+
+2. WINDOWS
+
+3. MAC OS X
+
+4. WINE
+

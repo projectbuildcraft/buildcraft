@@ -46,7 +46,7 @@ def mule(nonsense,instance):
 	from constants import MULE, events, MULE_LIFE
 	instance.units[MULE] += 1
 	# add mule dies event
-	instance.production.append([[MULE_LIFE],events[MULE_LIFE].time])
+	instance.production.append([[MULE_LIFE],events[MULE_LIFE].time, -1])
 
 def mule_dies(nonsense,instance):
 	from constants import MULE
@@ -63,22 +63,21 @@ def research(topics,instance):
 	for topic in topics:
 		instance.units[topic] = 1
 
-def boost(event_index, time_remaining, instance):
-        if event_index not in instance.boosted_things[0]:
-                instance.boosted_things[0][event_index] = []
-        instance.boosted_things[0][event_index].append([time_remaining, 20])
+def boost(order_index, instance):
+        instance.boosted_things[0][order_index] = 20
 
-def warp(result,instance):
+def warp(result, instance, order_index):
 	from constants import WARPGATE_ON_COOLDOWN, WARPGATE
 	unit, cooldown = result
 	add_unit(unit,instance)
-	instance.production.append([[WARPGATE_ON_COOLDOWN],cooldown])
+	instance.production.append([[WARPGATE_ON_COOLDOWN],cooldown, -order_index])
 	# negate effect of removing warpgate
 	instance.units[WARPGATE] -= 1
 	instance.occupied[WARPGATE] += 1
 
 def spawn_larva(auto,instance):
 	from constants import LARVA, AUTO_SPAWN_LARVA, events
+	auto = auto[0] # get it out of the tuple
 	if auto:
 		instance.units[LARVA] += 1
 		# assume added to least
@@ -90,9 +89,9 @@ def spawn_larva(auto,instance):
 				min_index = index
 		instance.base_larva[min_index] += 1
 		if min_larva >= 3:
-			print "ERROR: Larva fault"
+			print "ERROR: Larva fault at ", instance.time, "seconds"
 		if min_larva < 2:
-			instance.production.append([[AUTO_SPAWN_LARVA], events[AUTO_SPAWN_LARVA].time])
+			instance.production.append([[AUTO_SPAWN_LARVA], events[AUTO_SPAWN_LARVA].time, -1])
 		# test for additional spawn
 	else:
 		instance.units[LARVA] += 4
@@ -108,7 +107,7 @@ def spawn_larva(auto,instance):
 			# find most recent AUTO_SPAWN_LARVA and stop it
 			spawn_index = None
 			max_time = 0
-			for index, (event_index, time_remaining) in instance.production:
+			for index, (event_index, time_remaining, order_index) in enumerate(instance.production):
 				if event_index == AUTO_SPAWN_LARVA:
 					if time > max_time:
 						spawn_index = index

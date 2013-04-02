@@ -29,7 +29,7 @@ class Instance:
 		if production == None:
 			self.production = []
 		else:
-			self.production = production # [[Event_Info], Time_Remaining]]
+			self.production = production # [[Event_Info], Time_Remaining, Order_Index]]
 		self.minerals = minerals
 		self.gas = gas
 		self.supply = supply
@@ -45,68 +45,20 @@ class Instance:
 		else:
 			self.base_larva = base_larva # tracks larva [larva_count]
 		if boosted_things == None:
-			self.boosted_things = [{CREATE_PROBE: [],
-                                                CREATE_ZEALOT: [],
-                                                WARP_IN_ZEALOT: [],
-                                                CREATE_STALKER: [],
-                                                WARP_IN_STALKER: [],
-                                                CREATE_SENTRY: [],
-                                                WARP_IN_SENTRY: [],
-                                                CREATE_OBSERVER: [],
-                                                CREATE_IMMORTAL: [],
-                                                CREATE_WARP_PRISM: [],
-                                                CREATE_COLOSSUS: [],
-                                                CREATE_PHOENIX: [],
-                                                CREATE_VOID_RAY: [],
-                                                CREATE_HIGH_TEMPLAR: [],
-                                                WARP_IN_HIGH_TEMPLAR: [],
-                                                CREATE_DARK_TEMPLAR: [],
-                                                WARP_IN_DARK_TEMPLAR: [],
-                                                CREATE_CARRIER: [],
-                                                CREATE_MOTHERSHIP: [],
-                                                CREATE_MOTHERSHIP_CORE: [],
-                                                CREATE_ORACLE: [],
-                                                CREATE_TEMPEST: [],
-                                                TRANSFORM_INTO_WARPGATE: [],
-                                                TRANSFORM_INTO_GATEWAY: [],
-                                                WARPGATE_ON_COOLDOWN: [],
-                                                RESEARCH_GROUND_WEAPONS_LEVEL_1: [],
-                                                RESEARCH_GROUND_WEAPONS_LEVEL_2: [],
-                                                RESEARCH_GROUND_WEAPONS_LEVEL_3: [],
-                                                RESEARCH_AIR_WEAPONS_LEVEL_1: [],
-                                                RESEARCH_AIR_WEAPONS_LEVEL_2: [],
-                                                RESEARCH_AIR_WEAPONS_LEVEL_3: [],
-                                                RESEARCH_GROUND_ARMOR_LEVEL_1: [],
-                                                RESEARCH_GROUND_ARMOR_LEVEL_2: [],
-                                                RESEARCH_GROUND_ARMOR_LEVEL_3: [],
-                                                RESEARCH_AIR_ARMOR_LEVEL_1: [],
-                                                RESEARCH_AIR_ARMOR_LEVEL_2: [],
-                                                RESEARCH_AIR_ARMOR_LEVEL_3: [],
-                                                RESEARCH_SHIELDS_LEVEL_1: [],
-                                                RESEARCH_SHIELDS_LEVEL_2: [],
-                                                RESEARCH_SHIELDS_LEVEL_3: [],
-                                                RESEARCH_CHARGE: [],
-                                                RESEARCH_GRAVITIC_BOOSTERS: [],
-                                                RESEARCH_GRAVITIC_DRIVE: [],
-                                                RESEARCH_ANION_PULSE_CRYSTALS: [],
-                                                RESEARCH_EXTENDED_THERMAL_LANCE: [],
-                                                RESEARCH_PSIONIC_STORM: [],
-                                                RESEARCH_BLINK: [],
-                                                RESEARCH_GRAVITON_CATAPULT: [],
-                                                RESEARCH_WARP_GATE: []},                                          
-                                               {NEXUS: [],
-                                                GATEWAY: [],
-                                                FORGE: [],
-                                                CYBERNETICS_CORE: [],
-                                                ROBOTICS_FACILITY: [],
-                                                WARPGATE: [],
+			self.boosted_things = [dict(),					  
+					       {NEXUS: [],
+						GATEWAY: [],
+						FORGE: [],
+						CYBERNETICS_CORE: [],
+						ROBOTICS_FACILITY: [],
+						WARPGATE: [],
 						STARGATE: [],
-                                                TWILIGHT_COUNCIL: [],
-                                                ROBOTICS_BAY: [],
-                                                FLEET_BEACON: [],
-                                                TEMPLAR_ARCHIVES: []}]
+						TWILIGHT_COUNCIL: [],
+						ROBOTICS_BAY: [],
+						FLEET_BEACON: [],
+						TEMPLAR_ARCHIVES: []}]
 		else:
-			self.boosted_things = boosted_things # tracks Chrono Boosted events and structures: [{Event_Index: {[time_left, chrono_left]}, {Unit_Index: [chrono_left]}]
+			self.boosted_things = boosted_things # tracks Chrono Boosted events and structures: [{Order_Index: chrono_left}, {Unit_Index: [chrono_left]}]
 		
 	def resource_rate(self):
 		"""
@@ -129,7 +81,7 @@ class Instance:
 		# http://www.teamliquid.net/forum/viewmessage.php?topic_id=140055
 		return (59 * workers_on_gold + 42 * workers_on_blue + 25 * saturated_on_gold + 18 * saturated_on_blue + 170 * mules, gassers * 38)
 			
-	def increment(self):
+	def increment(self, start_times, end_times):
 		"""
 		Moves the instance forward one second
 		"""
@@ -141,17 +93,17 @@ class Instance:
 			self.gas += gas_rate / float(60)
 		while index > 0:
 			index -= 1
-			if self.production[index][0][0] in self.boosted_things[0].keys():
-                                for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
-					if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
-						self.production[index][1] -= .5 # boosted effect
-						self.boosted_things[0][self.production[index][0][0]][i][1] -= .5
-						break
+			if self.production[index][2] in self.boosted_things[0].keys() and self.boosted_things[0][self.production[index][2]] > 0:
+				self.production[index][1] -= .5 # boosted effect
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
+				end_times[self.production[index][2]] = self.time
 				event = events[self.production[index][0][0]]
 				if events[self.production[index][0][0]].get_result() == boost: # has special parameters
-					boost(self.production[index][0][2], self.production[index][0][3], self)
+					boost(self.production[index][0][3], self)
+				elif events[self.production[index][0][0]].get_result() == warp:
+					start_times[-self.production[index][2]] = self.time
+					warp(event.get_args(), self, self.production[index][2])
 				else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
@@ -160,35 +112,25 @@ class Instance:
 					unit, kind = requirement
 					if kind == O:
 						while(self.occupied[unit] == 0):
-							unit = can_be[unit] # if this fails it can be because of issues with availalbe and calculate_times
+							unit = can_be[unit] # if this fails it can be because of issues with available and calculate_times
 						self.occupied[unit] -= 1
 						self.units[unit] += 1
-				if self.production[index][0][0] in self.boosted_things[0].keys():
+				if self.production[index][2] in self.boosted_things[0].keys():
 					for requirement in event.get_requirements():
 						unit, kind = requirement
 						if kind == O:
-							for i in xrange(len(self.boosted_things[0][self.production[index][0][0]])):
-								if self.production[index][1] == self.boosted_things[0][self.production[index][0][0]][i][0]:
-									self.boosted_things[1][kind].append(self.boosted_things[0][self.production[index][0][0]][i][1])
-									del self.boosted_things[0][self.production[index][0][0]][i]
+							self.boosted_things[1][unit].append(self.boosted_things[0][self.production[index][2]])
+							del self.boosted_things[0][self.production[index][2]]
 				del self.production[index]
 		for energy_unit in self.energy_units:
 			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
-		for boosted_event in self.boosted_things[0].iterkeys():
-			i = len(self.boosted_things[0][boosted_event])
-			while i > 0:
-				i -= 1
-				self.boosted_things[0][boosted_event][i][0] -= 1.5
-				self.boosted_things[0][boosted_event][i][1] -= .5 # update chrono left
-				if self.boosted_things[0][boosted_event][i][1] <= 0:
-					del self.boosted_things[0][boosted_event][i]
+		for boosted_event_index in self.boosted_things[0].iterkeys():
+			self.boosted_things[0][boosted_event_index] -= 1
 		for boosted_structure in self.boosted_things[1].iterkeys():
 			i = len(self.boosted_things[1][boosted_structure])
 			while i > 0:
 				i -= 1
 				self.boosted_things[1][boosted_structure][i] -= 1
-				if self.boosted_things[1][boosted_structure][i] <= 0:
-					del self.boosted_things[1][boosted_structure][i]
 
 	def active_worker_count(self, include_scouts = False, include_occupied = False):
 		count = 0
@@ -204,11 +146,11 @@ class Instance:
 	def worker_supply(self, include_production = True):
 		count = self.active_worker_count(include_scouts = True, include_occupied = True)
 		if include_production:
-			for event_info, time in self.production:
+			for event_info, time, index in self.production:
 				event = events[event_info[0]]
 				if event.get_result() == add:
 					for unit in event.get_args():
-						if unit in [SCV_MINERAL, PROBE_MINERAL, DRONE_MINERAL]:
+						if unit in [SCV_MINERAL, PROBE_MINERAL, DRONE_MINERAL, SCV_GAS, PROBE_GAS, DRONE_GAS, SCV_SCOUT, PROBE_SCOUT, DRONE_SCOUT]:
 							count += 1
 		return count
 
@@ -228,6 +170,14 @@ class Instance:
 				value[1] += defensive_units[index][1] * count
 		return value
 
+	def larva_in_production(self):
+		larva = 0
+		for event_info,time in self.production:
+			if event_info[0] == SPAWN_LARVA:
+				larva += 4
+			elif event_info[0] == AUTO_SPAWN_LARVA:
+				larva += 1
+		return larva
 
 	def __deepcopy__(self, memo = None):
 		return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva), copy.deepcopy(self.boosted_things))
@@ -252,15 +202,17 @@ class Order:
 			f = open(filename, 'r')
 			lines = f.readlines()
 			self.name = lines.pop(0).rstrip()
-			self.race = lines.pop(0).rstrip()
+			self.race = lines.pop(0).rstrip() # "Z" "T" or "P"
 			self.events = [] # [[event_index, note, targeted_event, time_left]]
 			for line in lines:
 				line = line.rstrip()
 				raw_info = string.split(line)
 				events_info = [None,None]
 				events_info[0] = int(raw_info.pop(0))
-				if events[events_info[0]].get_result() == boost:
-					events_info.append(None)
+				if self.race == "Z":
+					events_info.append(int(raw_info.pop())) # whether or not to allow extractor trick on this event
+				elif events[events_info[0]].get_result() == boost:
+					events_info.append(None) # dummy
 					events_info.append(int(raw_info.pop()))
 					events_info[2] = int(raw_info.pop())
 				events_info[1] = string.join(raw_info)
@@ -268,12 +220,13 @@ class Order:
 			f.close()
 		else:
 			self.name = name
-			self.default_location = "orders/" + self.name + ".bo"
+			self.default_location = False
 			self.race = race
 			if events_list == None:
 				self.events = []
 			else:
 				self.events = events_list
+		self.time_taken = []
 		self.calculate_times()
 
 	def save(self,filename):
@@ -282,6 +235,8 @@ class Order:
 		"""
 		if filename == "":
 			filename = self.default_location
+		else:
+			self.default_location = filename
 		f = open(filename, 'w')
 		f.write(self.name + "\n")
 		f.write(self.race + "\n")
@@ -299,20 +254,50 @@ class Order:
 		print self.name, self.race_name()
 		for index, event_info in enumerate(self.events):
 			print "{}/{} {}. ".format(self.at[index + 1].supply,self.at[index + 1].cap, index + 1), self.at[index + 1].time, name(event_info[0]), event_info[1]
+			if self.can_trick(index):
+				if self.uses_trick(index):
+					print "(uses supply trick)"
 			for i in self.at[index + 1].production:
 				print "\t{}: {}".format(i[1], events[i[0][0]].get_name())
 				# should include chrono information
 
-	def available(self, order_index, event_index, now = False):
+	def available(self, order_index, event_index, now = False, gas_trick = False):
 		"""
 		Evaluates whether event is available at this order
 		Arguments:
-		order_index - location in build order
-		event_index - event desired
+		order_index - location in build order (indexes self.at)
+		event_index - event desired (indexes events)
 		now - whether to evaluate availability now or eventually
+		gas_trick - whether this is a zerg player who will break supply barriers with gas tricks
 		"""
-		# minerals, gas, supply
-		if self.at[order_index].minerals < events[event_index].cost[0]:# requires minerals
+		# supply, minerals, gas
+		required_tricks = 0 # we only really care about this if now because it effects mineral cost
+		if events[event_index].supply > 0: # requires supply
+			if (self.at[order_index].supply) + (events[event_index].supply) > 200: # will max out supply
+				if not gas_trick:
+					return False
+			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
+				if now:
+					if gas_trick:
+						required_tricks += self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
+					else:
+						return False
+				else:
+					difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
+					for event,time, index in self.at[order_index].production:
+						difference -= events[event[0]].capacity
+					if difference > 0:
+						if not gas_trick:
+							return False
+			if gas_trick and now and required_tricks > self.at[order_index].units[DRONE_MINERAL] + self.at[order_index].units[DRONE_SCOUT] + self.at[order_index].units[DRONE_SCOUT]:
+				return False
+		if gas_trick:
+			gas_tricks = min(required_tricks, self.at[order_index].units[DRONE_SCOUT] + 2 * (self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]) - self.at[order_index].units[ASSIMILATOR])
+			evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
+			mineral_cost = events[event_index].cost[0] + events[MORPH_EXTRACTOR].cost[0] * gas_tricks + events[MORPH_EVOLUTION_CHAMBER].cost[0] * evo_tricks
+		else:
+			mineral_cost = events[event_index].cost[0]
+		if self.at[order_index].minerals < mineral_cost: # requires minerals
 			if now:
 				return False
 			else:
@@ -323,7 +308,7 @@ class Order:
 				return False
 			else:
 				if self.at[order_index].units[SCV_GAS] + self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[DRONE_GAS] == 0:
-					for event_info,time in self.at[order_index].production:
+					for event_info,time, index in self.at[order_index].production:
 						if events[event_info[0]].get_result() == add: # necessarily means we just added a worker to gas
 							if PROBE_GAS in events[event_info[0]].get_args():
 								break
@@ -333,16 +318,18 @@ class Order:
 								break
 					else:
 						return False
-		if events[event_index].supply > 0: # requires supply
-			if (self.at[order_index].supply) + (events[event_index].supply) > 200: # will max out supply
+		if now and event_index == SPAWN_LARVA: # then we need to make sure there is a free hatchery
+			num_hatcheries = self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]
+			num_injections = len([event_info[0] for event_info, time, index in self.at[order_index].production if event_info[0] == SPAWN_LARVA])
+			if num_injections >= num_hatcheries:
 				return False
-			if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
-				if now:
+		if now and event_index == CHRONO_BOOST:
+			chrono_target = self.events[order_index - 1][3]
+			for p in self.at[order_index].production:
+				if p[0][0] == CHRONO_BOOST and p[0][3] == chrono_target:
 					return False
-				difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
-				for event,time in self.at[order_index].production:
-					difference -= events[event[0]].capacity
-				if difference > 0:
+			if chrono_target in self.at[order_index].boosted_things[0]:
+				if self.at[order_index].boosted_things[0][chrono_target] > 0:
 					return False
 		# requirements
 		requirements = list(events[event_index].get_requirements()) # our dirty copy
@@ -351,7 +338,7 @@ class Order:
 			if kind == ASSUMPTION:
 				if now and unit in [EXTRACTOR, ASSIMILATOR, REFINERY]: # should we wait for another to finish?
 					if self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[SCV_GAS] + self.at[order_index].units[DRONE_GAS] >= 3 * (self.at[order_index].units[EXTRACTOR] + self.at[order_index].units[ASSIMILATOR] + self.at[order_index].units[REFINERY]): # it certainly seems so
-						for event_info,time in self.at[order_index].production: # let's check
+						for event_info,time, index in self.at[order_index].production: # let's check
 							if events[event_info[0]].get_result() == add and events[event_info[0]].get_args()[0] in [EXTRACTOR, ASSIMILATOR, REFINERY]: # there is in fact another on the way
 								return False # I'll wait then
 				if self.at[order_index].units[unit] > 0:
@@ -365,7 +352,7 @@ class Order:
 					else:
 						return False
 				else:
-					for event_info,time in self.at[order_index].production:
+					for event_info,time, index in self.at[order_index].production:
 						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
 								break
@@ -388,7 +375,7 @@ class Order:
 				else:
 					if self.at[order_index].occupied[unit] > 0:
 						continue
-					for event_info,time in self.at[order_index].production:
+					for event_info,time, index in self.at[order_index].production:
 						if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
 							if unit in events[event_info[0]].get_args():
 								break
@@ -404,7 +391,7 @@ class Order:
 			if kind == NOT:
 				if self.at[order_index].units[unit] > 0 or self.at[order_index].occupied[unit] > 0:
 					return False
-				for event,time in self.at[order_index].production:
+				for event,time, index in self.at[order_index].production:
 					event_index = event[0]
 					if events[event_index].get_result() == research or events[event_index].get_result() == add:
 						if unit in events[event_index].get_args():
@@ -424,7 +411,7 @@ class Order:
 			else: # must be in production
 				if now:
 					return False
-				for event_info,time in self.at[order_index].production:
+				for event_info,time, index in self.at[order_index].production:
 					if events[event_info[0]].get_result() == add:
 						if unit in events[event_info[0]].get_args():
 							break
@@ -433,8 +420,8 @@ class Order:
 			continue
 		return True
 
-	def all_available(self, order_index = -1):
-		return [i for i in xrange(len(events)) if self.available(order_index = order_index, event_index = i)]
+	def all_available(self, order_index = -1, gas_trick = False):
+		return [i for i in xrange(len(events)) if self.available(order_index = order_index, event_index = i, now = False, gas_trick = gas_trick)]
 		
 
 	def sanity_check(self):
@@ -489,40 +476,75 @@ class Order:
 					delta_gas = 1
 		return True
 		
-	def append(self, event_info):
+	def append(self, event_info, recalc = True):
 		"""
 		Appends event to the build order
 		"""
+		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
+			event_info.append(0)
 		self.events.append(event_info)
-		self.calculate_times()
+		if recalc:
+			self.calculate_times()
 
-	def insert(self, event_info, index):
+	def insert(self, event_info, index, recalc = True):
 		"""
 		Inserts event at index
 		"""
+		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
+			event_info.append(0)
 		self.events.insert(index, event_info)
+		while index < len(self.events):
+			if events[self.events[index][0]].get_result() == boost:
+				self.events[index][3] += 1
+			index += 1
+		if recalc:
+			self.calculate_times()
+
+	def insert_chrono(self, boosted_index, chrono_index):
+		"""
+		Adds a chrono boost for the event in the given index
+		Because one does not simply insert a chrono
+		"""
+		event_info = [CHRONO_BOOST, "", self.events[boosted_index][0], boosted_index]
+		self.events.insert(chrono_index, event_info)
 		self.calculate_times()
 
-	def delete(self, index):
+	def can_chrono(self, boosted_index, chrono_index):
+		"""
+		Returns whether a chrono boost can be applied at chrono_index for an event at boosted_index
+		"""
+		pass # this is a dummy function for now
+		return True
+
+	def delete(self, index, recalc = True):
 		"""
 		Deletes event at index
 		"""
 		del self.events[index]
-		self.calculate_times()
+		while index < len(self.events):
+			if events[self.events[index][0]].get_result() == boost:
+				self.events[index][3] -= 1
+			index += 1
+		if recalc:
+			self.calculate_times()
 
-	def delete_many(self, indices):
+	def delete_many(self, indices, recalc = True):
 		"""
 		Deletes events at indices
 		"""
 		for index in indices.sort().reverse():
-			self.delete(index)
-		self.calculate_times()
+			self.delete(index,False)
+		if recalc:
+			self.calculate_times()
 
 	def calculate_times(self):
 		"""
 		Evaluates the times at which all events occur
 		"""
 		now = Instance()
+		start_times = {}
+		end_times = {} 		
+		self.time_taken = {} # event_index -> time_taken
 		if self.race == "P":
 			now.units[PROBE_MINERAL] = 6
 			now.units[NEXUS] = 1
@@ -539,19 +561,42 @@ class Order:
 			now.base_larva = [3]
 		now.blue = 1
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
-		self.at_time = [now]
+		self.at_time = []
 		impossible = False
 		for index, event_info in enumerate(self.events):
 			order_index = index + 1
 			last = self.at[index]
 			now = copy.deepcopy(last)
 			self.at.append(now)
-			if (not impossible) and (self.available(order_index, event_info[0], False)):
-				while not self.available(order_index, event_info[0], True):
-					now.increment()
+			using_tricks = self.uses_trick(index)
+			if (not impossible) and (self.available(order_index, event_info[0], False, using_tricks)):
+				while not self.available(order_index, event_info[0], True, using_tricks):
 					self.at_time.append(copy.deepcopy(now))
+					now.increment(start_times, end_times)
 				# now effect costs
-				now.minerals -= events[event_info[0]].cost[0]
+				if event_info[0] == CHRONO_BOOST:
+					found = False
+					for i in xrange(len(now.production)):
+						if now.production[i][2] == event_info[3]:
+							found = True
+							if now.production[i][0][0] != event_info[2]:
+								for j in xrange(len(now.production)):
+									if now.production[j][0][0] == event_info[2]:
+										event_info[3] = now.production[j][2]
+										break
+									self.delete(index)
+									return
+							break
+					if not found:
+						self.delete(index)
+						return
+				mineral_cost = events[event_info[0]].cost[0]
+				if using_tricks: 
+					required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
+					gas_tricks = min(required_tricks, now.units[DRONE_SCOUT] + 2 * (now.units[HATCHERY] + now.units[LAIR] + now.units[HIVE]) - now.units[ASSIMILATOR])
+					evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
+					mineral_cost += 6 * gas_tricks + 18 * evo_tricks
+				now.minerals -= mineral_cost
 				now.gas -= events[event_info[0]].cost[1]
 				now.supply += events[event_info[0]].supply
 				for requirement in get_requirements(event_info[0]):
@@ -561,10 +606,10 @@ class Order:
 							unit = can_be[unit] # if this is an error then there is a problem with available
 						now.units[unit] -= 1
 						now.occupied[unit] += 1
-						if kind in now.boosted_things[1].keys():
-							if len(now.boosted_things[1][kind]) > 0:
-								now.boosted_things[0][event_info[0]].append([events[event_info[0]].time, now.boosted_things[1][kind][0]]) 
-								del now.boosted_things[1][kind][0]
+						if unit in now.boosted_things[1].keys():
+							if len(now.boosted_things[1][unit]) > 0:
+								now.boosted_things[0][index] = now.boosted_things[1][unit][0] 
+								del now.boosted_things[1][unit][0]
 					if kind == C:
 						now.units[unit] -= 1
 						if unit == LARVA:
@@ -576,7 +621,7 @@ class Order:
 									max_index = curr_index
 									max_larva = larva
 							if max_larva == 3:
-								now.production.append([[AUTO_SPAWN_LARVA,''], events[AUTO_SPAWN_LARVA].time])
+								now.production.append([[AUTO_SPAWN_LARVA,''], events[AUTO_SPAWN_LARVA].time, -1])
 							now.base_larva[max_index] -= 1
 					if kind > 20: # energy
 						greatest_index = 0
@@ -587,15 +632,78 @@ class Order:
 									greatest_energy == energy_energy
 									greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
 						now.energy_units[greatest_index][1] -= kind
-				now.production.append([event_info,events[event_info[0]].time])
+				start_times[index] = now.time
+				now.production.append([event_info,events[event_info[0]].time, index])
 			else:
 				impossible = True
 				self.at[order_index] = copy.deepcopy(last)
 				self.at[order_index].time = float('inf')
+				start_times[index] = float('inf')
+				end_times[index] = float('inf')
+		self.at_time.append(self.at[-1])
 		while len(self.at_time[-1].production) > 0: # simulate through remaining production
 			last = copy.deepcopy(self.at_time[-1])
-			last.increment()
+			last.increment(start_times, end_times)
 			self.at_time.append(last)
+		for i in start_times.iterkeys():
+			self.time_taken[i] = end_times[i] - start_times[i]
+
+	def get_note(self,index):
+		"""
+		index: index in self.events, not self.at
+		"""
+		return self.events[index][1]
+
+	def set_note(self,index,note):
+		"""
+		index: index in self.events, not self.at
+		"""
+		self.events[index][1] = note
+
+	def can_trick(self,index):
+		"""
+		index: index in self.events, not self.at
+		"""
+		return self.race == "Z" and events[self.events[index][0]].supply > 0
+
+	def uses_trick(self,index):
+		"""
+		index: index in self.events, not self.at
+		"""
+		if len(self.events[index]) > 2:
+			return self.events[index][2] == 1
+		else:
+			return False
+
+	def toggle_trick(self,index):
+		"""
+		Assumes can_trick(index); otherwise will result in unexpected behavior
+		index: index in self.events, not self.at
+		"""
+		if len(self.events[index]) == 2:
+			self.events[index].append(1)
+		elif self.events[index][2] == 0:
+			self.events[index][2] = 1
+		else:
+			self.events[index][2] = 0
+		self.calculate_times()
+
+	def event_length(self, index):
+		"""
+		Returns how long the event at the index will take, factoring in chrono boosts
+		index: index in self.events, not self.at
+		"""
+		return self.time_taken[index]
+
+	def get_warp_cooldown(self, index):
+		"""
+		Returns the length of the cooldown associated with the warp in the given index
+		index: index in self.events, not self.at
+		"""
+		if -index in self.time_taken.keys():
+			return self.time_taken[-index]
+		return 0
+
 
 class Team:
 	"""
@@ -669,4 +777,3 @@ class Team:
 		else:
 			pass
 			# find index at which to insert gift
-
