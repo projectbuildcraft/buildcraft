@@ -517,14 +517,19 @@ class Order:
 		if recalc:
 			self.calculate_times()
 
-	def insert_chrono(self, boosted_index, chrono_index):
+	def insert_chrono(self, boosted_index, chrono_index, recalc = True):
 		"""
-		Adds a chrono boost for the event in the given index
+		Adds a chrono boost in chrono_index for the event in the given boosted_index
 		Because one does not simply insert a chrono
 		"""
 		event_info = [CHRONO_BOOST, "", self.events[boosted_index][0], boosted_index]
 		self.events.insert(chrono_index, event_info)
-		self.calculate_times()
+		while chrono_index < (len(self.events) - 1):
+			chrono_index += 1
+			if events[self.events[chrono_index][0]].get_result() == boost:
+                                self.events[chrono_index][3] += 1
+		if recalc:
+			self.calculate_times()
 
 	def can_chrono(self, boosted_index, chrono_index):
 		"""
@@ -580,6 +585,7 @@ class Order:
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
 		self.at_time = []
 		impossible = False
+		last_good_index = 0 # indexes at[] and keeps track of last legal instance of at
 		for index, event_info in enumerate(self.events):
 			order_index = index + 1
 			last = self.at[index]
@@ -587,6 +593,7 @@ class Order:
 			self.at.append(now)
 			using_tricks = self.uses_trick(index)
 			if (not impossible) and (self.available(order_index, event_info[0], False, using_tricks)):
+				last_good_index = order_index
 				while not self.available(order_index, event_info[0], True, using_tricks):
 					self.at_time.append(copy.deepcopy(now))
 					now.increment(start_times, end_times)
@@ -657,7 +664,7 @@ class Order:
 				self.at[order_index].time = float('inf')
 				start_times[index] = float('inf')
 				end_times[index] = float('inf')
-		self.at_time.append(self.at[-1])
+		self.at_time.append(self.at[last_good_index])
 		while len(self.at_time[-1].production) > 0: # simulate through remaining production
 			last = copy.deepcopy(self.at_time[-1])
 			last.increment(start_times, end_times)
