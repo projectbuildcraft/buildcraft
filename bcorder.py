@@ -45,7 +45,7 @@ class Instance:
 		else:
 			self.base_larva = base_larva # tracks larva [larva_count]
 		if boosted_things == None:
-			self.boosted_things = [dict(),                                          
+			self.boosted_things = [dict(),					  
 					       {NEXUS: [],
 						GATEWAY: [],
 						FORGE: [],
@@ -94,17 +94,17 @@ class Instance:
 		while index > 0:
 			index -= 1
 			if self.production[index][2] in self.boosted_things[0].keys() and self.boosted_things[0][self.production[index][2]] > 0:
-                                self.production[index][1] -= .5 # boosted effect
+				self.production[index][1] -= .5 # boosted effect
 			self.production[index][1] -= 1 # decrease remaining seconds
 			if self.production[index][1] <= 0: # if done
-                                end_times[self.production[index][2]] = self.time
-                                event = events[self.production[index][0][0]]
+				end_times[self.production[index][2]] = self.time
+				event = events[self.production[index][0][0]]
 				if events[self.production[index][0][0]].get_result() == boost: # has special parameters
 					boost(self.production[index][0][3], self)
-                                elif events[self.production[index][0][0]].get_result() == warp:
-                                        start_times[-self.production[index][2]] = self.time
-                                        warp(event.get_args(), self, self.production[index][2])
-                                else:
+				elif events[self.production[index][0][0]].get_result() == warp:
+					start_times[-self.production[index][2]] = self.time
+					warp(event.get_args(), self, self.production[index][2])
+				else:
 					event.get_result()(event.get_args(), self)
 				self.cap += event.capacity
 				self.cap = min(self.cap, 200)
@@ -116,7 +116,7 @@ class Instance:
 						self.occupied[unit] -= 1
 						self.units[unit] += 1
 				if self.production[index][2] in self.boosted_things[0].keys():
-                                        for requirement in event.get_requirements():
+					for requirement in event.get_requirements():
 						unit, kind = requirement
 						if kind == O:
 							self.boosted_things[1][unit].append(self.boosted_things[0][self.production[index][2]])
@@ -125,7 +125,7 @@ class Instance:
 		for energy_unit in self.energy_units:
 			energy_unit[1] = min(energy_unit[1] + 0.5625, energy[energy_unit[0]])
 		for boosted_event_index in self.boosted_things[0].iterkeys():
-                        self.boosted_things[0][boosted_event_index] -= 1
+			self.boosted_things[0][boosted_event_index] -= 1
 		for boosted_structure in self.boosted_things[1].iterkeys():
 			i = len(self.boosted_things[1][boosted_structure])
 			while i > 0:
@@ -324,13 +324,13 @@ class Order:
 			if num_injections >= num_hatcheries:
 				return False
 		if now and event_index == CHRONO_BOOST:
-                        chrono_target = self.events[order_index - 1][3]
-                        for p in self.at[order_index].production:
-                                if p[0][0] == CHRONO_BOOST and p[0][3] == chrono_target:
-                                        return False
-                        if chrono_target in self.at[order_index].boosted_things[0]:
-                                if self.at[order_index].boosted_things[0][chrono_target] > 0:
-                                        return False
+			chrono_target = self.events[order_index - 1][3]
+			for p in self.at[order_index].production:
+				if p[0][0] == CHRONO_BOOST and p[0][3] == chrono_target:
+					return False
+			if chrono_target in self.at[order_index].boosted_things[0]:
+				if self.at[order_index].boosted_things[0][chrono_target] > 0:
+					return False
 		# requirements
 		requirements = list(events[event_index].get_requirements()) # our dirty copy
 		for requirement in requirements:
@@ -506,7 +506,7 @@ class Order:
 		Because one does not simply insert a chrono
 		"""
 		event_info = [CHRONO_BOOST, "", self.events[boosted_index][0], boosted_index]
-                self.events.insert(chrono_index, event_info)
+		self.events.insert(chrono_index, event_info)
 		self.calculate_times()
 
 	def can_chrono(self, boosted_index, chrono_index):
@@ -543,8 +543,8 @@ class Order:
 		"""
 		now = Instance()
 		start_times = {}
-		end_times = {}
-		self.time_taken = {}
+		end_times = {} 		
+		self.time_taken = {} # event_index -> time_taken
 		if self.race == "P":
 			now.units[PROBE_MINERAL] = 6
 			now.units[NEXUS] = 1
@@ -575,21 +575,21 @@ class Order:
 					now.increment(start_times, end_times)
 				# now effect costs
 				if event_info[0] == CHRONO_BOOST:
-                                        found = False
-                                        for i in xrange(len(now.production)):
-                                                if now.production[i][2] == event_info[3]:
-                                                        found = True
-                                                        if now.production[i][0][0] != event_info[2]:
-                                                                for j in xrange(len(now.production)):
-                                                                        if now.production[j][0][0] == event_info[2]:
-                                                                                event_info[3] = now.production[j][2]
-                                                                                break
-                                                                        self.delete(index)
-                                                                        return
-                                                        break
-                                        if not found:
-                                                self.delete(index)
-                                                return
+					found = False
+					for i in xrange(len(now.production)):
+						if now.production[i][2] == event_info[3]:
+							found = True
+							if now.production[i][0][0] != event_info[2]:
+								for j in xrange(len(now.production)):
+									if now.production[j][0][0] == event_info[2]:
+										event_info[3] = now.production[j][2]
+										break
+									self.delete(index)
+									return
+							break
+					if not found:
+						self.delete(index)
+						return
 				mineral_cost = events[event_info[0]].cost[0]
 				if using_tricks: 
 					required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
@@ -644,7 +644,7 @@ class Order:
 			last.increment(start_times, end_times)
 			self.at_time.append(last)
 		for i in start_times.iterkeys():
-                        self.time_taken[i] = end_times[i] - start_times[i]
+			self.time_taken[i] = end_times[i] - start_times[i]
 	def get_note(self,index):
 		"""
 		index: index in self.events, not self.at
@@ -686,20 +686,20 @@ class Order:
 		self.calculate_times()
 
 	def event_length(self, index):
-                """
-                Returns how long the event at the index will take, factoring in chrono boosts
-                index: index in self.events, not self.at
-                """
-                return self.time_taken[index]
+		"""
+		Returns how long the event at the index will take, factoring in chrono boosts
+		index: index in self.events, not self.at
+		"""
+		return self.time_taken[index]
 
-        def get_warp_cooldown(self, index):
-                """
-                Returns the length of the cooldown associated with the warp in the given index
-                index: index in self.events, not self.at
-                """
-                if -index in self.time_taken.keys():
-                        return self.time_taken[-index]
-                return 0
+	def get_warp_cooldown(self, index):
+		"""
+		Returns the length of the cooldown associated with the warp in the given index
+		index: index in self.events, not self.at
+		"""
+		if -index in self.time_taken.keys():
+			return self.time_taken[-index]
+		return 0
 
 
 class Team:
