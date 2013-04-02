@@ -615,7 +615,7 @@ class Order:
 						if unit == LARVA:
 							# assume larva from base with most larva
 							max_index = 0
-							max_larva = 0
+							max_larva = now.base_larva[max_index]
 							for curr_index, larva in enumerate(now.base_larva):
 								if larva > max_larva:
 									max_index = curr_index

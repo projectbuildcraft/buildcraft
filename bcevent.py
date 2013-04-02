@@ -114,11 +114,11 @@ def spawn_larva(auto,instance):
 			# find most recent AUTO_SPAWN_LARVA and stop it
 			spawn_index = None
 			max_time = 0
-			for index, (event_index, time_remaining, order_index) in enumerate(instance.production):
-				if event_index == AUTO_SPAWN_LARVA:
-					if time > max_time:
+			for index, (event_info, time_remaining, order_index) in enumerate(instance.production):
+				if event_info[0] == AUTO_SPAWN_LARVA:
+					if time_remaining > max_time:
 						spawn_index = index
-						max_time = time
+						max_time = time_remaining
 			if max_time > 0: # if found one
 				del instance.production[spawn_index]
         
