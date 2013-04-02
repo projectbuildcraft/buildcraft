@@ -29,7 +29,6 @@ class EventWidget(Canvas):
     supply_width = 60
     
     def __init__(self, app, index):
-        print index
         self.height = 20
         self.app = app
         self.index = index
@@ -195,7 +194,6 @@ def toggle_display(app):
     refresh(app)
 
 def add_menu(app):
-
     app.menubar = Menu(app.master)
     app.menubar.add_command(label='Load',command=lambda:load(app))
     app.menubar.add_command(label='Save',command=lambda:save(app))
@@ -272,11 +270,8 @@ default_colors = ['red','blue','green','yellow','purple','orange']
 
 def add_instance_analysis(app):
 
-    app.instance = Frame(app.master)
-    app.instance.pack(side = LEFT)
-
-    app.canvas = Canvas(app.instance, width=500,height=500)
-    app.canvas.pack(side = BOTTOM)
+    app.canvas = Canvas(app.master, width=500,height=125)
+    app.canvas.pack(side = BOTTOM, expand = 1, fill=BOTH)
 
     app.minerals = get_image('minerals.gif')
     app.gas = get_image('vespene.gif')
@@ -284,15 +279,15 @@ def add_instance_analysis(app):
     app.supply = get_image('supply.gif')
     app.larva = get_image('larva.gif')
 
-    app.canvas.mineral_image = app.canvas.create_image(50,50,image=app.minerals)
-    app.canvas.gas_image = app.canvas.create_image(50,100,image=app.gas)
-    app.canvas.supply_image = app.canvas.create_image(50,150,image=app.supply)
-    app.canvas.larva_image = app.canvas.create_image(50,200,image=app.larva)
+    app.canvas.mineral_image = app.canvas.create_image(50,25,image=app.minerals)
+    app.canvas.gas_image = app.canvas.create_image(50,50,image=app.gas)
+    app.canvas.supply_image = app.canvas.create_image(50,75,image=app.supply)
+    app.canvas.larva_image = app.canvas.create_image(50,100,image=app.larva)
 
-    app.canvas.mineral_value = app.canvas.create_text(80,50,anchor=W)
-    app.canvas.gas_value = app.canvas.create_text(80,100,anchor=W)
-    app.canvas.supply_value = app.canvas.create_text(80,150,anchor=W)
-    app.canvas.larva_count = app.canvas.create_text(90,200,anchor=W)
+    app.canvas.mineral_value = app.canvas.create_text(80,25,anchor=W)
+    app.canvas.gas_value = app.canvas.create_text(80,50,anchor=W)
+    app.canvas.supply_value = app.canvas.create_text(80,75,anchor=W)
+    app.canvas.larva_count = app.canvas.create_text(90,100,anchor=W)
 
     app.canvas.zerg_only = (app.canvas.larva_image, app.canvas.larva_count)
 
@@ -312,7 +307,7 @@ def add_instance_analysis(app):
         app.canvas.itemconfig(app.canvas.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
         app.canvas.itemconfig(app.canvas.larva_count,text=str(i.units[LARVA]))
 
-    app.time_scale = Frame(app.instance)
+    app.time_scale = Frame(app.master)
     app.time_scale.pack(side = TOP)
 
     app.time_icon = Label(app.time_scale, image = app.time)
@@ -409,7 +404,7 @@ def supply_graph(order):
         supply[i.time] = i.supply
         cap[i.time] = i.cap
 
-    create_graph([supply,worker_supply,cap],title='Supply',fill=[True,True,False],colors=['red','blue','green'],labels=['Army','Workers','Supply Cap'])
+    create_graph([supply,worker_supply,cap],title='Supply',fill=[True,True,False],colors=['red','blue','green'],labels=['Army','Workers','Supply Cap'],end_value = order.at[-1].time)
 
 def has_army(order):
     for i in order.at_time:
@@ -425,26 +420,36 @@ def army_value_graph(order):
         minerals[i.time], gas = i.army_value(False)
         total[i.time] = minerals[i.time] + gas
 
-    create_graph([total, minerals],title='Army Value',fill=[True,True],colors=['green','blue'],labels=['gas','minerals'])
+    create_graph([total, minerals],title='Army Value',fill=[True,True],colors=['green','blue'],labels=['gas','minerals'],end_value = order.at[-1].time)
 
 def resource_collection_rate_graph(order):
     mineral_rate = dict()
     gas_rate = dict()
+    zerg = order.race == 'Z'
+    
 
     for i in order.at_time:
         mineral_rate[i.time], gas_rate[i.time] = i.resource_rate()
 
-    create_graph([mineral_rate, gas_rate],title='Resource Collection Rate',colors=['blue','green'],labels=['minerals','gas'])
+    create_graph([mineral_rate, gas_rate],title='Resource Collection Rate',colors=['blue','green'],labels=['minerals','gas'],end_value = order.at[-1].time)
 
 def resource_graph(order):
     minerals = dict()
     gas = dict()
+    zerg = order.race == 'Z'
+    if zerg:
+        larva = dict()
 
     for i in order.at_time:
         minerals[i.time] = i.minerals
         gas[i.time] = i.gas
+        if zerg:
+            larva[i.time] = i.units[LARVA]*50
 
-    create_graph([minerals,gas],title='Resources on Hand',colors=['blue','green'],labels=['minerals','gas'])
+    if zerg:
+        create_graph([minerals,gas,larva],title='Resources on Hand',colors=['blue','green','orange'],labels=['minerals','gas','larva'], side_scale = 50,end_value = order.at[-1].time)
+
+    create_graph([minerals,gas],title='Resources on Hand',colors=['blue','green'],labels=['minerals','gas'],end_value = order.at[-1].time)
 
 def get_image(src, size = ()):
     image = Image.open('images/'+src)
