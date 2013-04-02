@@ -41,23 +41,35 @@ class EventWidget(Canvas):
         current = app.scale.get()
         passed_time = current - start
         total_time = self.app.my_order.event_length(self.index)
+        dull = total_time == float('inf') or math.isnan(total_time)
+        if dull:
+            print 'dull'
         actual_time = max(0,min(passed_time,total_time))
         self.cooldown = self.app.my_order.get_warp_cooldown(self.index)
         if app.place_by_time:
-            time_width = EventWidget.supply_width + len(self.app.my_order.at_time)*5
-            disp = start*5 - 1
+            if not dull:
+                time_width = EventWidget.supply_width + len(self.app.my_order.at_time)*5
+                disp = start*5 - 1
+            else:
+                time_width = 0
+                disp = 0
         else:
-            time_width = max(400,EventWidget.supply_width + max(self.cooldown,total_time)*5)
+            if not dull:
+                time_width = max(400,EventWidget.supply_width + max(self.cooldown,total_time)*5)
+            else:
+                time_width = 400
             disp = 0
         Canvas.__init__(self, app.event_frame, height=self.height, width = time_width)
-        if self.cooldown:
+        if self.cooldown and not dull:
             cooldown_passed = max(0,min(self.cooldown,current - start))
             self.cooldown_rect = self.create_rectangle(EventWidget.supply_width+disp,2,EventWidget.supply_width + self.cooldown*5 + disp,self.height)
             self.cooldown_fill = self.create_rectangle(EventWidget.supply_width+disp,2,EventWidget.supply_width + cooldown_passed*5 + disp,self.height,fill='pink')
 
-        self.fill = self.create_rectangle(EventWidget.supply_width+disp,2,actual_time*5+EventWidget.supply_width+disp,self.height,fill='aquamarine',disabledoutline='')
+        if not dull:
+            self.fill = self.create_rectangle(EventWidget.supply_width+disp,2,actual_time*5+EventWidget.supply_width+disp,self.height,fill='aquamarine',disabledoutline='')
         self.create_text(2,2,text=str(self.at.supply)+'/'+str(self.at.cap),anchor=N+W)
-        self.full_time = self.create_rectangle(EventWidget.supply_width+disp,2,total_time*5+EventWidget.supply_width+disp,self.height)
+        if not dull:
+            self.full_time = self.create_rectangle(EventWidget.supply_width+disp,2,total_time*5+EventWidget.supply_width+disp,self.height)
         self.create_text(EventWidget.supply_width + 5 + disp,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.echo)
         self.passed_str = str(actual_time)+'/'+str(total_time)
@@ -102,11 +114,13 @@ class EventWidget(Canvas):
             disp = 0
         passed_time = current - start
         total_time = self.app.my_order.event_length(self.index)
+        dull = total_time == float('inf') or math.isnan(total_time)
         actual_time = max(0,min(passed_time,total_time))
-        self.coords(self.fill,EventWidget.supply_width+disp,2,actual_time*5+EventWidget.supply_width+disp,self.height)
-        if self.cooldown:
-            cooldown_passed = max(0,min(self.cooldown,current - start))
-            self.coords(self.cooldown_fill,EventWidget.supply_width+disp,2,EventWidget.supply_width + cooldown_passed*5 + disp,self.height)
+        if not dull:
+            self.coords(self.fill,EventWidget.supply_width+disp,2,actual_time*5+EventWidget.supply_width+disp,self.height)
+            if self.cooldown:
+                cooldown_passed = max(0,min(self.cooldown,current - start))
+                self.coords(self.cooldown_fill,EventWidget.supply_width+disp,2,EventWidget.supply_width + cooldown_passed*5 + disp,self.height)
         self.passed_str = str(actual_time)+'/'+str(total_time)
         self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
 
