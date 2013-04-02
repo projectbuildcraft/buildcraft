@@ -80,6 +80,12 @@ class Instance:
 		gassers = min(gassers, 3 * gasses)
 		# http://www.teamliquid.net/forum/viewmessage.php?topic_id=140055
 		return (59 * workers_on_gold + 42 * workers_on_blue + 25 * saturated_on_gold + 18 * saturated_on_blue + 170 * mules, gassers * 38)
+
+	def larva_rate(self):
+		"""
+		Returns the larva rate one would expect from perfect injections and spending in larva produced per Blizzard minute
+		"""
+		return 4*(self.units[HATCHERY] + self.units[LAIR] + self.units[HIVE]) + 6*self.units[QUEEN]
 			
 	def increment(self, start_times, end_times):
 		"""
@@ -615,7 +621,7 @@ class Order:
 						if unit == LARVA:
 							# assume larva from base with most larva
 							max_index = 0
-							max_larva = 0
+							max_larva = now.base_larva[max_index]
 							for curr_index, larva in enumerate(now.base_larva):
 								if larva > max_larva:
 									max_index = curr_index
