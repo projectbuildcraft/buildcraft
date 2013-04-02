@@ -85,7 +85,7 @@ class Instance:
 		"""
 		Returns the larva rate one would expect from perfect injections and spending in larva produced per Blizzard minute
 		"""
-		return 4*(self.units[HATCHERY] + self.units[LAIR] + self.units[HIVE]) + 6*self.units[QUEEN]
+		return 4*(self.units[HATCHERY] + self.occupied[HATCHERY] + self.units[LAIR] self.occupied[LAIR] + self.units[HIVE] + self.occupied[HIVE]) + 6*(self.units[QUEEN] + self.occupied[QUEEN])
 			
 	def increment(self, start_times, end_times):
 		"""
