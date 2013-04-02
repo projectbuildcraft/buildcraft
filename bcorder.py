@@ -580,6 +580,7 @@ class Order:
 		self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
 		self.at_time = []
 		impossible = False
+		last_good_index = 0 # indexes at[] and keeps track of last legal instance of at
 		for index, event_info in enumerate(self.events):
 			order_index = index + 1
 			last = self.at[index]
@@ -587,6 +588,7 @@ class Order:
 			self.at.append(now)
 			using_tricks = self.uses_trick(index)
 			if (not impossible) and (self.available(order_index, event_info[0], False, using_tricks)):
+				last_good_index = order_index
 				while not self.available(order_index, event_info[0], True, using_tricks):
 					self.at_time.append(copy.deepcopy(now))
 					now.increment(start_times, end_times)
@@ -657,7 +659,7 @@ class Order:
 				self.at[order_index].time = float('inf')
 				start_times[index] = float('inf')
 				end_times[index] = float('inf')
-		self.at_time.append(self.at[-1])
+		self.at_time.append(self.at[last_good_index])
 		while len(self.at_time[-1].production) > 0: # simulate through remaining production
 			last = copy.deepcopy(self.at_time[-1])
 			last.increment(start_times, end_times)
