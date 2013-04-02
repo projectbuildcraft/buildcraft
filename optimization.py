@@ -1,4 +1,5 @@
 import bcorder
+import copy
 def genetic_optimization(race, constraints):
 	"""
 	Returns the optimal build order for fitting the given constraints, having calculated it via a genetic algorithm
@@ -6,7 +7,34 @@ def genetic_optimization(race, constraints):
 	Constraints is an array of units required in the form [(UNIT_INDEX, UNIT_COUNT)]
 	Race denotes the race: "Z", "P", or "T"
 	"""
-	orders = [randomly_fit(race, constraints)]
+	orders = [randomly_fit(race, constraints)] * 10
+	while we_should_continue(orders):
+		# find best
+		fitness = [(index,when_meets(order,constraints)) for index,order in enumerate(orders)]
+		fitness = sorted(fitness, key = lambda item: item[1]) # sort by fitness
+		# reproduce (best six sexually and best asexually) with mutation, producing 4 new ones to replace 4 worst
+		orders[fitness[0][0]] = reproduce(orders[fitness[9][0]])
+		for order_index in range(1,4):
+			orders[fitness[order_index][0]] = reproduce(orders[fitness[9 - 2*order_index][0]],orders[fitness[10 - 2*order_index][0]])
+	return max(orders, key = lambda order: when_meets(order,constraints))
+	
+def a_star_optimization(race, constraints):
+	"""
+	Returns the optimal build order for fitting the given constraints, having calculated it 
+	"""
+	frontier = PriorityQueue(maxsize = -1) # no limit
+	frontier.put((1,Order(race = race)))
+	while not frontier.empty():
+		current_order = frontier.get()
+		for option in current_order.all_available(): # somehow we need to handle gas tricks
+			extension = copy.deepcopy(current_order)
+			extension.append([option]) # need to make sure it has all of event_info
+			if extension.sanity_check(): # if makes sense
+				if has_constraints(extension.at_time[-1]):
+					return extension
+				frontier.put((cost(extension) + heuristic(extension), extension))
+	return None
+	
 	
 def when_meets(order, constraints):
 	"""
@@ -47,3 +75,22 @@ def randomly_fit(race,constraints):
 		else:
 			my_order.append([choices[choice],''])
 	return order
+
+def reproduce(order, order2 = None):
+	"""
+	Returns a new organism with mutation
+	"""
+	if order2 == None:
+		pass
+	else:
+		pass
+
+
+def we_should_continue(orders, constraints):
+	pass
+
+def heuristic(order, constraints):
+	pass
+
+def cost(order, constraints):
+	pass
