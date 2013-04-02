@@ -346,7 +346,15 @@ class Order:
 			unit, kind = requirement
 			if kind == ASSUMPTION:
 				if now and unit in [EXTRACTOR, ASSIMILATOR, REFINERY]: # should we wait for another to finish?
-					if self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[SCV_GAS] + self.at[order_index].units[DRONE_GAS] >= 3 * (self.at[order_index].units[EXTRACTOR] + self.at[order_index].units[ASSIMILATOR] + self.at[order_index].units[REFINERY]): # it certainly seems so
+					gassers = self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[SCV_GAS] + self.at[order_index].units[DRONE_GAS]
+					for event_info,time,index in self.at[order_index].production:
+						event_index = event_info[0]
+						if events[event_index].get_result() == add:
+							for unit in events[event_index].get_args():
+								if unit in [PROBE_GAS, SCV_GAS, DRONE_GAS]:
+									gassers += 1
+					gasses = self.at[order_index].units[EXTRACTOR] + self.at[order_index].units[ASSIMILATOR] + self.at[order_index].units[REFINERY]
+					if gassers >= 3 * gasses: # it certainly seems so
 						for event_info,time, index in self.at[order_index].production: # let's check
 							if events[event_info[0]].get_result() == add and events[event_info[0]].get_args()[0] in [EXTRACTOR, ASSIMILATOR, REFINERY]: # there is in fact another on the way
 								return False # I'll wait then
