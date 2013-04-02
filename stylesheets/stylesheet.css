@@ -530,8 +530,9 @@ footer .owner p a {
 .download-description {
 	text-align: right;
 	color: #63a52a;
-	position: relative;
+	position: absolute;
 	top: 6px;
+	width: 407px;
 }
 	
 
