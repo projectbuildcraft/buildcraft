@@ -15,9 +15,14 @@ class ScrolledFrame(Frame):
                         self.canvas.configure(xscrollcommand=self.hsb.set)
                         self.hsb.pack(side=BOTTOM,fill='x')
                 self.canvas.create_window((4,4),window=self,anchor='nw')
+                def yscroll(event):
+                        if event.keycode > 0:
+                                self.canvas.yview('scroll',-1,'units')
+                        else:
+                                self.canvas.yview('scroll',1,'units')
+                self.canvas.bind_all('<MouseWheel>',yscroll)
                 self.bind('<Configure>', self.OnFrameConfigure)
                 
-
         def OnFrameConfigure(self, event):
                 self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 

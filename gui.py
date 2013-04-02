@@ -14,6 +14,9 @@ from ToolTip import ToolTip
 from ScrolledFrame import ScrolledFrame
 from graphs import create_graph
 
+def do_something(args):
+    print 'Do something',args
+
 class App:
 
     def __init__(self, master, **options):
@@ -271,7 +274,7 @@ default_colors = ['red','blue','green','yellow','purple','orange']
 def add_instance_analysis(app):
 
     app.canvas = Canvas(app.master, width=500,height=125)
-    app.canvas.pack(side = BOTTOM, expand = 1, fill=BOTH)
+    app.canvas.pack(side = BOTTOM, expand = 0, fill=X)
 
     app.minerals = get_image('minerals.gif')
     app.gas = get_image('vespene.gif')
@@ -287,7 +290,7 @@ def add_instance_analysis(app):
     app.canvas.mineral_value = app.canvas.create_text(80,25,anchor=W)
     app.canvas.gas_value = app.canvas.create_text(80,50,anchor=W)
     app.canvas.supply_value = app.canvas.create_text(80,75,anchor=W)
-    app.canvas.larva_count = app.canvas.create_text(90,100,anchor=W)
+    app.canvas.larva_count = app.canvas.create_text(80,100,anchor=W)
 
     app.canvas.zerg_only = (app.canvas.larva_image, app.canvas.larva_count)
 
@@ -302,10 +305,11 @@ def add_instance_analysis(app):
         i = app.my_order.at_time[int(i)-1]
 
         min_rate, gas_rate = i.resource_rate()
+        larva_rate = i.larva_rate()
         app.canvas.itemconfig(app.canvas.mineral_value,text=str(int(i.minerals))+' + '+str(int(min_rate))+'/min')
         app.canvas.itemconfig(app.canvas.gas_value,text=str(int(i.gas))+' + '+str(int(gas_rate))+'/min')
         app.canvas.itemconfig(app.canvas.supply_value,text=str(int(i.supply))+'/'+str(int(i.cap)))
-        app.canvas.itemconfig(app.canvas.larva_count,text=str(i.units[LARVA]))
+        app.canvas.itemconfig(app.canvas.larva_count,text=str(i.units[LARVA])+' + '+str(int(larva_rate))+'/min')
 
     app.time_scale = Frame(app.master)
     app.time_scale.pack(side = TOP)
@@ -314,7 +318,7 @@ def add_instance_analysis(app):
     app.time_icon.pack(side = LEFT)
     
     app.scale = Scale(app.time_scale, from_=1,to=len(app.my_order.at_time), length=300, command=refresh, orient=HORIZONTAL)
-    app.scale.pack(side = LEFT) 
+    app.scale.pack(side = LEFT,fill=BOTH,expand=1) 
 
     analysis_update(app)
 
@@ -426,12 +430,18 @@ def resource_collection_rate_graph(order):
     mineral_rate = dict()
     gas_rate = dict()
     zerg = order.race == 'Z'
-    
+    if zerg:
+        larva_rate = dict()
 
     for i in order.at_time:
         mineral_rate[i.time], gas_rate[i.time] = i.resource_rate()
+        if zerg:
+            larva_rate[i.time] = i.larva_rate() * 50
 
-    create_graph([mineral_rate, gas_rate],title='Resource Collection Rate',colors=['blue','green'],labels=['minerals','gas'],end_value = order.at[-1].time)
+    if zerg:
+        create_graph([mineral_rate, gas_rate, larva_rate],title='Resource Collection Rate',colors=['blue','green','orange'],labels=['minerals','gas','larva'],side_scale = 50,end_value = order.at[-1].time)
+    else:
+        create_graph([mineral_rate, gas_rate],title='Resource Collection Rate',colors=['blue','green'],labels=['minerals','gas'],end_value = order.at[-1].time)
 
 def resource_graph(order):
     minerals = dict()
