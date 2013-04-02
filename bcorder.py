@@ -476,16 +476,17 @@ class Order:
 					delta_gas = 1
 		return True
 		
-	def append(self, event_info):
+	def append(self, event_info, recalc = True):
 		"""
 		Appends event to the build order
 		"""
 		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
 			event_info.append(0)
 		self.events.append(event_info)
-		self.calculate_times()
+		if recalc:
+			self.calculate_times()
 
-	def insert(self, event_info, index):
+	def insert(self, event_info, index, recalc = True):
 		"""
 		Inserts event at index
 		"""
@@ -496,7 +497,8 @@ class Order:
 			if events[self.events[index][0]].get_result() == boost:
 				self.events[index][3] += 1
 			index += 1
-		self.calculate_times()
+		if recalc:
+			self.calculate_times()
 
 	def insert_chrono(self, boosted_index, chrono_index):
 		"""
@@ -514,7 +516,7 @@ class Order:
 		pass # this is a dummy function for now
 		return True
 
-	def delete(self, index):
+	def delete(self, index, recalc = True):
 		"""
 		Deletes event at index
 		"""
@@ -523,14 +525,17 @@ class Order:
 			if events[self.events[index][0]].get_result() == boost:
 				self.events[index][3] -= 1
 			index += 1
-		self.calculate_times()
+		if recalc:
+			self.calculate_times()
 
-	def delete_many(self, indices):
+	def delete_many(self, indices, recalc = True):
 		"""
 		Deletes events at indices
 		"""
 		for index in indices.sort().reverse():
-			self.delete(index)
+			self.delete(index,False)
+		if recalc:
+			self.calculate_times()
 
 	def calculate_times(self):
 		"""
