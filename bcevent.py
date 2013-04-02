@@ -29,12 +29,16 @@ class Event:
 
 def add_unit(unit, instance): # player of a class that stores the player's current state
 	instance.units[unit] += 1
-	from constants import energy
+	from constants import energy, HATCHERY, AUTO_SPAWN_LARVA, events, LARVA
 	if unit in energy:
 		if energy[unit][2] != None and instance.units[energy[unit][2]] > 0: # energy upgrade
 			instance.energy_units.append([unit,energy[unit][0] + 25])
 		else:
 			instance.energy_units.append([unit,energy[unit][0] + 25])
+	if unit == HATCHERY:
+		instance.base_larva.append(1)
+		instance.production.append([[AUTO_SPAWN_LARVA], events[AUTO_SPAWN_LARVA].time, -1])
+		instance.units[LARVA] += 1
 
 def add_units(units,instance): # like add_unit but takes a list
 	for unit in units:
@@ -103,6 +107,9 @@ def spawn_larva(auto,instance):
 				min_larva = larva
 				min_index = index
 		instance.base_larva[min_index] += 4
+		while instance.base_larva[min_index] > 19: # Hatcheries can hava a max of 19 larva each
+			instance.base_larva[min_index] -= 1
+			instance.units[LARVA] -= 1
 		if min_larva < 3:
 			# find most recent AUTO_SPAWN_LARVA and stop it
 			spawn_index = None
