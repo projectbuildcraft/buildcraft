@@ -14,9 +14,6 @@ from ToolTip import ToolTip
 from ScrolledFrame import ScrolledFrame
 from graphs import create_graph
 
-def do_something(args):
-    print 'Do something',args
-
 class App:
 
     def __init__(self, master, **options):
@@ -42,8 +39,6 @@ class EventWidget(Canvas):
         passed_time = current - start
         total_time = self.app.my_order.event_length(self.index)
         dull = total_time == float('inf') or math.isnan(total_time)
-        if dull:
-            print 'dull'
         actual_time = max(0,min(passed_time,total_time))
         self.cooldown = self.app.my_order.get_warp_cooldown(self.index)
         if app.place_by_time:
