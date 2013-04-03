@@ -1,4 +1,4 @@
-import bcorder
+from bcorder import Order
 import copy
 def genetic_optimization(race, constraints):
 	"""
@@ -20,7 +20,10 @@ def genetic_optimization(race, constraints):
 	
 def a_star_optimization(race, constraints):
 	"""
-	Returns the optimal build order for fitting the given constraints, having calculated it 
+	Returns the optimal build order for fitting the given constraints, having calculated it via an A* search
+	Optimality is measured according to time required to meet constraints. This function necessarily returns a most optimal build
+	Contraints is an array of units required in the form [(UNIT_INDEX, UNIT_COUNT)]
+	Race denotes the race: "Z", "P", or "T"
 	"""
 	frontier = PriorityQueue(maxsize = -1) # no limit
 	frontier.put((1,Order(race = race)))
@@ -76,15 +79,25 @@ def randomly_fit(race,constraints):
 			my_order.append([choices[choice],''])
 	return order
 
-def reproduce(order, order2 = None):
+def reproduce(order1, order2 = None):
 	"""
 	Returns a new organism with mutation
 	"""
 	if order2 == None:
-		pass
+		child = copy.deepcopy(order1)
+		child = mutate(child)
 	else:
-		pass
+		while True:
+			events_list = []
+			pass
+			child = Order(race = order1.race,events_list = events_list)
+			if child.sanity_check(): # not a monster
+				break
+		child = mutate(child)
+	return child
 
+def mutate(order):
+	pass
 
 def we_should_continue(orders, constraints):
 	pass
