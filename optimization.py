@@ -106,4 +106,4 @@ def heuristic(order, constraints):
 	pass
 
 def cost(order, constraints):
-	pass
+	return order.at_time[-1].time
