@@ -106,4 +106,4 @@ def heuristic(order, constraints):
 	pass
 
 def cost(order, constraints):
-	return order.at_time[-1].time
+	return order.at[-1].time # should be at because that's where we are in the build order right now
