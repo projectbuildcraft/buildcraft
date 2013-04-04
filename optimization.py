@@ -92,7 +92,7 @@ def reproduce(order1, order2 = None):
 	"""
 	if order2 == None:
 		child = copy.deepcopy(order1)
-		child = mutate(child)
+		mutate(child)
 	else:
 		while True:
 			events_list = []
@@ -100,11 +100,71 @@ def reproduce(order1, order2 = None):
 			child = Order(race = order1.race,events_list = events_list)
 			if child.sanity_check(): # not a monster
 				break
-		child = mutate(child)
+		mutate(child)
 	return child
 
 def mutate(order):
-	pass
+	"""
+	produces
+	"""
+	index = len(order.events)
+	while index >= 0:
+		mutation = random.randint(0,15)
+		if mutation < 8: # do nothing
+			index -= 1
+		elif mutation == 9: # insert
+			choices = my_order.all_available(index)
+			choice = random.randint(0,len(choices) - 1)
+			if events[choices[choice]].get_result() == boost:
+				boostable = []
+				for p in order.at[len(my_order.events)].production:
+					for r in bcorder.get_requirements(p[0][0]):
+						if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
+									  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
+							boostable.append([p[0][0], p[1]])
+							break
+				extra_choice = random.randint(0,len(boostable) - 1)
+				order.insert([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]], False, False)
+			else:
+				order.insert([choices[choice], ''], index, False, False)
+			index += 1
+		elif mutation == 10: # delete
+			index -= 1
+			if index >= 0:
+				order.delete(index,False, False)
+		elif mutation == 11: # swap before
+			if index > 0:
+				order.events[index], order.events[index - 1] = order.events[index - 1], order.events[index]
+		elif mutation == 12: # race-specific tweaks
+			if order.race == "P":
+				pass # modify chrono boost
+			if order.race == "Z":
+				pass # toggle gas trick 
+			if order.race == "T":
+				pass # idk
+		elif mutation == 13: # swap after
+			if index < len(order.events) - 1:
+				order.events[index], order.events[index + 1] = order.events[index + 1], order.events[index]
+		else: # substitution
+			if index < len(order.events):
+				choices = my_order.all_available(index)
+				choice = random.randint(0,len(choices) - 1)
+				if events[choices[choice]].get_result() == boost:
+					boostable = []
+					for p in order.at[len(my_order.events)].production:
+						for r in bcorder.get_requirements(p[0][0]):
+							if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
+										  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
+								boostable.append([p[0][0], p[1]])
+								break
+					extra_choice = random.randint(0,len(boostable) - 1)
+					order.events[index] = ([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]], False, False)
+				else:
+					order.events[index] = ([choices[choice], ''])
+	order.calculate_times()
+			
+
+		
 
 def heuristic(order, constraints):
 	pass
