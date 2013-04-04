@@ -8,12 +8,19 @@ def genetic_optimization(race, constraints):
 	Race denotes the race: "Z", "P", or "T"
 	"""
 	orders = [randomly_fit(race, constraints)] * 10
-	while we_should_continue(orders):
+	king_count = 0
+	king = 0
+	while king_count < 30: # 30 or some other arbitrarily medium-high number
 		# find best
 		fitness = [(index,when_meets(order,constraints)) for index,order in enumerate(orders)]
 		fitness = sorted(fitness, key = lambda item: item[1]) # sort by fitness
 		# reproduce (best six sexually and best asexually) with mutation, producing 4 new ones to replace 4 worst
 		orders[fitness[0][0]] = reproduce(orders[fitness[9][0]])
+		if king != fitness[9][0]:
+			king = fitness[9][0]
+			king_count = 1
+		else:
+			king_count += 1
 		for order_index in range(1,4):
 			orders[fitness[order_index][0]] = reproduce(orders[fitness[9 - 2*order_index][0]],orders[fitness[10 - 2*order_index][0]])
 	return max(orders, key = lambda order: when_meets(order,constraints))
@@ -97,9 +104,6 @@ def reproduce(order1, order2 = None):
 	return child
 
 def mutate(order):
-	pass
-
-def we_should_continue(orders, constraints):
 	pass
 
 def heuristic(order, constraints):
