@@ -805,16 +805,28 @@ class Team:
 		"""
 		Resets specified player as specified race
 		"""
-		self.builds[player] = Order(race = new_race)
+		self.builds[player] = Order(race = race)
 
-	def append(self, event, player = 0):
-		self.builds[player].append(event)
+	def append(self, event_info, player = 0):
+		self.builds[player].append(event_info, remember = False)
+
+	def insert(self, event_info, player = 0, index = 0):
+		"""
+		Insert event_info at specified index in specified player's build order
+		"""
+		self.builds[player].insert(event_info, index, remember = False)
 
 	def delete(self, index, player = 0):
 		"""
 		Deletes event at specified index for specified player
 		"""
-		self.builds[player].delete(index)
+		self.builds[player].delete(index, remember = False)
+
+	def delete_manay(self, indices, player = 0):
+		"""
+		Deletes events at specified indices for specified player
+		"""
+		self.builds[player].delete_many(indices, remember = False)
 
 	def sanity_check(self, check_individual = False):
 		"""
@@ -846,3 +858,15 @@ class Team:
 		else:
 			pass
 			# find index at which to insert gift
+
+	def undo(self):
+		pass
+
+	def can_undo(self):
+		pass
+
+	def redo(self):
+		pass
+
+	def can_redo(self):
+		pass
