@@ -746,7 +746,11 @@ class Order:
 		Undoes the last change remembered
 		"""
 		self.events = self.history.pop()
-		self.calculate_times()
+		if recalc:
+			self.calculate_times()
+
+	def can_undo(self):
+		return len(self.history) > 0
 
 
 class Team:
