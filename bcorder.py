@@ -236,9 +236,10 @@ class Order:
 			else:
 				self.events = events_list
 		self.time_taken = []
+		self.history = [] # [events]
 		self.calculate_times()
 
-	def save(self,filename):
+	def save(self,filename,purge_history = True):
 		"""
 		Saves the build order to file specified by filename, or to default_location if filename is ""
 		"""
@@ -252,6 +253,8 @@ class Order:
 		for event_info in self.events:
 			for i in xrange(len(event_info)):
 				f.write(str(event_info[i]) + ("\n" if i == len(event_info) - 1 else " "))
+		if purge_history:
+			self.history = []
 
 	def race_name(self):
 		return racename[self.race]
@@ -493,20 +496,24 @@ class Order:
 					delta_gas = 1
 		return True
 		
-	def append(self, event_info, recalc = True):
+	def append(self, event_info, recalc = True, remember = True):
 		"""
 		Appends event to the build order
 		"""
+		if remember:
+			self.history.append(copy.deepcopy(self.events))
 		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
 			event_info.append(0)
 		self.events.append(event_info)
 		if recalc:
 			self.calculate_times()
 
-	def insert(self, event_info, index, recalc = True):
+	def insert(self, event_info, index, recalc = True, remember = True):
 		"""
 		Inserts event at index
 		"""
+		if remember:
+			self.history.append(copy.deepcopy(self.events))
 		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
 			event_info.append(0)
 		self.events.insert(index, event_info)
@@ -517,11 +524,13 @@ class Order:
 		if recalc:
 			self.calculate_times()
 
-	def insert_chrono(self, boosted_index, chrono_index, recalc = True):
+	def insert_chrono(self, boosted_index, chrono_index, recalc = True, remember = True):
 		"""
 		Adds a chrono boost in chrono_index for the event in the given boosted_index
 		Because one does not simply insert a chrono
 		"""
+		if remember:
+			self.history.append(copy.deepcopy(self.events))
 		event_info = [CHRONO_BOOST, "", self.events[boosted_index][0], boosted_index]
 		self.events.insert(chrono_index, event_info)
 		while chrono_index < (len(self.events) - 1):
@@ -538,10 +547,12 @@ class Order:
 		pass # this is a dummy function for now
 		return True
 
-	def delete(self, index, recalc = True):
+	def delete(self, index, recalc = True, remember = True):
 		"""
 		Deletes event at index
 		"""
+		if remember:
+			self.history.append(copy.deepcopy(self.events))
 		del self.events[index]
 		while index < len(self.events):
 			if events[self.events[index][0]].get_result() == boost:
@@ -550,12 +561,14 @@ class Order:
 		if recalc:
 			self.calculate_times()
 
-	def delete_many(self, indices, recalc = True):
+	def delete_many(self, indices, recalc = True, remember = True):
 		"""
 		Deletes events at indices
 		"""
+		if remember:
+			self.history.append(copy.deepcopy(self.events))
 		for index in indices.sort().reverse():
-			self.delete(index,False)
+			self.delete(index,False,False)
 		if recalc:
 			self.calculate_times()
 
@@ -727,6 +740,13 @@ class Order:
 		if -index in self.time_taken.keys():
 			return self.time_taken[-index]
 		return 0
+
+	def undo(self, recalc = True):
+		"""
+		Undoes the last change remembered
+		"""
+		self.events = self.history.pop()
+		self.calculate_times()
 
 
 class Team:
