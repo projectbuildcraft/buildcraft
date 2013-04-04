@@ -237,6 +237,7 @@ class Order:
 				self.events = events_list
 		self.time_taken = []
 		self.history = [] # [events]
+		self.future = [] # [events]
 		self.calculate_times()
 
 	def save(self,filename,purge_history = True):
@@ -442,7 +443,6 @@ class Order:
 
 	def all_available(self, order_index = -1, gas_trick = False):
 		return [i for i in xrange(len(events)) if self.available(order_index = order_index, event_index = i, now = False, gas_trick = gas_trick)]
-		
 
 	def sanity_check(self):
 		"""
@@ -501,6 +501,7 @@ class Order:
 		Appends event to the build order
 		"""
 		if remember:
+			self.future = []
 			self.history.append(copy.deepcopy(self.events))
 		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
 			event_info.append(0)
@@ -513,6 +514,7 @@ class Order:
 		Inserts event at index
 		"""
 		if remember:
+			self.future = []
 			self.history.append(copy.deepcopy(self.events))
 		if self.race == "Z" and len(event_info) == 2: # backwards compatibility
 			event_info.append(0)
@@ -530,6 +532,7 @@ class Order:
 		Because one does not simply insert a chrono
 		"""
 		if remember:
+			self.future = []
 			self.history.append(copy.deepcopy(self.events))
 		event_info = [CHRONO_BOOST, "", self.events[boosted_index][0], boosted_index]
 		self.events.insert(chrono_index, event_info)
@@ -552,6 +555,7 @@ class Order:
 		Deletes event at index
 		"""
 		if remember:
+			self.future = []
 			self.history.append(copy.deepcopy(self.events))
 		del self.events[index]
 		while index < len(self.events):
@@ -566,6 +570,7 @@ class Order:
 		Deletes events at indices
 		"""
 		if remember:
+			self.future = []
 			self.history.append(copy.deepcopy(self.events))
 		for index in indices.sort().reverse():
 			self.delete(index,False,False)
@@ -691,10 +696,13 @@ class Order:
 		"""
 		return self.events[index][1]
 
-	def set_note(self,index,note):
+	def set_note(self,index,note,remember = True):
 		"""
 		index: index in self.events, not self.at
 		"""
+		if remember:
+			self.future = []
+			self.history.append(copy.deepcopy(self.events))
 		self.events[index][1] = note
 
 	def can_trick(self,index):
@@ -745,12 +753,25 @@ class Order:
 		"""
 		Undoes the last change remembered
 		"""
+		self.future.append(copy.deepcopy(self.events))
 		self.events = self.history.pop()
+		if recalc:
+			self.calculate_times()
+
+	def redo(self, recalc = True):
+		"""
+		Redoes the last change undone
+		"""
+		self.history.append(copy.deepcopy(self.events))
+		self.events = self.future.pop()
 		if recalc:
 			self.calculate_times()
 
 	def can_undo(self):
 		return len(self.history) > 0
+
+	def can_redo(self):
+		return len(self.future) > 0
 
 
 class Team:
