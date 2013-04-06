@@ -74,7 +74,7 @@ def randomly_fit(race,constraints):
 	"""
 	order = Order(race = race)
 	while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply <= 200 and order.at_time[-1].time < float('inf'):
-		choices = order.all_available()
+		choices = [i for i in order.all_available() if helps(i,constraints)]
 		choice = random.randint(0,len(choices) - 1)
 		if events[choices[choice]].get_result() == boost:
 			boostable = []
@@ -89,7 +89,6 @@ def randomly_fit(race,constraints):
 				order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]],True,False,True)
 		else:
 			order.append([choices[choice],''],True,False,True)
-		order.print_out()
 	return order
 
 def reproduce(order1, order2 = None):
@@ -113,16 +112,16 @@ def mutate(order):
 	"""
 	produces
 	"""
-	index = len(order.events)
-	while index >= 0:
+	index = 0 # will index order.events
+	while index <= len(order.events):
 		mutation = random.randint(0,15)
 		if mutation < 8: # do nothing
-			index -= 1
+			index += 1
 		elif mutation == 9: # insert
+			order.calculate_times() # we shouldn't have to calculate all though
 			choices = order.all_available(index)
 			choice = random.randint(0,len(choices) - 1)
 			if events[choices[choice]].get_result() == boost:
-				order.calculate_times(True)
 				boostable = []
 				for p in order.at[index].production:
 					for r in events[p[0][0]].get_requirements():
@@ -132,13 +131,20 @@ def mutate(order):
 							break
 				if len(boostable) > 0:
 					extra_choice = random.randint(0,len(boostable) - 1)
-					order.insert([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]], False, False)
+					event_info = [choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]]
+					if index == len(order.events):
+						order.append(event_info, False, False)
+					else:
+						order.insert(event_info, index, False, False)
 			else:
-				order.insert([choices[choice], ''], index, False, False)
+				event_info = [choices[choice], '']
+				if index == len(order.events):
+					order.append(event_info, False, False)
+				else:
+					order.insert(event_info, index, False, False)
 			index += 1
 		elif mutation == 10: # delete
-			index -= 1
-			if index >= 0:
+			if index < len(order.events):
 				order.delete(index,False, False)
 		elif mutation == 11: # swap before
 			if index > 0:
@@ -155,10 +161,10 @@ def mutate(order):
 				order.events[index], order.events[index + 1] = order.events[index + 1], order.events[index]
 		else: # substitution
 			if index < len(order.events):
+				order.calculate_times()
 				choices = order.all_available(index)
 				choice = random.randint(0,len(choices) - 1)
 				if events[choices[choice]].get_result() == boost:
-					order.calculate_times(True)
 					boostable = []
 					for p in order.at[index].production:
 						for r in events[p[0][0]].get_requirements():
@@ -171,13 +177,19 @@ def mutate(order):
 						order.events[index] = [choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]]
 				else:
 					order.events[index] = [choices[choice], '']
+			index += 1
 	order.calculate_times()
-			
 
-		
 
 def heuristic(order, constraints):
 	pass
 
 def cost(order, constraints):
 	return order.at[-1].time # should be at because that's where we are in the build order right now
+
+def helps(event_index, constraints):
+	"""
+	Returns whether the event at event_index will help an order meet the constraints
+	"""
+	pass
+	return True
