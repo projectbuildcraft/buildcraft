@@ -11,6 +11,7 @@ def genetic_optimization(race, constraints):
 	Race denotes the race: "Z", "P", or "T"
 	"""
 	orders = [randomly_fit(race, constraints)] * 10
+	print "Randomly generated"
 	king_count = 0
 	king = 0
 	while king_count < 30: # 30 or some other arbitrarily medium-high number
@@ -54,7 +55,7 @@ def when_meets(order, constraints):
 	Returns the time at which the build order meets the constraints, or 'inf' if it doesn't
 	"""
 	for instance in order.at_time:
-		if has_constraints(instance):
+		if has_constraints(instance,constraints):
 			return instance.time
 	return float('inf')
 
@@ -85,9 +86,10 @@ def randomly_fit(race,constraints):
 						break
 			if len(boostable) > 0: # we shouldn't really need this, but apparently we do
 				extra_choice = random.randint(0,len(boostable) - 1)
-				order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]])
+				order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]],True,False,True)
 		else:
-			order.append([choices[choice],''])
+			order.append([choices[choice],''],True,False,True)
+		order.print_out()
 	return order
 
 def reproduce(order1, order2 = None):
@@ -120,15 +122,17 @@ def mutate(order):
 			choices = order.all_available(index)
 			choice = random.randint(0,len(choices) - 1)
 			if events[choices[choice]].get_result() == boost:
+				order.calculate_times(True)
 				boostable = []
-				for p in order.at[len(order.events)].production:
-					for r in bcorder.get_requirements(p[0][0]):
+				for p in order.at[index].production:
+					for r in events[p[0][0]].get_requirements():
 						if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
 									  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
 							boostable.append([p[0][0], p[1]])
 							break
-				extra_choice = random.randint(0,len(boostable) - 1)
-				order.insert([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]], False, False)
+				if len(boostable) > 0:
+					extra_choice = random.randint(0,len(boostable) - 1)
+					order.insert([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]], False, False)
 			else:
 				order.insert([choices[choice], ''], index, False, False)
 			index += 1
@@ -154,17 +158,19 @@ def mutate(order):
 				choices = order.all_available(index)
 				choice = random.randint(0,len(choices) - 1)
 				if events[choices[choice]].get_result() == boost:
+					order.calculate_times(True)
 					boostable = []
-					for p in order.at[len(order.events)].production:
-						for r in bcorder.get_requirements(p[0][0]):
+					for p in order.at[index].production:
+						for r in events[p[0][0]].get_requirements():
 							if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
 										  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
 								boostable.append([p[0][0], p[1]])
 								break
-					extra_choice = random.randint(0,len(boostable) - 1)
-					order.events[index] = ([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]], False, False)
+					if len(boostable) > 0:
+						extra_choice = random.randint(0,len(boostable) - 1)
+						order.events[index] = [choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]]
 				else:
-					order.events[index] = ([choices[choice], ''])
+					order.events[index] = [choices[choice], '']
 	order.calculate_times()
 			
 

@@ -496,7 +496,7 @@ class Order:
 					delta_gas = 1
 		return True
 		
-	def append(self, event_info, recalc = True, remember = True):
+	def append(self, event_info, recalc = True, remember = True, only_care_about_last = False):
 		"""
 		Appends event to the build order
 		"""
@@ -507,7 +507,7 @@ class Order:
 			event_info.append(0)
 		self.events.append(event_info)
 		if recalc:
-			self.calculate_times()
+			self.calculate_times(only_care_about_last)
 
 	def insert(self, event_info, index, recalc = True, remember = True):
 		"""
@@ -577,9 +577,10 @@ class Order:
 		if recalc:
 			self.calculate_times()
 
-	def calculate_times(self):
+	def calculate_times(self, only_care_about_last = False):
 		"""
 		Evaluates the times at which all events occur
+		only_care_about_last - should we avoid calculating things that don't help us with finding the properties of at_time[-1]
 		"""
 		now = Instance()
 		start_times = {}
@@ -613,7 +614,8 @@ class Order:
 			if (not impossible) and (self.available(order_index, event_info[0], False, using_tricks)):
 				last_good_index = order_index
 				while not self.available(order_index, event_info[0], True, using_tricks):
-					self.at_time.append(copy.deepcopy(now))
+					if not only_care_about_last:
+						self.at_time.append(copy.deepcopy(now))
 					now.increment(start_times, end_times)
 				# now effect costs
 				if event_info[0] == CHRONO_BOOST:
@@ -687,8 +689,9 @@ class Order:
 			last = copy.deepcopy(self.at_time[-1])
 			last.increment(start_times, end_times)
 			self.at_time.append(last)
-		for i in start_times.iterkeys():
-			self.time_taken[i] = end_times[i] - start_times[i]
+		if not only_care_about_last:
+			for i in start_times.iterkeys():
+				self.time_taken[i] = end_times[i] - start_times[i]
 
 	def get_note(self,index):
 		"""
