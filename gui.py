@@ -136,7 +136,7 @@ class EventWidget(Canvas):
     def delete(self):
         """ Remove this event from the build order """
         self.app.my_order.delete(self.index)
-        refresh(self.app)
+        self.app.refresh()
 
     def note(self):
         """ Allow user to edit note describing this event in a separate window """
@@ -160,7 +160,7 @@ class EventWidget(Canvas):
 
     def toggle_trick(self):
         self.app.my_order.toggle_trick(self.index)
-        refresh(self.app)
+        self.app.refresh()
 
 
 def gain_focus(frame):
