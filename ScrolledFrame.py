@@ -2,24 +2,24 @@ from Tkinter import *
 
 class ScrolledFrame(Frame):
 
-        def __init__(self, root, scrollside=RIGHT, scroll=Y,**options):
+        def __init__(self, root, scrollside=RIGHT, scrolldir=Y,**options):
 
                 self.canvas = Canvas(root)
                 Frame.__init__(self,self.canvas,options)
-                if Y in scroll:
+                if Y in scrolldir:
                         self.vsb = Scrollbar(root, orient='vertical', command=self.canvas.yview)
                         self.canvas.configure(yscrollcommand=self.vsb.set)
                         self.vsb.pack(side=scrollside,fill='y')
-                if X in scroll:
+                if X in scrolldir:
                         self.hsb = Scrollbar(root, orient='horizontal', command=self.canvas.xview)
                         self.canvas.configure(xscrollcommand=self.hsb.set)
                         self.hsb.pack(side=BOTTOM,fill='x')
                 self.canvas.create_window((4,4),window=self,anchor='nw')
                 def yscroll(event):
                         if event.keycode > 0:
-                                self.canvas.yview('scroll',-1,'units')
+                                self.scroll(-1)
                         else:
-                                self.canvas.yview('scroll',1,'units')
+                                self.scroll(1)
                 self.canvas.bind_all('<MouseWheel>',yscroll)
                 self.bind('<Configure>', self.OnFrameConfigure)
                 
@@ -28,3 +28,6 @@ class ScrolledFrame(Frame):
 
         def pack(self, **options):
                 self.canvas.pack(**options)
+
+        def scroll(self, i):
+                self.canvas.yview('scroll',i,'units')
