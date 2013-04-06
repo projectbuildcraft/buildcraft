@@ -1,6 +1,6 @@
 from bcorder import Order
 from bcevent import boost
-from constants import events, O
+from constants import events, O, NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE, STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES
 import copy
 import random
 def genetic_optimization(race, constraints):
@@ -83,8 +83,9 @@ def randomly_fit(race,constraints):
 								  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
 						boostable.append([p[0][0], p[1]])
 						break
-			extra_choice = random.randint(0,len(boostable) - 1)
-			order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]])
+			if len(boostable) > 0: # we shouldn't really need this, but apparently we do
+				extra_choice = random.randint(0,len(boostable) - 1)
+				order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]])
 		else:
 			order.append([choices[choice],''])
 	return order
