@@ -15,6 +15,7 @@ from ScrolledFrame import ScrolledFrame
 from graphs import create_graph
 from graphs import DataSet
 import time
+import platform
 
 class App:
 
@@ -505,8 +506,14 @@ def resource_graph(order):
 
     create_graph(dataset,title = 'Resources on Hand',side_scale = side_scale,end_value = order.at[-1].time)
 
+system = platform.system()
+if system == 'Linux':
+    imagedir = '/usr/share/games/buildcraft/images/'
+else:
+    imagedir = 'images/'
+
 def get_image(src, size = ()):
-    image = Image.open('images/'+src)
+    image = Image.open(imagedir+src)
     if size:
         image = image.resize(size[0],size[1])
     return ImageTk.PhotoImage(image)
