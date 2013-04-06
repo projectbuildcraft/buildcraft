@@ -3,18 +3,20 @@ import math
 
 max_ticks = 10
 
-def create_graph(data, fill = None, title = '', colors = None, labels = None, size = (600,400), side_scale = None, label_width = 150, padding = (50,50,50,50), end_value = 0):
+class DataSet():
+
+    def __init__(self, data, fill=False, color='black', label=''):
+        self.data = data
+        self.fill = fill
+        self.color = color
+        self.label = label
+
+def create_graph(dataset, title = '', size = (600,400), side_scale = None, label_width = 150, padding = (50,50,50,50), end_value = 0):
 
     ''' Data: Iterable containing dictionaries mapping x values to y values '''
 
-    if fill == None:
-        fill = [False]*len(data)
-    elif type(fill) == type(True):
-        fill = [fill]*len(data)
-
-    if colors == None:
-        colors = default_colors[:len(data)]
-
+    labels = any([d.label for d in dataset])
+    
     if not labels:
         label_width = 0
 
@@ -39,8 +41,8 @@ def create_graph(data, fill = None, title = '', colors = None, labels = None, si
     g.c.create_text(width/2,p_top/2,text = title)
 
 
-    max_y = max([max(d.values()) for d in data])
-    max_x = final_x = max([max(d.keys()) for d in data])
+    max_y = max([max(d.data.values()) for d in dataset])
+    max_x = final_x = max([max(d.data.keys()) for d in dataset])
     
     y_ticks = calculate_ticks(float(max_y) / (max_ticks - 1))
     max_y = math.ceil(max_y / y_ticks) * y_ticks
@@ -75,19 +77,33 @@ def create_graph(data, fill = None, title = '', colors = None, labels = None, si
             g.c.create_line(x,height - p_bottom + 3,x,height - p_bottom)
             g.c.create_text(x,height - p_bottom + 5,text = str(i),anchor = N)
         k += x_ticks
+
+    fill_total = dict()
+
+    coordinates = dict()
         
-    for i, d in enumerate(data):
+    for d in dataset[::-1]:
         coords = []
-        if fill[i]:
+        if d.fill:
             coords.append((plot_x(0),plot_y(0)))
-        coords.append((plot_x(0),plot_y(d[min(d.keys())])))
-        for k in d.keys():
-            coords.append((plot_x(k),plot_y(d[k])))
-        if fill[i]:
+        coords.append((plot_x(0),plot_y(d.data[min(d.data.keys())])))
+        for k in d.data.keys():
+            if d.fill:
+                if k not in fill_total.keys():
+                    fill_total[k] = 0
+                coords.append((plot_x(k),plot_y(d.data[k] + fill_total[k])))
+                fill_total[k] += d.data[k]
+            else:
+                coords.append((plot_x(k),plot_y(d.data[k])))
+        if d.fill:
             coords.append((plot_x(final_x),plot_y(0)))
-            g.c.create_polygon(coords, fill=colors[i])
+        coordinates[d] = coords
+
+    for d in dataset:
+        if d.fill:
+            g.c.create_polygon(coordinates[d], fill=d.color)
         else:
-            g.c.create_line(coords, fill=colors[i])
+            g.c.create_line(coordinates[d], fill=d.color)
 
     if end_value:
         x = plot_x(end_value)
@@ -97,12 +113,12 @@ def create_graph(data, fill = None, title = '', colors = None, labels = None, si
     if labels:
         g.c.create_rectangle(width - label_width + 10,20,width - 10,height-20)
         y = 50
-        for i in xrange(len(labels)):
-            if fill[i]:
-                g.c.create_rectangle(width - label_width + 20,y-10,width - 20,y+10,fill=colors[i])
+        for d in dataset:
+            if d.fill:
+                g.c.create_rectangle(width - label_width + 20,y-10,width - 20,y+10,fill=d.color)
             else:
-                g.c.create_line(width - label_width + 20,y,width - 20,y,fill=colors[i])
-            g.c.create_text(width - label_width/2,y - 20,text=labels[i])
+                g.c.create_line(width - label_width + 20,y,width - 20,y,fill=d.color)
+            g.c.create_text(width - label_width/2,y - 20,text=d.label)
             y += 50
     
 
