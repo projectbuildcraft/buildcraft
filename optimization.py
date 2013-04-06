@@ -10,7 +10,7 @@ def genetic_optimization(race, constraints):
 	Constraints is an array of units required in the form [(UNIT_INDEX, UNIT_COUNT)]
 	Race denotes the race: "Z", "P", or "T"
 	"""
-	orders = [randomly_fit(race, constraints)] * 10
+	orders = [randomly_fit(race, constraints) for x in xrange(10)]
 	print "Randomly generated"
 	king_count = 0
 	king = 0
