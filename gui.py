@@ -217,10 +217,17 @@ class BuildCraftGUI:
 
     def add_menu(app):
         app.menubar = Menu(app.master)
-        app.menubar.add_command(label='Load',command=app.load)
-        app.menubar.add_command(label='Save',command=app.save)
-        app.menubar.add_command(label='Save as',command=app.save_as)
-        app.menubar.add_command(label='New',command=app.new)
+        
+        app.file = Menu(app.menubar, tearoff = 0)
+        app.menubar.add_cascade(label='File',menu=app.file)
+        app.file.add_command(label='Load',command=app.load)
+        app.file.add_command(label='Save',command=app.save)
+        app.file.add_command(label='Save as',command=app.save_as)
+        app.new = Menu(app.file, tearoff = 0)
+        app.file.add_cascade(label='New',menu=app.new)
+        app.new.add_command(label='Terran',command=lambda:app.new_order('T'))
+        app.new.add_command(label='Protoss',command=lambda:app.new_order('P'))
+        app.new.add_command(label='Zerg',command=lambda:app.new_order('Z'))
         
         app.graphs = graphs = Menu(app.menubar, tearoff = 0)
         app.menubar.add_cascade(label='Graphs',menu=graphs)
@@ -277,39 +284,43 @@ class BuildCraftGUI:
             app.my_order.redo()
             app.refresh()
 
-    def new(app):
-        root = Toplevel()
-        root.wm_title('New Order')
-        new_order = App(root)
-        new_order.frame.bind('<FocusOut>',gain_focus)
-        new_order.label = Label(root, text = "Create a new build order")
-        new_order.label.grid(row = 0, columnspan = 3)
-
-        new_order.entry = Entry(root)
-        new_order.entry.grid(row = 1, columnspan = 3,sticky = E+W)
-
-        modes = ("Terran","Protoss","Zerg")
-
-        def submit(app, new_order):
-            app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
+    def new_order(app, race = None):
+        if race:
+            app.my_order = bcorder.Order(name='',race=race)
             app.refresh()
-            new_order.master.destroy()
+        else:
+            root = Toplevel()
+            root.wm_title('New Order')
+            new_order = App(root)
+            new_order.frame.bind('<FocusOut>',gain_focus)
+            new_order.label = Label(root, text = "Create a new build order")
+            new_order.label.grid(row = 0, columnspan = 3)
 
-        new_order.v = StringVar()
-        new_order.v.set('T')
-        new_order.images = []
-        for i in range(3):
-            text = modes[i]
-            image = Image.open('images/'+text+'.png')
-            photo = ImageTk.PhotoImage(image.resize((50,50)))
-            new_order.images.append(photo)
-            b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=new_order.v, value=text[0])
-            b.grid(row = 2,column = i)
+            new_order.entry = Entry(root)
+            new_order.entry.grid(row = 1, columnspan = 3,sticky = E+W)
 
-        new_order.b = Button(root, text="Done", command=lambda:submit(app, new_order))
-        new_order.b.grid(row = 3, columnspan = 3, sticky = E+W)
+            modes = ("Terran","Protoss","Zerg")
 
-        root.mainloop()
+            def submit(app, new_order):
+                app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
+                app.refresh()
+                new_order.master.destroy()
+
+            new_order.v = StringVar()
+            new_order.v.set('T')
+            new_order.images = []
+            for i in range(3):
+                text = modes[i]
+                image = Image.open('images/'+text+'.png')
+                photo = ImageTk.PhotoImage(image.resize((50,50)))
+                new_order.images.append(photo)
+                b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=new_order.v, value=text[0])
+                b.grid(row = 2,column = i)
+
+            new_order.b = Button(root, text="Done", command=lambda:submit(app, new_order))
+            new_order.b.grid(row = 3, columnspan = 3, sticky = E+W)
+
+            root.mainloop()
 
     default_colors = ['red','blue','green','yellow','purple','orange']
 
