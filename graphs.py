@@ -64,6 +64,7 @@ def create_graph(dataset, title = '', size = (600,400), side_scale = None, label
             y = plot_y(i)
             g.c.create_line(p_left - 3,y,p_left,y)
             g.c.create_text(p_left - 5,y,text = str(i),anchor = E)
+            g.c.create_line(p_left,y,width - label_width - p_right,y,fill='gray')
             if side_scale:
                 g.c.create_line(width - p_right - label_width,y,width - p_right - label_width + 3, y)
                 g.c.create_text(width - p_right - label_width + 5,y,text = str(i/side_scale),anchor = W)
@@ -76,6 +77,7 @@ def create_graph(dataset, title = '', size = (600,400), side_scale = None, label
             x = plot_x(i)
             g.c.create_line(x,height - p_bottom + 3,x,height - p_bottom)
             g.c.create_text(x,height - p_bottom + 5,text = str(i),anchor = N)
+            g.c.create_line(x,p_top,x,height - p_bottom,fill='gray')
         k += x_ticks
 
     fill_total = dict()
