@@ -462,7 +462,6 @@ class Order:
 			at_index = index + 1
 			if self.at[at_index].time > current_time:
 				current_time = self.at[at_index].time
-				delta_workers = 0
 				delta_minerals = 0
 				delta_gas = 0
 			else:
@@ -478,22 +477,24 @@ class Order:
 					if delta_workers > 0:
 						return False
 					delta_workers = -1
-				elif event[event_index] == GIVE_MINERALS:
-					if delta_minerals > 0:
-						return False
-					delta_minerals = -1
-				elif event[event_index] == RECEIVE_MINERALS:
-					if delta_minerals < 0:
-						return False
-					delta_minerals = 1
-				elif event[event_index] == GIVE_GAS:
-					if delta_gas > 0:
-						return False
-					delta_gas = -1
-				elif event[event_index] == RECEIVE_GAS:
-					if delta_gas < 0:
-						return False
-					delta_gas = 1
+				else:
+					delta_workers = 0
+					if event[event_index] == GIVE_MINERALS:
+						if delta_minerals > 0:
+							return False
+						delta_minerals = -1
+					elif event[event_index] == RECEIVE_MINERALS:
+						if delta_minerals < 0:
+							return False
+						delta_minerals = 1
+					elif event[event_index] == GIVE_GAS:
+						if delta_gas > 0:
+							return False
+						delta_gas = -1
+					elif event[event_index] == RECEIVE_GAS:
+						if delta_gas < 0:
+							return False
+						delta_gas = 1
 		return True
 		
 	def append(self, event_info, recalc = True, remember = True, only_care_about_last = False):
