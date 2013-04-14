@@ -107,7 +107,13 @@ def reproduce(order1, order2 = None):
 	else:
 		while True:
 			events_list = []
-			pass
+			for index in xrange(max(len(order1.events),len(order2.events))):
+				options = []
+				if index < len(order1.events):
+					options.append(order1.events[index])
+				if index < len(order2.events):
+					options.append(order2.events[index])
+				events_list.append(random.choice(options))
 			child = Order(race = order1.race,events_list = events_list)
 			if child.sanity_check(): # not a monster
 				break
