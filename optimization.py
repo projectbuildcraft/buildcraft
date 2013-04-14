@@ -3,6 +3,9 @@ from bcevent import boost
 from constants import events, O, NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE, STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES
 import copy
 import random
+
+contributes = {} # dynamicly generated dict from constraints tuple to dict of events according to how they contribute to that constraint
+
 def genetic_optimization(race, constraints):
 	"""
 	Returns the optimal build order for fitting the given constraints, having calculated it via a genetic algorithm
@@ -72,9 +75,11 @@ def randomly_fit(race,constraints):
 	"""
 	Returns a random build order that fits the given constraints or fills supply
 	"""
+	set_up(constraints)
 	order = Order(race = race)
-	while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply <= 200 and order.at_time[-1].time < float('inf'):
-		choices = [i for i in order.all_available() if helps(i,constraints)]
+	constraints_set = frozenset(constraints)
+	while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply < 200 and order.at_time[-1].time < float('inf'):
+		choices = [i for i in order.all_available() if helps(i,constraints_set)]
 		choice = random.randint(0,len(choices) - 1)
 		if events[choices[choice]].get_result() == boost:
 			boostable = []
@@ -183,6 +188,7 @@ def mutate(order):
 
 def heuristic(order, constraints):
 	pass
+	return 0
 
 def cost(order, constraints):
 	return order.at[-1].time # should be at because that's where we are in the build order right now
@@ -190,6 +196,49 @@ def cost(order, constraints):
 def helps(event_index, constraints):
 	"""
 	Returns whether the event at event_index will help an order meet the constraints
+	Assumes contributes dictionary initialized at constraints
+	Arguments- constraints, a frozen set of constraint tuples: (UNIT, COUNT)
 	"""
-	pass
-	return True
+	return contributes[constraints][event_index]
+
+def set_up(constraints):
+	"""
+	Ensures the contributes dictionary has an entry for constraints
+	Arguments- constraints, an iterable of constraints tuples
+	"""
+	constraints_index = frozenset(constraints)
+	if constraints_index not in contributes:
+		needed_units = [unit for unit,count in constraints]
+		need_minerals = True
+		pass # actually see if we benefit from minerals
+		if need_minerals:
+			needed_units.extend([PROBE_MINERAL,SCV_MINERAL,DRONE_MINERAL])
+		need_gas = True
+		pass # actually see if we benefit from gas
+		if need_gas:
+			needed_units.extend([PROBE_GAS,SCV_GAS,DRONE_GAS])
+		need_supply = True
+		pass # actually see if we benefit from supply
+		if need_supply:
+			needed_units.extend([SUPPLY_DEPOT,PYLON,OVERLORD])
+		needed_events = set()
+		old_length = 0
+		for event_index in xrange(len(events)): # initialize
+			if events[event_index].get_result() in [add,research,warp]:
+				if len([intersecting_element for element in events[event_index].get_args() if element in needed_units]):
+					needed_events.add(event_index)
+					needed_units.intersect(set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]]))
+			elif events[event_index].get_result() == mule and need_minerals:
+				needed_events.add(event_index)
+			elif events[event_index].get_result() == boost:
+				needed_events.add(event_index)
+		new_length = len(needed_events)
+		while old_length != new_length:
+			old_length = new_length
+			for event_index in xrange(len(events)): # continue
+				if events[event_index].get_result() in [add,research,warp]:
+					if len([intersecting_element for element in events[event_index].get_args() if element in needed_units]):
+						needed_events.add(event_index)
+						needed_units.intersect(set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]]))
+			new_length = len(needed_events)
+		contributes[constraints_index] = {i: (i in needed_events) for i in xrange(len(events))}
