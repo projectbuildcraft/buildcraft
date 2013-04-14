@@ -20,7 +20,8 @@ def genetic_optimization(race, constraints):
 	while king_count < 30: # 30 or some other arbitrarily medium-high number
 		# find best
 		fitness = [(index,when_meets(order,constraints)) for index,order in enumerate(orders)]
-		fitness = sorted(fitness, key = lambda item: item[1]) # sort by fitness
+		fitness = sorted(fitness, key = lambda item: -item[1]) # sort by fitness
+		print fitness
 		# reproduce (best six sexually and best asexually) with mutation, producing 4 new ones to replace 4 worst
 		orders[fitness[0][0]] = reproduce(orders[fitness[9][0]])
 		if king != fitness[9][0]:
@@ -30,7 +31,7 @@ def genetic_optimization(race, constraints):
 			king_count += 1
 		for order_index in range(1,4):
 			orders[fitness[order_index][0]] = reproduce(orders[fitness[9 - 2*order_index][0]],orders[fitness[10 - 2*order_index][0]])
-	return max(orders, key = lambda order: when_meets(order,constraints))
+	return min(orders, key = lambda order: when_meets(order,constraints))
 	
 def a_star_optimization(race, constraints):
 	"""
@@ -152,7 +153,7 @@ def mutate(order):
 			if index < len(order.events):
 				order.delete(index,False, False)
 		elif mutation == 11: # swap before
-			if index > 0:
+			if index > 0 and index < len(order.events):
 				order.events[index], order.events[index - 1] = order.events[index - 1], order.events[index]
 		elif mutation == 12: # race-specific tweaks
 			if order.race == "P":
