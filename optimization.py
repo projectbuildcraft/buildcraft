@@ -58,10 +58,17 @@ def when_meets(order, constraints):
 	"""
 	Returns the time at which the build order meets the constraints, or 'inf' if it doesn't
 	"""
-	for instance in order.at_time:
-		if has_constraints(instance,constraints):
-			return instance.time
-	return float('inf')
+	upper = len(order.at_time) - 1
+	if not has_constraints(order.at_time[upper],constraints):
+		return float('inf')
+	lower = 0
+	while upper > lower:
+		mid = int((upper - lower) / 2 + lower)
+		if has_constraints(order.at_time[mid],constraints):
+			upper = mid
+		else:
+			lower = mid + 1
+	return order.at_time[upper].time
 
 def has_constraints(instance, constraints):
 	"""
