@@ -527,6 +527,29 @@ class Order:
 		if recalc:
 			self.calculate_times()
 
+	def move(self, this_index, there_index, recalc = True, remember = True, only_care_about_last = False):
+		"""
+		Moves event at this_index to there_index
+		this_index indexes self.events
+		that_index indexes self.events after removing event at this_index
+		"""
+		if remember:
+			self.future = []
+			self.history.append(copy.deepcopy(self.events))
+		moved = self.events.pop(this_index)
+		self.events.insert(there_index, moved)
+		while this_index < there_index:
+			if events[self.events[this_index][0]].get_result() == boost:
+				self.events[this_index][3] -= 1
+			this_index += 1
+		while this_index > there_index:
+			if events[self.events[this_index][0]].get_result() == boost:
+				self.events[this_index][3] += 1
+			this_index -= 1
+		if recalc:
+			self.calculate_times()
+		
+
 	def insert_chrono(self, boosted_index, chrono_index, recalc = True, remember = True):
 		"""
 		Adds a chrono boost in chrono_index for the event in the given boosted_index
