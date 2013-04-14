@@ -13,6 +13,7 @@ def genetic_optimization(race, constraints):
 	Constraints is an array of units required in the form [(UNIT_INDEX, UNIT_COUNT)]
 	Race denotes the race: "Z", "P", or "T"
 	"""
+	frozen_constraints = frozenset(constraints)
 	orders = [randomly_fit(race, constraints) for x in xrange(10)]
 	print "Randomly generated"
 	king_count = 0
@@ -23,14 +24,14 @@ def genetic_optimization(race, constraints):
 		fitness = sorted(fitness, key = lambda item: -item[1]) # sort by fitness
 		print fitness
 		# reproduce (best six sexually and best asexually) with mutation, producing 4 new ones to replace 4 worst
-		orders[fitness[0][0]] = reproduce(orders[fitness[9][0]])
+		orders[fitness[0][0]] = reproduce(orders[fitness[9][0]], None, frozen_constraints)
 		if king != fitness[9][0]:
 			king = fitness[9][0]
 			king_count = 1
 		else:
 			king_count += 1
 		for order_index in range(1,4):
-			orders[fitness[order_index][0]] = reproduce(orders[fitness[9 - 2*order_index][0]],orders[fitness[10 - 2*order_index][0]])
+			orders[fitness[order_index][0]] = reproduce(orders[fitness[9 - 2*order_index][0]],orders[fitness[10 - 2*order_index][0]],frozen_constraints)
 	return min(orders, key = lambda order: when_meets(order,constraints))
 	
 def a_star_optimization(race, constraints):
@@ -73,6 +74,7 @@ def when_meets(order, constraints):
 def has_constraints(instance, constraints):
 	"""
 	Returns true if the instance meets the constraints
+	Constraints is an iterable with elements (UNIT, COUNT)
 	"""
 	for index, count in constraints:
 		if instance.units[index] < count:
@@ -82,12 +84,13 @@ def has_constraints(instance, constraints):
 def randomly_fit(race,constraints):
 	"""
 	Returns a random build order that fits the given constraints or fills supply
+	Constraints is an iterable with elements (UNIT, COUNT)
 	"""
 	set_up(constraints)
 	order = Order(race = race)
-	constraints_set = frozenset(constraints)
+	frozen_constraints = frozenset(constraints)
 	while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply < 200 and order.at_time[-1].time < float('inf'):
-		choices = [i for i in order.all_available() if helps(i,constraints_set)]
+		choices = [i for i in order.all_available() if helps(i,frozen_constraints)]
 		choice = random.randint(0,len(choices) - 1)
 		if events[choices[choice]].get_result() == boost:
 			boostable = []
@@ -104,13 +107,15 @@ def randomly_fit(race,constraints):
 			order.append([choices[choice],''],True,False,True)
 	return order
 
-def reproduce(order1, order2 = None):
+def reproduce(order1, order2, constraints):
 	"""
 	Returns a new organism with mutation
+	For asexual, pass None for order2
+	Constraints - a frozen set of tuples representing guidelines (UNIT, COUNT)
 	"""
 	if order2 == None:
 		child = copy.deepcopy(order1)
-		mutate(child)
+		mutate(child,constraints)
 	else:
 		while True:
 			events_list = []
@@ -124,12 +129,13 @@ def reproduce(order1, order2 = None):
 			child = Order(race = order1.race,events_list = events_list)
 			if child.sanity_check(): # not a monster
 				break
-		mutate(child)
+		mutate(child,constraints)
 	return child
 
-def mutate(order):
+def mutate(order, constraints):
 	"""
-	produces
+	Produces a mutated build order attempting to still meet the constraints given
+	Constraints - a frozen set of constraints formatted (UNIT, COUNT)
 	"""
 	index = 0 # will index order.events
 	while index <= len(order.events):
@@ -137,31 +143,33 @@ def mutate(order):
 		if mutation < 8: # do nothing
 			index += 1
 		elif mutation == 9: # insert
-			order.calculate_times() # we shouldn't have to calculate all though
-			choices = order.all_available(index)
-			choice = random.randint(0,len(choices) - 1)
-			if events[choices[choice]].get_result() == boost:
-				boostable = []
-				for p in order.at[index].production:
-					for r in events[p[0][0]].get_requirements():
-						if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
-									  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
-							boostable.append([p[0][0], p[1]])
-							break
-				if len(boostable) > 0:
-					extra_choice = random.randint(0,len(boostable) - 1)
-					event_info = [choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]]
+			if index < len(order.events):
+				order.calculate_times() # we shouldn't have to calculate all though
+				choices = order.all_available(index)
+				choices = [choice for choice in choices if helps(choice, constraints)]
+				choice = random.randint(0,len(choices) - 1)
+				if events[choices[choice]].get_result() == boost:
+					boostable = []
+					for p in order.at[index].production:
+						for r in events[p[0][0]].get_requirements():
+							if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
+										  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
+								boostable.append([p[0][0], p[1]])
+								break
+					if len(boostable) > 0:
+						extra_choice = random.randint(0,len(boostable) - 1)
+						event_info = [choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]]
+						if index == len(order.events):
+							order.append(event_info, False, False)
+						else:
+							order.insert(event_info, index, False, False)
+				else:
+					event_info = [choices[choice], '']
 					if index == len(order.events):
 						order.append(event_info, False, False)
 					else:
 						order.insert(event_info, index, False, False)
-			else:
-				event_info = [choices[choice], '']
-				if index == len(order.events):
-					order.append(event_info, False, False)
-				else:
-					order.insert(event_info, index, False, False)
-			index += 1
+				index += 1
 		elif mutation == 10: # delete
 			if index < len(order.events):
 				order.delete(index,False, False)
@@ -182,6 +190,7 @@ def mutate(order):
 			if index < len(order.events):
 				order.calculate_times()
 				choices = order.all_available(index)
+				choices = [choice for choice in choices if helps(choice,constraints)]
 				choice = random.randint(0,len(choices) - 1)
 				if events[choices[choice]].get_result() == boost:
 					boostable = []
@@ -195,7 +204,10 @@ def mutate(order):
 						extra_choice = random.randint(0,len(boostable) - 1)
 						order.events[index] = [choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]]
 				else:
-					order.events[index] = [choices[choice], '']
+					try:
+						order.events[index] = [choices[choice], '']
+					except IndexError:
+						print "IndexError in subsitution",index,"in",len(order.events),choice,"in",len(choices)
 			index += 1
 	order.calculate_times()
 
