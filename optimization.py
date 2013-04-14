@@ -1,6 +1,6 @@
 from bcorder import Order
 from bcevent import boost
-from constants import events, O, NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE, STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES
+from constants import *
 import copy
 import random
 
@@ -208,26 +208,26 @@ def set_up(constraints):
 	"""
 	constraints_index = frozenset(constraints)
 	if constraints_index not in contributes:
-		needed_units = [unit for unit,count in constraints]
+		needed_units = set([unit for unit,count in constraints])
 		need_minerals = True
 		pass # actually see if we benefit from minerals
 		if need_minerals:
-			needed_units.extend([PROBE_MINERAL,SCV_MINERAL,DRONE_MINERAL])
+			needed_units |= set([PROBE_MINERAL,SCV_MINERAL,DRONE_MINERAL])
 		need_gas = True
 		pass # actually see if we benefit from gas
 		if need_gas:
-			needed_units.extend([PROBE_GAS,SCV_GAS,DRONE_GAS])
+			needed_units |= set([PROBE_GAS,SCV_GAS,DRONE_GAS])
 		need_supply = True
 		pass # actually see if we benefit from supply
 		if need_supply:
-			needed_units.extend([SUPPLY_DEPOT,PYLON,OVERLORD])
+			needed_units |= set([SUPPLY_DEPOT,PYLON,OVERLORD])
 		needed_events = set()
 		old_length = 0
 		for event_index in xrange(len(events)): # initialize
 			if events[event_index].get_result() in [add,research,warp]:
-				if len([intersecting_element for element in events[event_index].get_args() if element in needed_units]):
+				if len([element for element in events[event_index].get_args() if element in needed_units]):
 					needed_events.add(event_index)
-					needed_units.intersect(set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]]))
+					needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
 			elif events[event_index].get_result() == mule and need_minerals:
 				needed_events.add(event_index)
 			elif events[event_index].get_result() == boost:
@@ -237,8 +237,8 @@ def set_up(constraints):
 			old_length = new_length
 			for event_index in xrange(len(events)): # continue
 				if events[event_index].get_result() in [add,research,warp]:
-					if len([intersecting_element for element in events[event_index].get_args() if element in needed_units]):
+					if len([element for element in events[event_index].get_args() if element in needed_units]):
 						needed_events.add(event_index)
-						needed_units.intersect(set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]]))
+						needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
 			new_length = len(needed_events)
 		contributes[constraints_index] = {i: (i in needed_events) for i in xrange(len(events))}
