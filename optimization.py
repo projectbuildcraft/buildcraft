@@ -145,8 +145,8 @@ def mutate(order, constraints):
 		elif mutation == 9: # insert
 			if index < len(order.events):
 				order.calculate_times() # we shouldn't have to calculate all though
-				choices = order.all_available(index)
-				choices = [choice for choice in choices if helps(choice, constraints)]
+				choices = [event for event in xrange(len(events)) if helps(event, constraints)]
+				choices = [choice for choice in choices if order.available(index,choice,False,False)]
 				choice = random.randint(0,len(choices) - 1)
 				if events[choices[choice]].get_result() == boost:
 					boostable = []
@@ -189,8 +189,8 @@ def mutate(order, constraints):
 		else: # substitution
 			if index < len(order.events):
 				order.calculate_times()
-				choices = order.all_available(index)
-				choices = [choice for choice in choices if helps(choice,constraints)]
+				choices = [event for event in xrange(len(events)) if helps(event, constraints)]
+				choices = [choice for choice in choices if order.available(index,choice,False,False)]
 				choice = random.randint(0,len(choices) - 1)
 				if events[choices[choice]].get_result() == boost:
 					boostable = []
@@ -207,7 +207,7 @@ def mutate(order, constraints):
 					try:
 						order.events[index] = [choices[choice], '']
 					except IndexError:
-						print "IndexError in subsitution",index,"in",len(order.events),choice,"in",len(choices)
+						print "IndexError in subsitution",index,"in",len(order.events),"or",choice,"in",len(choices)
 			index += 1
 	order.calculate_times()
 
@@ -222,7 +222,7 @@ def cost(order, constraints):
 def helps(event_index, constraints):
 	"""
 	Returns whether the event at event_index will help an order meet the constraints
-	Assumes contributes dictionary initialized at constraints
+	Assumes contributes dictionary initialized at constraints; this can be done with set_up
 	Arguments- constraints, a frozen set of constraint tuples: (UNIT, COUNT)
 	"""
 	return contributes[constraints][event_index]
