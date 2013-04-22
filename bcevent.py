@@ -79,6 +79,12 @@ def warp(result, instance, order_index):
 	instance.units[WARPGATE] -= 1
 	instance.occupied[WARPGATE] += 1
 
+class Larva_Fault(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return self.value
+
 def spawn_larva(auto,instance):
 	from constants import LARVA, AUTO_SPAWN_LARVA, events
 	auto = auto[0] # get it out of the tuple
@@ -93,7 +99,7 @@ def spawn_larva(auto,instance):
 				min_index = index
 		instance.base_larva[min_index] += 1
 		if min_larva >= 3:
-			print "ERROR: Larva fault at ", instance.time, "seconds"
+			raise Larva_Fault("at " + instance.time + "seconds")
 		if min_larva < 2:
 			instance.production.append([[AUTO_SPAWN_LARVA], events[AUTO_SPAWN_LARVA].time, -1])
 		# test for additional spawn

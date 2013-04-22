@@ -1,7 +1,7 @@
 buildcraft
 ==========
 
-A build order calculator and optimizer for Starcraft II: Heart of the Swarm
+A build order calculator and optimizer for Starcraft II: Heart of the Swarm (HOTS). The current release is 0.5.3-1 and is available for Windows and Linux from http://projectbuildcraft.github.io/buildcraft/ Mac OS X support is expected by June.
 
 Goal Features:
 

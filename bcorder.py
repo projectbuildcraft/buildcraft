@@ -459,10 +459,9 @@ class Order:
 		delta_minerals = 0
 		delta_gas = 0
 		for event_index, event in enumerate(self.events):
-			at_index = index + 1
+			at_index = event_index + 1
 			if self.at[at_index].time > current_time:
 				current_time = self.at[at_index].time
-				delta_workers = 0
 				delta_minerals = 0
 				delta_gas = 0
 			else:
@@ -470,30 +469,32 @@ class Order:
 				gasses = self.at[at_index].units[ASSIMILATOR] + self.at[at_index].units[EXTRACTOR] + self.at[at_index].units[REFINERY]
 				if gassers > 3 * gasses:
 					return False
-				if event[event_index] in [SWITCH_DRONE_TO_GAS, SWITCH_PROBE_TO_GAS, SWITCH_SCV_TO_GAS]:
+				if events[event_index] in [SWITCH_DRONE_TO_GAS, SWITCH_PROBE_TO_GAS, SWITCH_SCV_TO_GAS]:
 					if delta_workers < 0:
 						return False
 					delta_workers = 1
-				elif event[event_index] in [SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS, SWITCH_SCV_TO_MINERALS]:
+				elif events[event_index] in [SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS, SWITCH_SCV_TO_MINERALS]:
 					if delta_workers > 0:
 						return False
 					delta_workers = -1
-				elif event[event_index] == GIVE_MINERALS:
-					if delta_minerals > 0:
-						return False
-					delta_minerals = -1
-				elif event[event_index] == RECEIVE_MINERALS:
-					if delta_minerals < 0:
-						return False
-					delta_minerals = 1
-				elif event[event_index] == GIVE_GAS:
-					if delta_gas > 0:
-						return False
-					delta_gas = -1
-				elif event[event_index] == RECEIVE_GAS:
-					if delta_gas < 0:
-						return False
-					delta_gas = 1
+				else:
+					delta_workers = 0
+					if events[event_index] == GIVE_MINERALS:
+						if delta_minerals > 0:
+							return False
+						delta_minerals = -1
+					elif events[event_index] == RECEIVE_MINERALS:
+						if delta_minerals < 0:
+							return False
+						delta_minerals = 1
+					elif events[event_index] == GIVE_GAS:
+						if delta_gas > 0:
+							return False
+						delta_gas = -1
+					elif events[event_index] == RECEIVE_GAS:
+						if delta_gas < 0:
+							return False
+						delta_gas = 1
 		return True
 		
 	def append(self, event_info, recalc = True, remember = True, only_care_about_last = False):
@@ -525,6 +526,29 @@ class Order:
 			index += 1
 		if recalc:
 			self.calculate_times()
+
+	def move(self, this_index, there_index, recalc = True, remember = True, only_care_about_last = False):
+		"""
+		Moves event at this_index to there_index
+		this_index indexes self.events
+		that_index indexes self.events after removing event at this_index
+		"""
+		if remember:
+			self.future = []
+			self.history.append(copy.deepcopy(self.events))
+		moved = self.events.pop(this_index)
+		self.events.insert(there_index, moved)
+		while this_index < there_index:
+			if events[self.events[this_index][0]].get_result() == boost:
+				self.events[this_index][3] -= 1
+			this_index += 1
+		while this_index > there_index:
+			if events[self.events[this_index][0]].get_result() == boost:
+				self.events[this_index][3] += 1
+			this_index -= 1
+		if recalc:
+			self.calculate_times()
+		
 
 	def insert_chrono(self, boosted_index, chrono_index, recalc = True, remember = True):
 		"""
