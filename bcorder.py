@@ -539,7 +539,7 @@ class Order:
 		while chrono_index < (len(self.events) - 1):
 			chrono_index += 1
 			if events[self.events[chrono_index][0]].get_result() == boost:
-                                self.events[chrono_index][3] += 1
+				self.events[chrono_index][3] += 1
 		if recalc:
 			self.calculate_times()
 
