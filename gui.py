@@ -12,8 +12,7 @@ import tkFileDialog
 import bcorder
 from ToolTip import ToolTip
 from ScrolledFrame import ScrolledFrame
-from graphs import create_graph
-from graphs import DataSet
+from graphs import Graph, DataSet
 import time
 import platform
 
@@ -209,7 +208,7 @@ class BuildCraftGUI:
         return False
 
     def graph(app,f):
-        f(app.my_order)
+        f(app)
 
     def toggle_display(app):
         app.place_by_time = not app.place_by_time
@@ -228,46 +227,32 @@ class BuildCraftGUI:
         app.new.add_command(label='Terran',command=lambda:app.new_order('T'))
         app.new.add_command(label='Protoss',command=lambda:app.new_order('P'))
         app.new.add_command(label='Zerg',command=lambda:app.new_order('Z'))
-        
-        app.graphs = graphs = Menu(app.menubar, tearoff = 0)
-        app.menubar.add_cascade(label='Graphs',menu=graphs)
-        graphs.add_command(label='Supply',command=lambda:app.graph(supply_graph))
-        graphs.add_command(label='Army Value',state=NORMAL if has_army(app.my_order) else DISABLED,command=lambda:app.graph(army_value_graph))
-        graphs.add_command(label='Resource Collection Rate',command=lambda:app.graph(resource_collection_rate_graph))
-        graphs.add_command(label='Resources',command=lambda:app.graph(resource_graph))
-
-        app.menubar.add_command(label='Toggle Display',command=app.toggle_display)
 
         app.edit = edit = Menu(app.menubar, tearoff = 0)
         app.menubar.add_cascade(label='Edit',menu=edit)
         edit.add_command(label='Undo',command=app.undo, state = DISABLED)
         edit.add_command(label='Redo',command=app.redo, state = DISABLED)
 
+        app.view = Menu(app.menubar, tearoff = 0)
+        app.menubar.add_cascade(label='View',menu = app.view)
+        app.view.add_command(label='Toggle Display',command=app.toggle_display)
+        
+        app.graphs = graphs = Menu(app.menubar, tearoff = 0)
+        app.menubar.add_cascade(label='Graphs',menu=graphs)
+        graphs.add_command(label='Supply',command=app.supply_graph)
+        app.supply_g = None
+        graphs.add_command(label='Army Value',state=NORMAL if has_army(app.my_order) else DISABLED,command=app.army_value_graph)
+        app.army_value_g = None
+        graphs.add_command(label='Resource Collection Rate',command=app.resource_collection_rate_graph)
+        app.resource_rate_g = None
+        graphs.add_command(label='Resources',command=app.resource_graph)
+        app.resoures_g = None
         app.master.config(menu=app.menubar)
 
         app.frame.bind_all('<Control-z>',app.undo)
         app.frame.bind_all('<Control-Y>',app.undo)
         app.frame.bind_all('<Control-Z>',app.redo)
         app.frame.bind_all('<Control-y>',app.redo)
-
-        
-        
-
-    def add_graph_buttons(app):
-        app.bottom_buttons = Frame(app.master)
-        app.bottom_buttons.pack(side = BOTTOM)
-
-        app.supply = Button(app.bottom_buttons, text='Supply',command=lambda:graph(app,supply_graph))
-        app.supply.grid(row=0,column=0,sticky=E+W)
-
-        app.army = Button(app.bottom_buttons, text='Army Value',state=NORMAL if has_army(app.my_order) else DISABLED, command=lambda:graph(app,army_value_graph))
-        app.army.grid(row=1,column=0,sticky=E+W)
-
-        app.resource_rate = Button(app.bottom_buttons, text='Resource Collection Rate',command=lambda:graph(app,resource_collection_rate_graph))
-        app.resource_rate.grid(row=0,column=1,sticky=E+W)
-
-        app.resources = Button(app.bottom_buttons, text='Resources',command=lambda:graph(app,resource_graph))
-        app.resources.grid(row=1,column=1,sticky=E+W)
 
     def graph_buttons_update(app):
         app.graphs.entryconfig('Army Value',state= NORMAL if has_army(app.my_order) else DISABLED)
@@ -451,7 +436,37 @@ class BuildCraftGUI:
         app.chrono = -1
         app.refresh()
 
-def supply_graph(order):
+    def supply_graph(app):
+        if not app.supply_g:
+            app.supply_g = Graph(app.my_order,supply_data,title='Supply',end_value = app.my_order.at[-1].time)
+            app.supply_g.start()
+        else:
+            app.supply_g.recalculate_data(app.my_order)
+            
+    def army_value_graph(app):
+        if not app.army_value_g:
+            app.army_value_g = Graph(app.my_order,army_data,title = 'Army Value',end_value = app.my_order.at[-1].time,options = ['Include Defense'])
+            app.army_value_g.start()
+        else:
+            app.army_value_g.recalculate_data(app.my_order)
+            
+    def resource_collection_rate_graph(app):
+        side_scale = 50 if app.order.race == 'Z' else 0
+        if not app.resource_collection_rate_g:
+            app.resource_collection_rate_g = Graph(app.my_order,resource_collection_rate_data,title = 'Resource Collection Rate',side_scale = side_scale,end_value = app.my_order.at[-1].time)
+            app.resource_collection_rate_g.start()
+        else:
+            app.resource_collection_rate_g.recalculate_data(app.my_order)
+
+    def resource_graph(app):
+        side_scale = 50 if order.race == 'Z' else 0
+        if not app.resource_g:
+            app.resource_g = Graph(app.my_order,resource_data,title = 'Resources on Hand',side_scale = side_scale,end_value = app.my_order.at[-1].time)
+            app.resource_g.start()
+        else:
+            app.resource_g.recalculate_data(app.my_order)
+
+def supply_data(order, args = []):
     worker_supply = dict()
     army_supply = dict()
     cap = dict()
@@ -461,9 +476,7 @@ def supply_graph(order):
         army_supply[i.time] = i.supply - worker_supply[i.time]
         cap[i.time] = i.cap
 
-    dataset = [DataSet(army_supply,True,'red','army'),DataSet(worker_supply,True,'blue','workers'),DataSet(cap,False,'green','capacity')]
-
-    create_graph(dataset,title='Supply',end_value = order.at[-1].time)
+    return [DataSet(army_supply,True,'red','army'),DataSet(worker_supply,True,'blue','workers'),DataSet(cap,False,'green','capacity')]
 
 def has_army(order):
     for i in order.at_time:
@@ -471,18 +484,16 @@ def has_army(order):
             return True
     return False
 
-def army_value_graph(order):
+def army_data(order, args = [False]):
     minerals = dict()
     gas = dict()
 
     for i in order.at_time:
-        minerals[i.time], gas[i.time] = i.army_value(False)
+        minerals[i.time], gas[i.time] = i.army_value(args[0])
         
-    dataset = [DataSet(minerals,True,'blue','minerals'),DataSet(gas,True,'green','gas')]
+    return [DataSet(minerals,True,'blue','minerals'),DataSet(gas,True,'green','gas')]
 
-    create_graph(dataset,title = 'Army Value',end_value = order.at[-1].time)
-
-def resource_collection_rate_graph(order):
+def resource_collection_rate_data(order, args = []):
     mineral_rate = dict()
     gas_rate = dict()
     zerg = order.race == 'Z'
@@ -494,12 +505,9 @@ def resource_collection_rate_graph(order):
         if zerg:
             larva_rate[i.time] = i.larva_rate() * 50
 
-    dataset = [DataSet(mineral_rate,False,'blue','minerals'),DataSet(gas_rate,False,'green','gas')] + ([DataSet(larva_rate,False,'orange','larva')] if zerg else [])
-    side_scale = 50 if zerg else 0
-
-    create_graph(dataset,title = 'Resource Collection Rate',side_scale = side_scale,end_value = order.at[-1].time)
-
-def resource_graph(order):
+    return [DataSet(mineral_rate,False,'blue','minerals'),DataSet(gas_rate,False,'green','gas')] + ([DataSet(larva_rate,False,'orange','larva')] if zerg else [])
+    
+def resource_data(order, args = []):
     minerals = dict()
     gas = dict()
     zerg = order.race == 'Z'
@@ -512,10 +520,7 @@ def resource_graph(order):
         if zerg:
             larva[i.time] = i.units[LARVA]*50
 
-    dataset = [DataSet(minerals,False,'blue','minerals'),DataSet(gas,False,'green','gas')] + ([DataSet(larva,False,'orange','larva')] if zerg else [])
-    side_scale = 50 if zerg else 0
-
-    create_graph(dataset,title = 'Resources on Hand',side_scale = side_scale,end_value = order.at[-1].time)
+    return [DataSet(minerals,False,'blue','minerals'),DataSet(gas,False,'green','gas')] + ([DataSet(larva,False,'orange','larva')] if zerg else [])
 
 system = platform.system()
 if system == 'Linux':
