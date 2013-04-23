@@ -127,11 +127,11 @@ class EventWidget(Canvas):
 
     def insert_above(self):
         """ Insert event option above this event """
-        insert_event_choose(self.app,self.index)
+        self.app.insert_event_choose(self.index)
 
     def insert_below(self):
         """ Insert event option below this event """
-        insert_event_choose(self.app,self.index+1)
+        self.app.insert_event_choose(self.index+1)
 
     def delete(self):
         """ Remove this event from the build order """
