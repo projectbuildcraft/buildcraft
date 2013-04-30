@@ -332,7 +332,7 @@ class Order:
 					else:
 						return False
 		if now and event_index == SPAWN_LARVA: # then we need to make sure there is a free hatchery
-			num_hatcheries = self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]
+			num_hatcheries = self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE] + self.at[order_index].occupied[HATCHERY] + self.at[order_index].occupied[LAIR] + self.at[order_index].occupied[HIVE]
 			num_injections = len([event_info[0] for event_info, time, index in self.at[order_index].production if event_info[0] == SPAWN_LARVA])
 			if num_injections >= num_hatcheries:
 				return False
