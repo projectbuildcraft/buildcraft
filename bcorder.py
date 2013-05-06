@@ -240,11 +240,11 @@ class Order:
         self.future = [] # [events]
         self.calculate_times()
 
-    def save(self,filename,purge_history = True):
+    def save(self, filename, purge_history = True):
         """
         Saves the build order to file specified by filename, or to default_location if filename is ""
         """
-        if filename == "":
+        if not filename:
             filename = self.default_location
         else:
             self.default_location = filename
@@ -809,14 +809,55 @@ class Team:
         """
         Initializes a team based on a set of Orders and/or number of players
         """
-        if builds == None:
-            self.builds = [Order()]*number # count of builds
+        if filename:
+            self.default_location = filename
+            self.builds = []
+            f = open(filename, 'r')
+            lines = f.readlines()
+            self.name = lines.pop(0).rstrip()
+            for line in lines:
+                line = line.rstrip()
+                if line in ["Z","T","P"]:
+                    self.builds.append(Order(race=line))
+                else:
+                    raw_info = string.split(line)
+                    events_info = [None,None]
+                    events_info[0] = int(raw_info.pop(0))
+                    build = self.builds[-1]
+                    if build.race == "Z":
+                        events_info.append(int(raw_info.pop())) # whether or not to allow extractor trick on this event
+                    elif events[events_info[0]].get_result() == boost:
+                        events_info.append(None) # dummy so we can do it backwards
+                        events_info.append(int(raw_info.pop()))
+                        events_info[2] = int(raw_info.pop())
+                    events_info[1] = string.join(raw_info)
+                    build.events.append(events_info)
+            f.close()
         else:
-            self.builds = builds
-            while (len(self.builds) < number):
-                self.builds.append(Order())
+            if builds == None:
+                self.builds = [Order()]*number # count of builds
+            else:
+                self.builds = builds
+                while (len(self.builds) < number):
+                    self.builds.append(Order())
         self.history = []
         self.future = []
+
+    def save(self, filename, purge_history = True):
+        if not filename:
+            filename = self.default_location
+        else:
+            self.default_location = filename
+        f = open(filename, 'w')
+        f.write(self.name + "\n")
+        for build in self.builds:
+            f.write(build.race + "\n")
+            for event_info in self.events:
+                for i in xrange(len(event_info)):
+                    f.write(str(event_info[i]) + ("\n" if i == len(event_info) - 1 else " "))
+        if purge_history:
+            self.history = []
+            self.future = []
 
     def add_player(self, new_race = 'P', order = None, remember = True):
         """
