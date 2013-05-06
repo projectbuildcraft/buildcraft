@@ -805,9 +805,9 @@ class Team:
     """
     Tracks and manages a team of players
     """
-    def __init__(self, builds = None, number = 0):
+    def __init__(self, filename = None, builds = None, number = 0):
         """
-        Initializes a team based on a set of Orders and/or number of players
+        Initializes a team based on a file or a set of Orders or a number of players
         """
         if filename:
             self.default_location = filename
