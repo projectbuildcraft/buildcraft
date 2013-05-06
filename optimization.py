@@ -14,7 +14,7 @@ def genetic_optimization(race, constraints):
 	Race denotes the race: "Z", "P", or "T"
 	"""
 	frozen_constraints = frozenset(constraints)
-	orders = [randomly_fit(race, constraints) for x in xrange(10)]
+	orders = [randomly_fit(race, frozen_constraints) for x in xrange(10)]
 	print "Randomly generated"
 	king_count = 0
 	king = 0
@@ -49,7 +49,7 @@ def a_star_optimization(race, constraints):
 			extension = copy.deepcopy(current_order)
 			extension.append([option]) # need to make sure it has all of event_info
 			if extension.sanity_check(): # if makes sense
-				if has_constraints(extension.at_time[-1]):
+				if has_constraints(extension.at_time[-1],constraints):
 					return extension
 				frontier.put((cost(extension) + heuristic(extension), extension))
 	return None
@@ -76,7 +76,7 @@ def has_constraints(instance, constraints):
 	Returns true if the instance meets the constraints
 	Constraints is an iterable with elements (UNIT, COUNT)
 	"""
-	for index, count in constraints:
+	for (index, count) in constraints:
 		if instance.units[index] < count:
 			return False
 	return True
@@ -84,13 +84,12 @@ def has_constraints(instance, constraints):
 def randomly_fit(race,constraints):
 	"""
 	Returns a random build order that fits the given constraints or fills supply
-	Constraints is an iterable with elements (UNIT, COUNT)
+	Constraints is a frozen set with elements (UNIT, COUNT)
 	"""
 	set_up(constraints)
 	order = Order(race = race)
-	frozen_constraints = frozenset(constraints)
 	while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply < 200 and order.at_time[-1].time < float('inf'):
-		choices = [i for i in order.all_available() if helps(i,frozen_constraints)]
+		choices = [i for i in order.all_available() if helps(i,constraints)]
 		choice = random.randint(0,len(choices) - 1)
 		if events[choices[choice]].get_result() == boost:
 			boostable = []
@@ -230,11 +229,10 @@ def helps(event_index, constraints):
 def set_up(constraints):
 	"""
 	Ensures the contributes dictionary has an entry for constraints
-	Arguments- constraints, an iterable of constraints tuples
+	Arguments- constraints, a frozen set of constraints tuples
 	"""
-	constraints_index = frozenset(constraints)
-	if constraints_index not in contributes:
-		needed_units = set([unit for unit,count in constraints])
+	if constraints not in contributes:
+		needed_units = set(constraints)
 		need_minerals = True
 		pass # actually see if we benefit from minerals
 		if need_minerals:
@@ -246,7 +244,7 @@ def set_up(constraints):
 		need_supply = True
 		pass # actually see if we benefit from supply
 		if need_supply:
-			needed_units |= set([SUPPLY_DEPOT,PYLON,OVERLORD])
+			needed_units |= set([SUPPLY_DEPOT,SUPPLY_DEPOT_EXTRA,PYLON,OVERLORD])
 		needed_events = set()
 		old_length = 0
 		for event_index in xrange(len(events)): # initialize
@@ -267,4 +265,5 @@ def set_up(constraints):
 						needed_events.add(event_index)
 						needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
 			new_length = len(needed_events)
-		contributes[constraints_index] = {i: (i in needed_events) for i in xrange(len(events))}
+		contributes[constraints] = {i: (i in needed_events) for i in xrange(len(events))}
+	print [key for key in contributes[constraints].iterkeys() if contributes[constraints][key]]
