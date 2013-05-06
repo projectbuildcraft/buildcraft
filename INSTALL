@@ -14,9 +14,13 @@ How to run on:
 
 1. LINUX
 
-On Debian-based machines, you can simply run install.sh. Alternatively, you can install everything manually as follows.
+On Debian-based machines, it is easiest to install the .deb file from the linux release at https://github.com/projectbuildcraft/buildcraft/tarball/linux. Then, you can just run:
+dpkg -i buildcraft<version>.deb
+where <version> is specific to the version being installed.
 
-To run on linux, make sure that you have installed the following packages:
+Alternatively, you can install everything manually as follows.
+
+To run on linux, make sure that you have installed the following packages, on Debian-based machines named:
 
 -python
 
@@ -24,12 +28,14 @@ To run on linux, make sure that you have installed the following packages:
 
 -python-imaging-tk
 
+Note that this project runs on python 2.7. The summary of the above requirements is that you need an X server and the Python Imaging Library (PIL).
+
 To install these packages on a Debian-based distro such as Ubuntu, type the following. This will require an administrative password.
 
 sudo apt-get update
 sudo apt-get install python python-tk python-imaging-tk
 
-The python interpreter is assumed to be installed at /usr/bin/python, which should be the default on most Linux distros.
+The python 2.7 interpreter is assumed to be installed at /usr/bin/python, which should be the default on most Linux distros.
 
 You can run buildcraft by changing into this directory and running the following command.
 
@@ -39,7 +45,9 @@ You may have to give it executable permissions:
 
 chmod +x buildcraft
 
-We're working to support full installation in the future.
+Assets also have to be copied into /usr/share/games/buildcraft/
+
+We're working to support native installation for other packaging systems in the future. Any assistance would be appreciated.
 
 2. WINDOWS
 
