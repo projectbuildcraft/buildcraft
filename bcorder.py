@@ -202,7 +202,7 @@ class Order:
     """
     Represents a calculated build order
     """
-    def __init__(self,name = "", events_list = None, filename = None, race = "P"):
+    def __init__(self,name = "", events_list = None, filename = None, race = "P", calc = True):
         """
         Creates a build order from a list of events or a filename
         """
@@ -238,7 +238,11 @@ class Order:
         self.time_taken = []
         self.history = [] # [events]
         self.future = [] # [events]
-        self.calculate_times()
+        if calc:
+            self.calculate_times()
+            self.incorrect_times = False # times have been calculated
+        else:
+            self.incorrect_times = True # times have not been calculated
 
     def save(self, filename, purge_history = True):
         """
@@ -509,6 +513,9 @@ class Order:
         self.events.append(event_info)
         if recalc:
             self.calculate_times(only_care_about_last)
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
 
     def insert(self, event_info, index, recalc = True, remember = True):
         """
@@ -526,6 +533,9 @@ class Order:
             index += 1
         if recalc:
             self.calculate_times()
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
 
     def move(self, this_index, there_index, recalc = True, remember = True, only_care_about_last = False):
         """
@@ -547,7 +557,10 @@ class Order:
                 self.events[this_index][3] += 1
             this_index -= 1
         if recalc:
-            self.calculate_times()
+            self.calculate_times(only_care_about_last)
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
         
 
     def insert_chrono(self, boosted_index, chrono_index, recalc = True, remember = True):
@@ -566,6 +579,9 @@ class Order:
                 self.events[chrono_index][3] += 1
         if recalc:
             self.calculate_times()
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
 
     def can_chrono(self, boosted_index, chrono_index):
         """
@@ -588,6 +604,9 @@ class Order:
             index += 1
         if recalc:
             self.calculate_times()
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
 
     def delete_many(self, indices, recalc = True, remember = True):
         """
@@ -600,6 +619,9 @@ class Order:
             self.delete(index,False,False)
         if recalc:
             self.calculate_times()
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
 
     def calculate_times(self, only_care_about_last = False):
         """
@@ -717,6 +739,49 @@ class Order:
             for i in start_times.iterkeys():
                 self.time_taken[i] = end_times[i] - start_times[i]
 
+    def evaluate(self):
+        """
+        If times have been calculated for this configuration, does nothing
+        Otherwise, places final state in self.at_time[-1]
+        """
+        if self.incorrect_times:
+              now = Instance()
+              if self.race == "P":
+                  now.units[PROBE_MINERAL] = 6
+                  now.units[NEXUS] = 1
+                  now.energy_units.append([NEXUS,energy[NEXUS][0]])
+              if self.race == "T":
+                  now.units[SCV_MINERAL] = 6
+                  now.units[COMMAND_CENTER] = 1
+                  now.cap = 11 # override default
+              if self.race == "Z":
+                  now.units[DRONE_MINERAL] = 6
+                  now.units[HATCHERY] = 1
+                  now.units[LARVA] = 3
+                  now.units[OVERLORD] = 1
+                  now.base_larva = [3]
+              now.blue = 1
+              self.at_time = [now]
+              for index, event_info in enumerate(self.events):
+                   order_index = index + 1
+                   # now effect costs
+                   mineral_cost = events[event_info[0]].cost[0]
+                   if using_tricks: 
+                       required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
+                       gas_tricks = min(required_tricks, now.units[DRONE_SCOUT] + 2 * (now.units[HATCHERY] + now.units[LAIR] + now.units[HIVE]) - now.units[ASSIMILATOR])
+                       evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
+                       mineral_cost += 6 * gas_tricks + 18 * evo_tricks
+                   now.supply += events[event_info[0]].supply
+                   for requirement in get_requirements(event_info[0]):
+                       unit, kind = requirement
+                       if kind == C:
+                           if unit != LARVA:
+                                 now.units[unit] -= 1 # we'll handle larva last
+                           now.energy_units[greatest_index][1] -= kind
+                   now.production.append([event_info,events[event_info[0]].time, index])
+              while len(self.at_time[-1].production) > 0: # simulate through production
+                  pass
+
     def get_note(self,index):
         """
         index: index in self.events, not self.at
@@ -747,7 +812,7 @@ class Order:
         else:
             return False
 
-    def toggle_trick(self,index):
+    def toggle_trick(self,index,recalc = True):
         """
         Assumes can_trick(index); otherwise will result in unexpected behavior
         index: index in self.events, not self.at
@@ -758,7 +823,11 @@ class Order:
             self.events[index][2] = 1
         else:
             self.events[index][2] = 0
-        self.calculate_times()
+        if recalc:
+            self.calculate_times()
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
 
     def event_length(self, index):
         """
@@ -784,6 +853,9 @@ class Order:
         self.events = self.history.pop()
         if recalc:
             self.calculate_times()
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
 
     def redo(self, recalc = True):
         """
@@ -793,6 +865,9 @@ class Order:
         self.events = self.future.pop()
         if recalc:
             self.calculate_times()
+            self.incorrect_times = False
+        else:
+            self.incorrect_times = True
 
     def can_undo(self):
         return len(self.history) > 0

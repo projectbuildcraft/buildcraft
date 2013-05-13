@@ -88,8 +88,8 @@ def randomly_fit(race,constraints):
 	"""
 	set_up(constraints)
 	order = Order(race = race)
-	while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply < 200 and order.at_time[-1].time < float('inf'):
-		choices = [i for i in order.all_available() if helps(i,constraints)]
+	while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply < 200:
+		choices = [i for i in order.all_available() if helps(i,constraints)] # can't use all_available
 		choice = random.randint(0,len(choices) - 1)
 		if events[choices[choice]].get_result() == boost:
 			boostable = []
@@ -104,6 +104,7 @@ def randomly_fit(race,constraints):
 				order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]],True,False,True)
 		else:
 			order.append([choices[choice],''],True,False,True)
+            order.evaluate() # not verified
 	return order
 
 def reproduce(order1, order2, constraints):
