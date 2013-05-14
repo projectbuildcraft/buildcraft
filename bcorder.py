@@ -191,6 +191,9 @@ class Instance:
     def __deepcopy__(self, memo = None):
         return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva), copy.deepcopy(self.boosted_things))
 
+    def all_available(self, now = False, gas_trick = False):
+        return [event_index for event_index in xrange(len(events)) if self.available(event_index, now, gas_trick)]
+
     def available(self, event_index, now = False, gas_trick = False):
         """
         Evaluates whether event is available from this instance
@@ -459,7 +462,7 @@ class Order:
         return self.at[order_index].available(event_index, now, gas_trick)
         
     def all_available(self, order_index = -1, gas_trick = False):
-        return [i for i in xrange(len(events)) if self.available(order_index = order_index, event_index = i, now = False, gas_trick = gas_trick)]
+        return self.at[order_index].all_available(now = False, gas_trick = gas_trick)
 
     def sanity_check(self):
         """
