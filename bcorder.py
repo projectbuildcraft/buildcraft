@@ -776,6 +776,7 @@ class Order:
                 now.units[LARVA] = 3
                 now.units[OVERLORD] = 1
                 now.base_larva = [3]
+            now.energy_units = []
             for index, event_info in enumerate(self.events):
                 # now effect costs
                 now.supply += events[event_info[0]].supply
@@ -785,9 +786,10 @@ class Order:
                         if unit != LARVA:
                               now.units[unit] -= 1 # we'll handle larva last
                 now.production.append([event_info,0,index])
-            #while len(now.production) > 0: # simulate through production
-            #    event_info,time,index = now.production.pop()
-            #    pass
+            while len(now.production) > 0: # simulate through production
+                event_info,time,index = now.production.pop()
+                event = events[event_info[0]]
+                event.get_result()(event.get_args(),now)
             self.at_time = [now]
 
     def get_note(self,index):
