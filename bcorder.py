@@ -190,7 +190,173 @@ class Instance:
 
     def __deepcopy__(self, memo = None):
         return Instance(self.time, copy.deepcopy(self.units), copy.deepcopy(self.occupied), copy.deepcopy(self.production), self.minerals, self.gas, self.supply, self.cap, self.blue, self.gold, copy.deepcopy(self.energy_units), copy.deepcopy(self.base_larva), copy.deepcopy(self.boosted_things))
-        
+
+    def available(self, event_index, now = False, gas_trick = False):
+        """
+        Evaluates whether event is available from this instance
+        Arguments:
+        event_index - event desired (indexes events)
+        now - whether to evaluate availability now or eventually
+        gas_trick - whether this is a zerg player who will break supply barriers with gas tricks
+        """
+        # supply, minerals, gas
+        required_tricks = 0 # we only really care about this if now because it effects mineral cost
+        if events[event_index].supply > 0: # requires supply
+            if (self.supply) + (events[event_index].supply) > 200: # will max out supply
+                if not gas_trick:
+                    return False
+            if (self.supply) + (events[event_index].supply) > self.cap:
+                if now:
+                    if gas_trick:
+                        required_tricks += self.supply + events[event_index].supply - self.cap
+                    else:
+                        return False
+                else:
+                    difference = self.supply + events[event_index].supply - self.cap
+                    for event,time, index in self.production:
+                        difference -= events[event[0]].capacity
+                    if difference > 0:
+                        if not gas_trick:
+                            return False
+            if gas_trick and now and required_tricks > self.units[DRONE_MINERAL] + self.units[DRONE_SCOUT] + self.units[DRONE_SCOUT]:
+                return False
+        if gas_trick:
+            gas_tricks = min(required_tricks, self.units[DRONE_SCOUT] + 2 * (self.units[HATCHERY] + self.units[LAIR] + self.units[HIVE]) - self.units[ASSIMILATOR])
+            evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
+            mineral_cost = events[event_index].cost[0] + events[MORPH_EXTRACTOR].cost[0] * gas_tricks + events[MORPH_EVOLUTION_CHAMBER].cost[0] * evo_tricks
+        else:
+            mineral_cost = events[event_index].cost[0]
+        if self.minerals < mineral_cost: # requires minerals
+            if now:
+                return False
+            else:
+                if self.units[SCV_MINERAL] + self.units[PROBE_MINERAL] + self.units[DRONE_MINERAL] + self.units[MULE] + self.occupied[SCV_MINERAL] + self.occupied[PROBE_MINERAL] + self.occupied[DRONE_MINERAL] == 0:
+                    return False
+        if self.gas < events[event_index].cost[1]: # requires gas
+            if now:
+                return False
+            else:
+                if self.units[SCV_GAS] + self.units[PROBE_GAS] + self.units[DRONE_GAS] == 0:
+                    for event_info,time, index in self.production:
+                        if events[event_info[0]].get_result() == add: # necessarily means we just added a worker to gas
+                            if PROBE_GAS in events[event_info[0]].get_args():
+                                break
+                            elif DRONE_GAS in events[event_info[0]].get_args():
+                                break
+                            elif SCV_GAS in events[event_info[0]].get_args():
+                                break
+                    else:
+                        return False
+        if now and event_index == SPAWN_LARVA: # then we need to make sure there is a free hatchery
+            num_hatcheries = self.units[HATCHERY] + self.units[LAIR] + self.units[HIVE] + self.occupied[HATCHERY] + self.occupied[LAIR] + self.occupied[HIVE]
+            num_injections = len([event_info[0] for event_info, time, index in self.production if event_info[0] == SPAWN_LARVA])
+            if num_injections >= num_hatcheries:
+                return False
+        if now and event_index == CHRONO_BOOST:
+            chrono_target = self.events[order_index - 1][3]
+            for p in self.production:
+                if p[0][0] == CHRONO_BOOST and p[0][3] == chrono_target:
+                    return False
+            if chrono_target in self.boosted_things[0]:
+                if self.boosted_things[0][chrono_target] > 0:
+                    return False
+        # requirements
+        requirements = list(events[event_index].get_requirements()) # our dirty copy
+        for requirement in requirements:
+            unit, kind = requirement
+            if kind == ASSUMPTION:
+                if now and unit in [EXTRACTOR, ASSIMILATOR, REFINERY]: # should we wait for another to finish?
+                    gassers = self.units[PROBE_GAS] + self.units[SCV_GAS] + self.units[DRONE_GAS]
+                    for event_info,time,index in self.production:
+                        event_index = event_info[0]
+                        if events[event_index].get_result() == add:
+                            for unit in events[event_index].get_args():
+                                if unit in [PROBE_GAS, SCV_GAS, DRONE_GAS]:
+                                    gassers += 1
+                    gasses = self.units[EXTRACTOR] + self.units[ASSIMILATOR] + self.units[REFINERY]
+                    if gassers >= 3 * gasses: # it certainly seems so
+                        for event_info,time, index in self.production: # let's check
+                            if events[event_info[0]].get_result() == add and events[event_info[0]].get_args()[0] in [EXTRACTOR, ASSIMILATOR, REFINERY]: # there is in fact another on the way
+                                return False # I'll wait then
+                if self.units[unit] > 0:
+                    continue
+                if self.occupied[unit] > 0:
+                    continue
+                if now:
+                    if unit in can_be: # can be other value
+                        requirements.append((can_be[unit],ASSUMPTION))
+                        continue
+                    else:
+                        return False
+                else:
+                    for event_info,time, index in self.production:
+                        if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
+                            if unit in events[event_info[0]].get_args():
+                                break
+                    else:
+                        if unit in can_be:
+                            requirements.append((can_be[unit],ASSUMPTION))
+                            continue
+                        else:
+                            return False
+                continue
+            if kind == OCCUPATION or kind == CONSUMPTION:
+                if self.units[unit] > 0:
+                    continue
+                if now:
+                    if kind == OCCUPATION and unit in can_be: # can be other value
+                        requirements.append((can_be[unit],OCCUPATION))
+                        continue
+                    else:
+                        return False
+                else:
+                    if self.occupied[unit] > 0:
+                        continue
+                    for event_info,time, index in self.production:
+                        if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
+                            if unit in events[event_info[0]].get_args():
+                                break
+                        elif unit == LARVA and events[event_info[0]].get_result() == spawn_larva:
+                                break
+                    else:
+                        if kind == OCCUPATION and unit in can_be: # can be other value
+                            requirements.append((can_be[unit],OCCUPATION))
+                            continue
+                        else:
+                            return False
+                    continue
+            if kind == NOT:
+                if self.units[unit] > 0 or self.occupied[unit] > 0:
+                    return False
+                for event,time, index in self.production:
+                    event_index = event[0]
+                    if events[event_index].get_result() == research or events[event_index].get_result() == add:
+                        if unit in events[event_index].get_args():
+                            return False
+                continue
+            # requirement must be energy
+            cost = kind
+            for energy_unit, energy_energy in self.energy_units:
+                if unit == energy_unit:
+                    if now:
+                        if energy_energy < cost:
+                            continue
+                        else:
+                            break
+                    else:
+                        break
+            else: # must be in production
+                if now:
+                    return False
+                for event_info,time, index in self.production:
+                    if events[event_info[0]].get_result() == add:
+                        if unit in events[event_info[0]].get_args():
+                            break
+                else:
+                    return False
+            continue
+        return True
+   
 
 racename = {
     "P" : "Protoss",
@@ -289,162 +455,9 @@ class Order:
         """
         # supply, minerals, gas
         required_tricks = 0 # we only really care about this if now because it effects mineral cost
-        if events[event_index].supply > 0: # requires supply
-            if (self.at[order_index].supply) + (events[event_index].supply) > 200: # will max out supply
-                if not gas_trick:
-                    return False
-            if (self.at[order_index].supply) + (events[event_index].supply) > self.at[order_index].cap:
-                if now:
-                    if gas_trick:
-                        required_tricks += self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
-                    else:
-                        return False
-                else:
-                    difference = self.at[order_index].supply + events[event_index].supply - self.at[order_index].cap
-                    for event,time, index in self.at[order_index].production:
-                        difference -= events[event[0]].capacity
-                    if difference > 0:
-                        if not gas_trick:
-                            return False
-            if gas_trick and now and required_tricks > self.at[order_index].units[DRONE_MINERAL] + self.at[order_index].units[DRONE_SCOUT] + self.at[order_index].units[DRONE_SCOUT]:
-                return False
-        if gas_trick:
-            gas_tricks = min(required_tricks, self.at[order_index].units[DRONE_SCOUT] + 2 * (self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE]) - self.at[order_index].units[ASSIMILATOR])
-            evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
-            mineral_cost = events[event_index].cost[0] + events[MORPH_EXTRACTOR].cost[0] * gas_tricks + events[MORPH_EVOLUTION_CHAMBER].cost[0] * evo_tricks
-        else:
-            mineral_cost = events[event_index].cost[0]
-        if self.at[order_index].minerals < mineral_cost: # requires minerals
-            if now:
-                return False
-            else:
-                if self.at[order_index].units[SCV_MINERAL] + self.at[order_index].units[PROBE_MINERAL] + self.at[order_index].units[DRONE_MINERAL] + self.at[order_index].units[MULE] + self.at[order_index].occupied[SCV_MINERAL] + self.at[order_index].occupied[PROBE_MINERAL] + self.at[order_index].occupied[DRONE_MINERAL] == 0:
-                    return False
-        if self.at[order_index].gas < events[event_index].cost[1]: # requires gas
-            if now:
-                return False
-            else:
-                if self.at[order_index].units[SCV_GAS] + self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[DRONE_GAS] == 0:
-                    for event_info,time, index in self.at[order_index].production:
-                        if events[event_info[0]].get_result() == add: # necessarily means we just added a worker to gas
-                            if PROBE_GAS in events[event_info[0]].get_args():
-                                break
-                            elif DRONE_GAS in events[event_info[0]].get_args():
-                                break
-                            elif SCV_GAS in events[event_info[0]].get_args():
-                                break
-                    else:
-                        return False
-        if now and event_index == SPAWN_LARVA: # then we need to make sure there is a free hatchery
-            num_hatcheries = self.at[order_index].units[HATCHERY] + self.at[order_index].units[LAIR] + self.at[order_index].units[HIVE] + self.at[order_index].occupied[HATCHERY] + self.at[order_index].occupied[LAIR] + self.at[order_index].occupied[HIVE]
-            num_injections = len([event_info[0] for event_info, time, index in self.at[order_index].production if event_info[0] == SPAWN_LARVA])
-            if num_injections >= num_hatcheries:
-                return False
-        if now and event_index == CHRONO_BOOST:
-            chrono_target = self.events[order_index - 1][3]
-            for p in self.at[order_index].production:
-                if p[0][0] == CHRONO_BOOST and p[0][3] == chrono_target:
-                    return False
-            if chrono_target in self.at[order_index].boosted_things[0]:
-                if self.at[order_index].boosted_things[0][chrono_target] > 0:
-                    return False
-        # requirements
-        requirements = list(events[event_index].get_requirements()) # our dirty copy
-        for requirement in requirements:
-            unit, kind = requirement
-            if kind == ASSUMPTION:
-                if now and unit in [EXTRACTOR, ASSIMILATOR, REFINERY]: # should we wait for another to finish?
-                    gassers = self.at[order_index].units[PROBE_GAS] + self.at[order_index].units[SCV_GAS] + self.at[order_index].units[DRONE_GAS]
-                    for event_info,time,index in self.at[order_index].production:
-                        event_index = event_info[0]
-                        if events[event_index].get_result() == add:
-                            for unit in events[event_index].get_args():
-                                if unit in [PROBE_GAS, SCV_GAS, DRONE_GAS]:
-                                    gassers += 1
-                    gasses = self.at[order_index].units[EXTRACTOR] + self.at[order_index].units[ASSIMILATOR] + self.at[order_index].units[REFINERY]
-                    if gassers >= 3 * gasses: # it certainly seems so
-                        for event_info,time, index in self.at[order_index].production: # let's check
-                            if events[event_info[0]].get_result() == add and events[event_info[0]].get_args()[0] in [EXTRACTOR, ASSIMILATOR, REFINERY]: # there is in fact another on the way
-                                return False # I'll wait then
-                if self.at[order_index].units[unit] > 0:
-                    continue
-                if self.at[order_index].occupied[unit] > 0:
-                    continue
-                if now:
-                    if unit in can_be: # can be other value
-                        requirements.append((can_be[unit],ASSUMPTION))
-                        continue
-                    else:
-                        return False
-                else:
-                    for event_info,time, index in self.at[order_index].production:
-                        if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
-                            if unit in events[event_info[0]].get_args():
-                                break
-                    else:
-                        if unit in can_be:
-                            requirements.append((can_be[unit],ASSUMPTION))
-                            continue
-                        else:
-                            return False
-                continue
-            if kind == OCCUPATION or kind == CONSUMPTION:
-                if self.at[order_index].units[unit] > 0:
-                    continue
-                if now:
-                    if kind == OCCUPATION and unit in can_be: # can be other value
-                        requirements.append((can_be[unit],OCCUPATION))
-                        continue
-                    else:
-                        return False
-                else:
-                    if self.at[order_index].occupied[unit] > 0:
-                        continue
-                    for event_info,time, index in self.at[order_index].production:
-                        if events[event_info[0]].get_result() == add or events[event_info[0]].get_result() == research:
-                            if unit in events[event_info[0]].get_args():
-                                break
-                        elif unit == LARVA and events[event_info[0]].get_result() == spawn_larva:
-                                break
-                    else:
-                        if kind == OCCUPATION and unit in can_be: # can be other value
-                            requirements.append((can_be[unit],OCCUPATION))
-                            continue
-                        else:
-                            return False
-                    continue
-            if kind == NOT:
-                if self.at[order_index].units[unit] > 0 or self.at[order_index].occupied[unit] > 0:
-                    return False
-                for event,time, index in self.at[order_index].production:
-                    event_index = event[0]
-                    if events[event_index].get_result() == research or events[event_index].get_result() == add:
-                        if unit in events[event_index].get_args():
-                            return False
-                continue
-            # requirement must be energy
-            cost = kind
-            for energy_unit, energy_energy in self.at[order_index].energy_units:
-                if unit == energy_unit:
-                    if now:
-                        if energy_energy < cost:
-                            continue
-                        else:
-                            break
-                    else:
-                        break
-            else: # must be in production
-                if now:
-                    return False
-                for event_info,time, index in self.at[order_index].production:
-                    if events[event_info[0]].get_result() == add:
-                        if unit in events[event_info[0]].get_args():
-                            break
-                else:
-                    return False
-            continue
-        return True
-
+        current = self.at[order_index]
+        return self.at[order_index].available(event_index, now, gas_trick)
+        
     def all_available(self, order_index = -1, gas_trick = False):
         return [i for i in xrange(len(events)) if self.available(order_index = order_index, event_index = i, now = False, gas_trick = gas_trick)]
 
