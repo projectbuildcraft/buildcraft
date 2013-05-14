@@ -761,33 +761,34 @@ class Order:
         Otherwise, places final state (except resources) in self.at_time[-1]
         """
         if self.incorrect_times:
-              now = Instance()
-              if self.race == "P":
-                  now.units[PROBE_MINERAL] = 6
-                  now.units[NEXUS] = 1
-                  now.energy_units.append([NEXUS,energy[NEXUS][0]])
-              if self.race == "T":
-                  now.units[SCV_MINERAL] = 6
-                  now.units[COMMAND_CENTER] = 1
-                  now.cap = 11 # override default
-              if self.race == "Z":
-                  now.units[DRONE_MINERAL] = 6
-                  now.units[HATCHERY] = 1
-                  now.units[LARVA] = 3
-                  now.units[OVERLORD] = 1
-                  now.base_larva = [3]
-              self.at_time = [now]
-              for index, event_info in enumerate(self.events):
-                   # now effect costs
-                   now.supply += events[event_info[0]].supply
-                   for requirement in get_requirements(event_info[0]):
-                       unit, kind = requirement
-                       if kind == C:
-                           if unit != LARVA:
-                                 now.units[unit] -= 1 # we'll handle larva last
-                   now.production.append([event_info,events[event_info[0]].time, index])
-              while len(self.at_time[-1].production) > 0: # simulate through production
-                  pass
+            now = Instance()
+            if self.race == "P":
+                now.units[PROBE_MINERAL] = 6
+                now.units[NEXUS] = 1
+                now.energy_units.append([NEXUS,energy[NEXUS][0]])
+            if self.race == "T":
+                now.units[SCV_MINERAL] = 6
+                now.units[COMMAND_CENTER] = 1
+                now.cap = 11 # override default
+            if self.race == "Z":
+                now.units[DRONE_MINERAL] = 6
+                now.units[HATCHERY] = 1
+                now.units[LARVA] = 3
+                now.units[OVERLORD] = 1
+                now.base_larva = [3]
+            for index, event_info in enumerate(self.events):
+                # now effect costs
+                now.supply += events[event_info[0]].supply
+                for requirement in get_requirements(event_info[0]):
+                    unit, kind = requirement
+                    if kind == C:
+                        if unit != LARVA:
+                              now.units[unit] -= 1 # we'll handle larva last
+                now.production.append([event_info,0,index])
+            #while len(now.production) > 0: # simulate through production
+            #    event_info,time,index = now.production.pop()
+            #    pass
+            self.at_time = [now]
 
     def get_note(self,index):
         """
