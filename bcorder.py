@@ -758,7 +758,7 @@ class Order:
     def evaluate(self):
         """
         If times have been calculated for this configuration, does nothing
-        Otherwise, places final state in self.at_time[-1]
+        Otherwise, places final state (except resources) in self.at_time[-1]
         """
         if self.incorrect_times:
               now = Instance()
@@ -776,24 +776,15 @@ class Order:
                   now.units[LARVA] = 3
                   now.units[OVERLORD] = 1
                   now.base_larva = [3]
-              now.blue = 1
               self.at_time = [now]
               for index, event_info in enumerate(self.events):
-                   order_index = index + 1
                    # now effect costs
-                   mineral_cost = events[event_info[0]].cost[0]
-                   if using_tricks: 
-                       required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
-                       gas_tricks = min(required_tricks, now.units[DRONE_SCOUT] + 2 * (now.units[HATCHERY] + now.units[LAIR] + now.units[HIVE]) - now.units[ASSIMILATOR])
-                       evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
-                       mineral_cost += 6 * gas_tricks + 18 * evo_tricks
                    now.supply += events[event_info[0]].supply
                    for requirement in get_requirements(event_info[0]):
                        unit, kind = requirement
                        if kind == C:
                            if unit != LARVA:
                                  now.units[unit] -= 1 # we'll handle larva last
-                           now.energy_units[greatest_index][1] -= kind
                    now.production.append([event_info,events[event_info[0]].time, index])
               while len(self.at_time[-1].production) > 0: # simulate through production
                   pass

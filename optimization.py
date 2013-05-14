@@ -89,19 +89,10 @@ def randomly_fit(race,constraints):
 	set_up(constraints)
 	order = Order(race = race)
 	while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply < 200:
-		choices = [i for i in order.all_available() if helps(i,constraints)] # can't use all_available
+		choices = [i for i in order.at_time[-1].all_available() if helps(i,constraints)]
 		choice = random.randint(0,len(choices) - 1)
 		if events[choices[choice]].get_result() == boost:
-			boostable = []
-			for p in order.at[len(order.events)].production:
-				for r in events[p[0][0]].get_requirements():
-					if r[1] == O and r[0] in {NEXUS, GATEWAY, FORGE, CYBERNETICS_CORE, ROBOTICS_FACILITY, WARPGATE,
-								  STARGATE, TWILIGHT_COUNCIL, ROBOTICS_BAY, FLEET_BEACON, TEMPLAR_ARCHIVES}:
-						boostable.append([p[0][0], p[1]])
-						break
-			if len(boostable) > 0: # we shouldn't really need this, but apparently we do
-				extra_choice = random.randint(0,len(boostable) - 1)
-				order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]],True,False,True)
+            pass # caring to allow for chrono boost during random fit would require even more calculation
 		else:
 			order.append([choices[choice],''],True,False,True)
             order.evaluate() # not verified
