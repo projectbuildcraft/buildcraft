@@ -257,7 +257,6 @@ class Instance:
             if num_injections >= num_hatcheries:
                 return False
         if now and events[event_index].get_result() == boost:
-            #chrono_target = self.events[order_index - 1][3]
             for p in self.production:
                 if p[0][0] == CHRONO_BOOST and p[0][3] == chrono_target:
                     return False
@@ -274,8 +273,8 @@ class Instance:
                     for event_info,time,index in self.production:
                         event_index = event_info[0]
                         if events[event_index].get_result() == add:
-                            for unit in events[event_index].get_args():
-                                if unit in [PROBE_GAS, SCV_GAS, DRONE_GAS]:
+                            for arg in events[event_index].get_args():
+                                if arg in [PROBE_GAS, SCV_GAS, DRONE_GAS]:
                                     gassers += 1 # gassers in production
                     gasses = self.units[EXTRACTOR] + self.units[ASSIMILATOR] + self.units[REFINERY]
                     if gassers >= 3 * gasses: # it certainly seems so
