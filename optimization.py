@@ -49,15 +49,15 @@ def a_star_optimization(race, constraints):
         current_order = frontier.pop()
         for option in current_order.all_available(): # somehow we need to handle gas tricks
             if helps(option,frozen_cons):
-                extension = Order(events_list=current_order.events, race = race)
+                extension = Order(events_list=copy.copy(current_order.events), race = race)
                 if events[option].get_result() == boost:
                     pass
                 else:
                     extension.append([option,'']) # need to make sure it has all of event_info
-                    if extension.sanity_check(): # if makes sense
+                    if extension.sanity_check(True): # if makes sense
                         if has_constraints(extension.at_time[-1],constraints):
                             return extension
-                        frontier.push(extension,cost(extension) + heuristic(extension,constraints))
+                        frontier.push(extension, cost(extension) + heuristic(extension,constraints))
     return None
 
 def when_meets(order, constraints):
@@ -312,6 +312,7 @@ class PriorityQueue:
 
   def pop(self):
       (priority,item) = heapq.heappop(self.heap)
+      #print "Out:", priority, [event_info[0] for event_info in item.events]
       return item
   
   def isEmpty(self):

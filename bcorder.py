@@ -467,15 +467,17 @@ class Order:
     def all_available(self, order_index = -1, gas_trick = False):
         return self.at[order_index].all_available(now = False, gas_trick = gas_trick)
 
-    def sanity_check(self):
+    def sanity_check(self, only_last = False):
         """
         Concept: Rejects build orders that are illogical during optimization search
         Requires calculated times for each event in self.at
         Checks the build order for the following conditions:
             Worker change from gas to minerals and back and vice versa in same second
-            Player does not send and receive the same resource in the same second
             Has more than 3 workers per gas
+            Lifts and drops on tech lab/reactor
+            Has more than 2 gas buildings per base
         Returns False if one is met
+        """
         """
         current_time = 0
         delta_workers = 0 # keeps track of changes in workers
@@ -483,15 +485,13 @@ class Order:
         delta_gas = 0
         for event_index, event in enumerate(self.events):
             at_index = event_index + 1
+            if event not in [SWITCH_SCV_TO_GAS,SWITCH_PROBE_TO_GAS,SWITCH_DRONE_TO_GAS,WARP_ASSIMILATOR,BUILD_REFINERY,MORPH_EXTRACTOR]:
+                delta_workers = 0
             if self.at[at_index].time > current_time:
                 current_time = self.at[at_index].time
                 delta_minerals = 0
                 delta_gas = 0
             else:
-                gassers = self.at[at_index].units[SCV_GAS] + self.at[at_index].units[PROBE_GAS] + self.at[at_index].units[DRONE_GAS]
-                gasses = self.at[at_index].units[ASSIMILATOR] + self.at[at_index].units[EXTRACTOR] + self.at[at_index].units[REFINERY]
-                if gassers > 3 * gasses:
-                    return False
                 if event_index in [SWITCH_DRONE_TO_GAS, SWITCH_PROBE_TO_GAS, SWITCH_SCV_TO_GAS]:
                     if delta_workers < 0:
                         return False
@@ -519,7 +519,24 @@ class Order:
                             return False
                         delta_gas = 1
         return True
-        
+        """
+        to_minerals = set([SWITCH_SCV_TO_MINERALS, SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS])
+        to_gas = set([SWITCH_SCV_TO_GAS, SWITCH_DRONE_TO_GAS, SWITCH_PROBE_TO_GAS])
+        changes = to_minerals | to_gas
+        event_index = len(self.events) - 1
+        if only_last:
+            if self.events[event_index][0] in changes and self.events[event_index - 1][0] in changes:
+                if (self.events[event_index][0] in to_minerals) ^ (self.events[event_index - 1][0] in to_minerals):
+                    return False
+            if self.events[event_index][0] in to_gas:
+                gassers = self.at_time[-1].units[SCV_GAS] + self.at_time[-1].units[PROBE_GAS] + self.at_time[-1].units[DRONE_GAS]
+                gasses = self.at_time[-1].units[REFINERY] + self.at_time[-1].units[EXTRACTOR] + self.at_time[-1].units[ASSIMILATOR]
+                if gassers > 3 * gasses:
+                    return False
+        else:
+            pass
+        return True
+            
     def append(self, event_info, recalc = True, remember = True, only_care_about_last = False):
         """
         Appends event to the build order
