@@ -3,6 +3,7 @@ from bcevent import boost
 from constants import *
 import copy
 import random
+import heapq
 
 contributes = {} # dynamicly generated dict from constraints tuple to dict of events according to how they contribute to that constraint
 
@@ -40,20 +41,25 @@ def a_star_optimization(race, constraints):
     Contraints is an array of units required in the form [(UNIT_INDEX, UNIT_COUNT)]
     Race denotes the race: "Z", "P", or "T"
     """
-    frontier = PriorityQueue(maxsize = -1) # no limit
-    frontier.put((1,Order(race = race)))
-    while not frontier.empty():
-        current_order = frontier.get()
+    frozen_cons = frozenset(constraints)
+    set_up(frozen_cons,race)
+    frontier = PriorityQueue() # no limit
+    frontier.push(Order(race = race),1)
+    while not frontier.isEmpty():
+        current_order = frontier.pop()
         for option in current_order.all_available(): # somehow we need to handle gas tricks
-            extension = copy.deepcopy(current_order)
-            extension.append([option]) # need to make sure it has all of event_info
-            if extension.sanity_check(): # if makes sense
-                if has_constraints(extension.at_time[-1],constraints):
-                    return extension
-                frontier.put((cost(extension) + heuristic(extension), extension))
+            if helps(option,frozen_cons):
+                extension = Order(events_list=current_order.events, race = race)
+                if events[option].get_result() == boost:
+                    pass
+                else:
+                    extension.append([option,'']) # need to make sure it has all of event_info
+                    if extension.sanity_check(): # if makes sense
+                        if has_constraints(extension.at_time[-1],constraints):
+                            return extension
+                        frontier.push(extension,cost(extension) + heuristic(extension,constraints))
     return None
-    
-    
+
 def when_meets(order, constraints):
     """
     Returns the time at which the build order meets the constraints, or 'inf' if it doesn't
@@ -205,7 +211,7 @@ def heuristic(order, constraints):
     pass
     return 0
 
-def cost(order, constraints):
+def cost(order):
     return order.at[-1].time # should be at because that's where we are in the build order right now
 
 def helps(event_index, constraints):
@@ -244,29 +250,69 @@ def set_up(constraints, race):
         pass # actually see if we benefit from supply
         if need_supply:
             needed_units |= set([[PYLON],[SUPPLY_DEPOT,SUPPLY_DEPOT_EXTRA],[OVERLORD]][r])
+        need_scouts = False
+        for unit, count in constraints:
+            if unit in [PROBE_SCOUT,DRONE_SCOUT,SCV_SCOUT]:
+                need_scouts = True
+                break
+        if need_scouts:
+            needed_units |= set([[PROBE_SCOUT],[SCV_SCOUT],[DRONE_SCOUT]][r])
         needed_events = set()
         old_length = 0
         for event_index in xrange(len(events)): # initialize
             if events[event_index].get_result() in [add,research,warp]:
-                if event_index == RESEARCH_WARP_GATE:
-                    print "yay"
-                    print events[event_index].get_args()
-                    print needed_units
                 if len([1 for element in events[event_index].get_args() if element in needed_units]):
                     needed_events.add(event_index)
                     needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
             elif race == "T" and events[event_index].get_result() == mule and need_minerals:
                 needed_events.add(event_index)
+                needed_units.add(MULE)
             elif race == "P" and events[event_index].get_result() == boost:
                 needed_events.add(event_index)
         new_length = len(needed_events)
         while old_length != new_length:
             old_length = new_length
             for event_index in xrange(len(events)): # continue
-                if events[event_index].get_result() in [add,research,warp]:
+                if events[event_index].get_result() in [add,research]:
                     if len([element for element in events[event_index].get_args() if element in needed_units]):
                         needed_events.add(event_index)
-                        needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
+                        needed_units |= set([req for req,kind in events[event_index].get_requirements()])
+                elif events[event_index].get_result() ==  warp:
+                    if events[event_index].get_args()[0] in needed_units:
+                        needed_events.add(event_index)
+                        needed_units |= set([req for req,kind in events[event_index].get_requirements()])
             new_length = len(needed_events)
+        # now remove unneeded
+        if not need_scouts:
+            needed_events -= set([SEND_SCV_TO_SCOUT,BRING_BACK_SCV_SCOUT,SEND_PROBE_TO_SCOUT,BRING_BACK_PROBE_SCOUT,SEND_DRONE_TO_SCOUT,BRING_BACK_DRONE_SCOUT])
+        if not need_gas:
+            needed_events -= set([SWITCH_SCV_TO_MINERALS,SWITCH_SCV_TO_SCOUT,BUILD_REFINERY,SWITCH_PROBE_TO_MINERALS,SWITCH_PROBE_TO_GAS,WARP_ASSIMILATOR,SWITCH_DRONE_TO_GAS,SWITCH_DRONE_TO_MINERALS,MORPH_EXTRACTOR])
         contributes[constraints] = {i: (i in needed_events) for i in xrange(len(events))}
         print [key for key in contributes[constraints].iterkeys() if contributes[constraints][key]]
+
+class PriorityQueue:
+  """
+    Implements a priority queue data structure. Each inserted item
+    has a priority associated with it and the client is usually interested
+    in quick retrieval of the lowest-priority item in the queue. This
+    data structure allows O(1) access to the lowest-priority item.
+    
+    Note that this PriorityQueue does not allow you to change the priority
+    of an item.  However, you may insert the same item multiple times with
+    different priorities.
+
+    This code from John DiNero and Dan Klein's util.py 
+  """  
+  def  __init__(self):  
+    self.heap = []
+    
+  def push(self, item, priority):
+      pair = (priority,item)
+      heapq.heappush(self.heap,pair)
+
+  def pop(self):
+      (priority,item) = heapq.heappop(self.heap)
+      return item
+  
+  def isEmpty(self):
+    return len(self.heap) == 0
