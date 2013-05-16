@@ -802,6 +802,23 @@ army_units = { # UNIT: (MINERALS, GAS)
 	MOTHERSHIP : (400,400),
 }
 
+protoss_structures = set([
+    NEXUS,
+    PYLON,
+    GATEWAY,
+    WARPGATE,
+    WARPGATE_COOLDOWN,
+    FORGE,
+    CYBERNETICS_CORE,
+    TWILIGHT_COUNCIL,
+    STARGATE,
+    TEMPLAR_ARCHIVES,
+    DARK_SHRINE,
+    FLEET_BEACON,
+    ROBOTICS_BAY,
+    ROBOTICS_FACILITY
+])
+
 defensive_units = { # UNIT: (MINERALS, GAS)
 	PLANETARY_FORTRESS : (150,150), # I don't count the cost of CC because it doesn't count as defensive
 	MISSILE_TURRET : (125,0),
