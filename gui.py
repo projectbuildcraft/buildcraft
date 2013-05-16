@@ -123,11 +123,10 @@ class EventWidget(Canvas):
                 change = (drag_event.y - 13) / 27
             elif drag_event.y < -14:
                 change = (drag_event.y + 14) / 27
-        else:
-            if drag_event.y > 14 or self.index > self.app.drag + 1:
-                    change = self.index - self.app.drag
-            elif drag_event.y < 14 or self_index < self.app.drag - 1:
-                    change = self.app.drag - self.index
+        elif self.index - 1 > self.app.drag or (self.index - 1 == self.app.drag and drag_event.y > 14):
+            change = 1
+        elif self.index + 1 < self.app.drag or (self.index + 1 == self.app.drag and drag_event.y < 14):
+            change = -1
         print change
         if change:
             self.app.my_order.move(self.app.drag, self.app.drag + change)
