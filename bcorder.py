@@ -194,16 +194,17 @@ class Instance:
     def all_available(self, now = False, gas_trick = False):
         return [event_index for event_index in xrange(len(events)) if self.available(event_index, now, gas_trick)]
 
-    def available(self, event_index, now = False, gas_trick = False):
+    def available(self, event_index, now = False, gas_trick = False, chrono_target = None):
         """
         Evaluates whether event is available from this instance
         Arguments:
         event_index - event desired (indexes events)
         now - whether to evaluate availability now or eventually
         gas_trick - whether this is a zerg player who will break supply barriers with gas tricks
+        chrono_target - the target, indexing self.events, of the chrono boost, if this is a chrono boost; otherwise None
         """
         # supply, minerals, gas
-        required_tricks = 0 # we only really care about this if now because it effects mineral cost
+        required_tricks = 0 # we only really care about this if now because it affects mineral cost
         if events[event_index].supply > 0: # requires supply
             if (self.supply) + (events[event_index].supply) > 200: # will max out supply
                 if not gas_trick:
@@ -255,8 +256,8 @@ class Instance:
             num_injections = len([event_info[0] for event_info, time, index in self.production if event_info[0] == SPAWN_LARVA])
             if num_injections >= num_hatcheries:
                 return False
-        if now and event_index == CHRONO_BOOST:
-            chrono_target = self.events[order_index - 1][3]
+        if now and events[event_index].get_result() == boost:
+            #chrono_target = self.events[order_index - 1][3]
             for p in self.production:
                 if p[0][0] == CHRONO_BOOST and p[0][3] == chrono_target:
                     return False
@@ -275,10 +276,10 @@ class Instance:
                         if events[event_index].get_result() == add:
                             for unit in events[event_index].get_args():
                                 if unit in [PROBE_GAS, SCV_GAS, DRONE_GAS]:
-                                    gassers += 1
+                                    gassers += 1 # gassers in production
                     gasses = self.units[EXTRACTOR] + self.units[ASSIMILATOR] + self.units[REFINERY]
                     if gassers >= 3 * gasses: # it certainly seems so
-                        for event_info,time, index in self.production: # let's check
+                        for event_info, time, index in self.production: # let's check
                             if events[event_info[0]].get_result() == add and events[event_info[0]].get_args()[0] in [EXTRACTOR, ASSIMILATOR, REFINERY]: # there is in fact another on the way
                                 return False # I'll wait then
                 if self.units[unit] > 0:
@@ -459,7 +460,10 @@ class Order:
         # supply, minerals, gas
         required_tricks = 0 # we only really care about this if now because it effects mineral cost
         current = self.at[order_index]
-        return self.at[order_index].available(event_index, now, gas_trick)
+        chrono_target = None
+        if events[event_index].get_result() == boost:
+            chrono_target = self.events[order_index - 1][3]
+        return self.at[order_index].available(event_index, now, gas_trick, chrono_target)
         
     def all_available(self, order_index = -1, gas_trick = False):
         return self.at[order_index].all_available(now = False, gas_trick = gas_trick)
@@ -489,29 +493,29 @@ class Order:
                 gasses = self.at[at_index].units[ASSIMILATOR] + self.at[at_index].units[EXTRACTOR] + self.at[at_index].units[REFINERY]
                 if gassers > 3 * gasses:
                     return False
-                if events[event_index] in [SWITCH_DRONE_TO_GAS, SWITCH_PROBE_TO_GAS, SWITCH_SCV_TO_GAS]:
+                if event_index in [SWITCH_DRONE_TO_GAS, SWITCH_PROBE_TO_GAS, SWITCH_SCV_TO_GAS]:
                     if delta_workers < 0:
                         return False
                     delta_workers = 1
-                elif events[event_index] in [SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS, SWITCH_SCV_TO_MINERALS]:
+                elif event_index in [SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS, SWITCH_SCV_TO_MINERALS]:
                     if delta_workers > 0:
                         return False
                     delta_workers = -1
                 else:
                     delta_workers = 0
-                    if events[event_index] == GIVE_MINERALS:
+                    if event_index == GIVE_MINERALS:
                         if delta_minerals > 0:
                             return False
                         delta_minerals = -1
-                    elif events[event_index] == RECEIVE_MINERALS:
+                    elif event_index == RECEIVE_MINERALS:
                         if delta_minerals < 0:
                             return False
                         delta_minerals = 1
-                    elif events[event_index] == GIVE_GAS:
+                    elif event_index == GIVE_GAS:
                         if delta_gas > 0:
                             return False
                         delta_gas = -1
-                    elif events[event_index] == RECEIVE_GAS:
+                    elif event_index == RECEIVE_GAS:
                         if delta_gas < 0:
                             return False
                         delta_gas = 1
