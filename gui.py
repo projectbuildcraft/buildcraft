@@ -98,7 +98,7 @@ class EventWidget(Canvas):
     def echo(self,location=None):
         """ On click, check if Chrono Boost is active, and if so, Chrono Boost this event """
         if self.app.chrono >= 0:
-            insert_chrono(self.app, self.index)
+            self.app.insert_chrono(self.index)
             self.app.chrono = -1
 
     def update(self,current):
@@ -240,13 +240,9 @@ class BuildCraftGUI:
         app.graphs = graphs = Menu(app.menubar, tearoff = 0)
         app.menubar.add_cascade(label='Graphs',menu=graphs)
         graphs.add_command(label='Supply',command=app.supply_graph)
-        app.supply_g = None
         graphs.add_command(label='Army Value',state=NORMAL if has_army(app.my_order) else DISABLED,command=app.army_value_graph)
-        app.army_value_g = None
         graphs.add_command(label='Resource Collection Rate',command=app.resource_collection_rate_graph)
-        app.resource_rate_g = None
         graphs.add_command(label='Resources',command=app.resource_graph)
-        app.resoures_g = None
         app.master.config(menu=app.menubar)
 
         app.frame.bind_all('<Control-z>',app.undo)
@@ -437,34 +433,38 @@ class BuildCraftGUI:
         app.refresh()
 
     def supply_graph(app):
-        if not app.supply_g:
+        if not hasattr(app, 'supply_g'):
             app.supply_g = Graph(app.my_order,supply_data,title='Supply',end_value = app.my_order.at[-1].time)
             app.supply_g.start()
         else:
             app.supply_g.recalculate_data(app.my_order)
+            app.supply_g.focus_set()
             
     def army_value_graph(app):
-        if not app.army_value_g:
+        if not hasattr(app, 'army_value_g'):
             app.army_value_g = Graph(app.my_order,army_data,title = 'Army Value',end_value = app.my_order.at[-1].time,options = ['Include Defense'])
             app.army_value_g.start()
         else:
             app.army_value_g.recalculate_data(app.my_order)
+            app.army_value_g.focus_set()
             
     def resource_collection_rate_graph(app):
-        side_scale = 50 if app.order.race == 'Z' else 0
-        if not app.resource_collection_rate_g:
+        side_scale = 50 if app.my_order.race == 'Z' else 0
+        if not hasattr(app, 'resource_collection_rate_g'):
             app.resource_collection_rate_g = Graph(app.my_order,resource_collection_rate_data,title = 'Resource Collection Rate',side_scale = side_scale,end_value = app.my_order.at[-1].time)
             app.resource_collection_rate_g.start()
         else:
             app.resource_collection_rate_g.recalculate_data(app.my_order)
+            app.resource_collection_rate_g.focus_set()
 
     def resource_graph(app):
-        side_scale = 50 if order.race == 'Z' else 0
-        if not app.resource_g:
+        side_scale = 50 if app.my_order.race == 'Z' else 0
+        if not hasattr(app, 'resource_g'):
             app.resource_g = Graph(app.my_order,resource_data,title = 'Resources on Hand',side_scale = side_scale,end_value = app.my_order.at[-1].time)
             app.resource_g.start()
         else:
             app.resource_g.recalculate_data(app.my_order)
+            app.resource_g.focus_set()
 
 def supply_data(order, args = []):
     worker_supply = dict()
