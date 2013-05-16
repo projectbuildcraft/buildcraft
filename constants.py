@@ -807,7 +807,7 @@ protoss_structures = set([
     PYLON,
     GATEWAY,
     WARPGATE,
-    WARPGATE_COOLDOWN,
+    WARPGATE_ON_COOLDOWN,
     FORGE,
     CYBERNETICS_CORE,
     TWILIGHT_COUNCIL,
