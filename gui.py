@@ -68,7 +68,9 @@ class EventWidget(Canvas):
         if not dull:
             self.full_time = self.create_rectangle(EventWidget.supply_width+disp,2,total_time*5+EventWidget.supply_width+disp,self.height)
         self.create_text(EventWidget.supply_width + 5 + disp,10,text=events[self.event[0]].name,anchor=W)
-        self.bind('<Button-1>',self.echo)
+        self.bind('<Button-1>',self.clicked)
+        self.bind('<ButtonRelease-1>',self.unclicked)
+        self.bind('<B1-Motion>',self.drag)
         self.passed_str = str(actual_time)+'/'+str(total_time)
         self.tooltip = ToolTip(self,delay=50)
         self.tooltip.configure(text=self.passed_str+' '+self.app.my_order.get_note(self.index))
@@ -87,6 +89,9 @@ class EventWidget(Canvas):
             
         self.bind('<Button-3>',self.popup)
 
+    def echo(self, event=None):
+        print self.index
+
     def chrono_check(self, chrono_index):
         """ Changes this event to be dashed if able to be Chrono Boosted from chrono_index """
         
@@ -95,11 +100,35 @@ class EventWidget(Canvas):
         else:
             self.itemconfig(self.full_time, dash = None)
 
-    def echo(self,location=None):
+    def clicked(self,click_event):
         """ On click, check if Chrono Boost is active, and if so, Chrono Boost this event """
-        if self.app.chrono >= 0:
+        if self.app.chrono >= 0 and self.app.my_order.can_chrono(self.index, self.app.chrono):
             self.app.insert_chrono(self.index)
             self.app.chrono = -1
+        else:
+            self.app.drag = self.index
+
+    def unclicked(self,click_event):
+        if self.app.drag >= 0:
+            change = (click_event.y + 14) / 27
+            self.app.my_order.move(self.index, self.index + change)
+            self.app.refresh()
+            self.app.drag = -1
+
+    def drag(self,drag_event):
+        print drag_event.y
+        if drag_event.y > 40:
+            change = (drag_event.y - 13) / 27
+        elif drag_event.y < -14:
+            change = (drag_event.y + 14) / 27
+        else:
+            return
+        self.app.my_order.move(self.index, self.index + change)
+        print 'move', self.index, self.index + change
+        #self.index += change
+        self.app.drag += change
+        self.app.refresh()
+        #self.app.drag = self.index + change
 
     def update(self,current):
         """ Updates the time completion of this event given current time """
@@ -182,6 +211,8 @@ class BuildCraftGUI:
         #add_graph_buttons(app)
 
         app.add_instance_analysis()
+
+        app.drag = -1
 
         app.add_event_list()
 
@@ -422,6 +453,8 @@ class BuildCraftGUI:
             event_widget.pack(anchor=W)
             app.events.append(event_widget)
         app.chrono = -1
+        if app.drag >= 0:
+            app.events[app.drag].focus_set()
 
     def insert_event(app, index, event):
         app.my_order.insert([event,''],index)
