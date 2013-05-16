@@ -606,8 +606,12 @@ class Order:
         """
         Returns whether a chrono boost can be applied at chrono_index for an event at boosted_index
         """
-        pass # this is a dummy function for now
-        return True
+        if chrono_index <= boosted_index:
+            return False
+        for r in events[self.events[boosted_index][0]].get_requirements():
+            if r[0] in protoss_structures and r[1] == O:
+                return True
+        return False
 
     def delete(self, index, recalc = True, remember = True):
         """
