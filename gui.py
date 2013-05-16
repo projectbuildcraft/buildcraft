@@ -126,7 +126,7 @@ class EventWidget(Canvas):
         else:
             if drag_event.y > 14 or self.index > self.app.drag + 1:
                     change = self.index - self.app.drag
-            elif drag.event.y < 14 or self.index < self.app.drag - 1:
+            elif drag_event.y < 14 or self_index < self.app.drag - 1:
                     change = self.app.drag - self.index
         print change
         if change:
