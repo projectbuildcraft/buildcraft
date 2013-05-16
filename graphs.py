@@ -15,7 +15,7 @@ class Graph(Frame):
     
     def __init__(g, data_base, data_function, title = '', size = (600,400), side_scale = None, label_width = 150, padding = (50,50,50,50), end_value = 0, options = []):
 
-        dataset = data_function(data_base)
+        g.dataset = dataset = data_function(data_base)
 
         g.data_function = data_function
         g.data_base = data_base
@@ -65,11 +65,19 @@ class Graph(Frame):
                 else:
                     g.c.create_line(width - label_width + 20,y,width - 20,y,fill=d.color)
                 g.c.create_text(width - label_width/2,y - 20,text=d.label)
+                area = g.c.create_rectangle(width - label_width + 20,y-20,width-20,y+10)
+                g.c.tag_bind(area,'<Button-1>',lambda g,d:g.move_down(d))
                 y += 50
 
         for o in options:
             checkbox = Checkbutton(g.c, text=o, command=g.recalculate_data, variable=v)
             g.c.create_window(width - label_width + 20,y,window=checkbox)
+
+    def move_down(g, data, event = None):
+        print 'here'
+        g.dataset.remove(data)
+        g.dataset.append(data)
+        g.plot()
 
     def start(g):
         g.root.mainloop()

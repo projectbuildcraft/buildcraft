@@ -116,20 +116,24 @@ class EventWidget(Canvas):
             self.app.drag = -1
 
     def drag(self,drag_event):
-        print drag_event.y
-        if drag_event.y > 40:
-            change = (drag_event.y - 13) / 27
-        elif drag_event.y < -14:
-            change = (drag_event.y + 14) / 27
-        else:
-            return
-        self.app.my_order.move(self.index, self.index + change)
-        print 'move', self.index, self.index + change
-        #self.index += change
-        self.app.drag += change
-        self.app.refresh()
-        #self.app.drag = self.index + change
-
+        print drag_event.y, self.index, self.app.drag,
+        change = 0
+        if self.index == self.app.drag:
+            if drag_event.y > 40:
+                change = (drag_event.y - 13) / 27
+            elif drag_event.y < -14:
+                change = (drag_event.y + 14) / 27
+        elif self.index - 1 > self.app.drag or (self.index - 1 == self.app.drag and drag_event.y > 14):
+            change = 1
+        elif self.index + 1 < self.app.drag or (self.index + 1 == self.app.drag and drag_event.y < 14):
+            change = -1
+        print change
+        if change:
+            self.app.my_order.move(self.app.drag, self.app.drag + change)
+            #self.index += change
+            self.app.drag += change
+            self.app.refresh()
+            
     def update(self,current):
         """ Updates the time completion of this event given current time """
         
@@ -453,8 +457,6 @@ class BuildCraftGUI:
             event_widget.pack(anchor=W)
             app.events.append(event_widget)
         app.chrono = -1
-        if app.drag >= 0:
-            app.events[app.drag].focus_set()
 
     def insert_event(app, index, event):
         app.my_order.insert([event,''],index)
