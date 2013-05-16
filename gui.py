@@ -116,21 +116,18 @@ class EventWidget(Canvas):
             self.app.drag = -1
 
     def drag(self,drag_event):
-        print drag_event.y, self.index, self.app.drag,
         change = 0
         if self.index == self.app.drag:
             if drag_event.y > 40:
                 change = (drag_event.y - 13) / 27
             elif drag_event.y < -14:
                 change = (drag_event.y + 14) / 27
-        elif self.index - 1 > self.app.drag or (self.index - 1 == self.app.drag and drag_event.y > 14):
-            change = 1
-        elif self.index + 1 < self.app.drag or (self.index + 1 == self.app.drag and drag_event.y < 14):
-            change = -1
-        print change
+        elif self.index - 1 >= self.app.drag:
+            change = self.index - self.app.drag - int(drag_event.y < 14)
+        elif self.index + 1 <= self.app.drag:
+            change = -(self.app.drag - self.index - int(drag_event.y > 14))
         if change:
             self.app.my_order.move(self.app.drag, self.app.drag + change)
-            #self.index += change
             self.app.drag += change
             self.app.refresh()
             
