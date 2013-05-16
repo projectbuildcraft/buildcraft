@@ -3,6 +3,7 @@ from bcevent import boost
 from constants import *
 import copy
 import random
+import heapq
 
 contributes = {} # dynamicly generated dict from constraints tuple to dict of events according to how they contribute to that constraint
 
@@ -41,10 +42,10 @@ def a_star_optimization(race, constraints):
     Race denotes the race: "Z", "P", or "T"
     """
     frozen_cons = frozenset(constraints)
-    set_up(frozen_cons)
-    frontier = PriorityQueue(maxsize = -1) # no limit
+    set_up(frozen_cons,race)
+    frontier = PriorityQueue() # no limit
     frontier.push(Order(race = race),1)
-    while not frontier.empty():
+    while not frontier.isEmpty():
         current_order = frontier.pop()
         for option in current_order.all_available(): # somehow we need to handle gas tricks
             if helps(option,frozen_cons):
@@ -56,7 +57,7 @@ def a_star_optimization(race, constraints):
                     if extension.sanity_check(): # if makes sense
                         if has_constraints(extension.at_time[-1],constraints):
                             return extension
-                        frontier.push(extension,cost(extension) + heuristic(extension))
+                        frontier.push(extension,cost(extension) + heuristic(extension,constraints))
     return None
 
 def when_meets(order, constraints):
@@ -210,7 +211,7 @@ def heuristic(order, constraints):
     pass
     return 0
 
-def cost(order, constraints):
+def cost(order):
     return order.at[-1].time # should be at because that's where we are in the build order right now
 
 def helps(event_index, constraints):
@@ -265,16 +266,21 @@ def set_up(constraints, race):
                     needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
             elif race == "T" and events[event_index].get_result() == mule and need_minerals:
                 needed_events.add(event_index)
+                needed_units.add(MULE)
             elif race == "P" and events[event_index].get_result() == boost:
                 needed_events.add(event_index)
         new_length = len(needed_events)
         while old_length != new_length:
             old_length = new_length
             for event_index in xrange(len(events)): # continue
-                if events[event_index].get_result() in [add,research,warp]:
+                if events[event_index].get_result() in [add,research]:
                     if len([element for element in events[event_index].get_args() if element in needed_units]):
                         needed_events.add(event_index)
-                        needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
+                        needed_units |= set([req for req,kind in events[event_index].get_requirements()])
+                elif events[event_index].get_result() ==  warp:
+                    if events[event_index].get_args()[0] in needed_units:
+                        needed_events.add(event_index)
+                        needed_units |= set([req for req,kind in events[event_index].get_requirements()])
             new_length = len(needed_events)
         # now remove unneeded
         if not need_scouts:
