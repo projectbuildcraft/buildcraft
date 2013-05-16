@@ -85,16 +85,15 @@ def randomly_fit(race,constraints):
     Returns a random build order that fits the given constraints or fills supply
     Constraints is a frozen set with elements (UNIT, COUNT)
     """
-    set_up(constraints)
+    set_up(constraints, race)
     order = Order(race = race, calc = False)
     order.evaluate()
     while not has_constraints(order.at_time[-1],constraints) and order.at_time[-1].supply < 200:
-        choices = [i for i in order.at_time[-1].all_available() if helps(i,constraints)]
-        choice = random.randint(0,len(choices) - 1)
-        if events[choices[choice]].get_result() == boost:
+        choice = random.choice([i for i in order.at_time[-1].all_available() if helps(i,constraints)])
+        if events[choice].get_result() == boost:
             pass # caring to allow for chrono boost during random fit would require even more calculation
         else:
-            order.append([choices[choice],''],recalc = False,remember = False)
+            order.append([choice,''],recalc = False,remember = False)
             order.evaluate() # not verified
     return order
 
@@ -105,8 +104,8 @@ def reproduce(order1, order2, constraints):
     Constraints - a frozen set of tuples representing guidelines (UNIT, COUNT)
     """
     if order2 == None:
-        child = copy.deepcopy(order1)
-        mutate(child,constraints)
+        child = Order(events_list = copy.deepcopy(order1.events), race = order1.race, calc = False)
+        mutate(child, constraints)
     else:
         while True:
             events_list = []
@@ -137,9 +136,8 @@ def mutate(order, constraints):
             if index < len(order.events):
                 order.calculate_times() # we shouldn't have to calculate all though
                 choices = [event for event in xrange(len(events)) if helps(event, constraints)]
-                choices = [choice for choice in choices if order.available(index,choice,False,False)]
-                choice = random.randint(0,len(choices) - 1)
-                if events[choices[choice]].get_result() == boost:
+                choice = random.choice([choice for choice in choices if order.available(index,choice,False,False)])
+                if events[choice].get_result() == boost:
                     boostable = []
                     for p in order.at[index].production:
                         for r in events[p[0][0]].get_requirements():
@@ -149,13 +147,13 @@ def mutate(order, constraints):
                                 break
                     if len(boostable) > 0:
                         extra_choice = random.randint(0,len(boostable) - 1)
-                        event_info = [choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]]
+                        event_info = [choice, '', boostable[extra_choice][0], boostable[extra_choice][1]]
                         if index == len(order.events):
                             order.append(event_info, False, False)
                         else:
                             order.insert(event_info, index, False, False)
                 else:
-                    event_info = [choices[choice], '']
+                    event_info = [choice, '']
                     if index == len(order.events):
                         order.append(event_info, False, False)
                     else:
@@ -171,7 +169,7 @@ def mutate(order, constraints):
             if order.race == "P":
                 pass # modify chrono boost
             if order.race == "Z":
-                pass # toggle gas trick 
+                pass # toggle gas trick
             if order.race == "T":
                 pass # idk
         elif mutation == 13: # swap after
@@ -218,35 +216,48 @@ def helps(event_index, constraints):
     """
     return contributes[constraints][event_index]
 
-def set_up(constraints):
+def set_up(constraints, race):
     """
     Ensures the contributes dictionary has an entry for constraints
     Arguments- constraints, a frozen set of constraints tuples
+             - race, "P" for Protoss, "T" for Terran, "Z" for Zerg
     """
+    if race == "P":
+        r = 0
+    elif race == "T":
+        r = 1
+    elif race == "Z":
+        r = 2
     if constraints not in contributes:
-        needed_units = set(constraints)
+        needed_units = set()
+        for unit, count in constraints:
+            needed_units.add(unit)
         need_minerals = True
         pass # actually see if we benefit from minerals
         if need_minerals:
-            needed_units |= set([PROBE_MINERAL,SCV_MINERAL,DRONE_MINERAL])
+            needed_units.add([PROBE_MINERAL,SCV_MINERAL,DRONE_MINERAL][r])
         need_gas = True
         pass # actually see if we benefit from gas
         if need_gas:
-            needed_units |= set([PROBE_GAS,SCV_GAS,DRONE_GAS])
+            needed_units.add([PROBE_GAS,SCV_GAS,DRONE_GAS][r])
         need_supply = True
         pass # actually see if we benefit from supply
         if need_supply:
-            needed_units |= set([SUPPLY_DEPOT,SUPPLY_DEPOT_EXTRA,PYLON,OVERLORD])
+            needed_units |= set([[PYLON],[SUPPLY_DEPOT,SUPPLY_DEPOT_EXTRA],[OVERLORD]][r])
         needed_events = set()
         old_length = 0
         for event_index in xrange(len(events)): # initialize
             if events[event_index].get_result() in [add,research,warp]:
-                if len([element for element in events[event_index].get_args() if element in needed_units]):
+                if event_index == RESEARCH_WARP_GATE:
+                    print "yay"
+                    print events[event_index].get_args()
+                    print needed_units
+                if len([1 for element in events[event_index].get_args() if element in needed_units]):
                     needed_events.add(event_index)
                     needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
-            elif events[event_index].get_result() == mule and need_minerals:
+            elif race == "T" and events[event_index].get_result() == mule and need_minerals:
                 needed_events.add(event_index)
-            elif events[event_index].get_result() == boost:
+            elif race == "P" and events[event_index].get_result() == boost:
                 needed_events.add(event_index)
         new_length = len(needed_events)
         while old_length != new_length:
