@@ -1019,7 +1019,7 @@ class Team:
             self.future = []
         self.builds[player].delete(index, remember = False)
 
-    def delete_manay(self, indices, player = 0, remember = True):
+    def delete_many(self, indices, player = 0, remember = True):
         """
         Deletes events at specified indices for specified player
         """
