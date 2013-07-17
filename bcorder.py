@@ -523,6 +523,17 @@ class Order:
         to_minerals = set([SWITCH_SCV_TO_MINERALS, SWITCH_DRONE_TO_MINERALS, SWITCH_PROBE_TO_MINERALS])
         to_gas = set([SWITCH_SCV_TO_GAS, SWITCH_DRONE_TO_GAS, SWITCH_PROBE_TO_GAS])
         changes = to_minerals | to_gas
+        #I want to, every time someone tries to lift a building, verify that in between that event and any landing of that type of building at that type of add-on,
+        #something was done that required that add on. If that did not happen, return False
+        lifts_to_uses = {SEPARATE_REACTOR_FROM_BARRACKS: (frozenset([TRAIN_MARINE, TRAIN_REAPER, BUILD_REACTOR_ONTO_BARRACKS, ATTACH_REACTOR_TO_BARRACKS]), ATTACH_REACTOR_TO_BARRACKS),
+                         SEPARATE_REACTOR_FROM_FACTORY: (frozenset([BUILD_WIDOW_MINE, BUILD_HELLION, BUILD_HELLBAT, BUILD_REACTOR_ONTO_FACTORY, ATTACH_REACTOR_TO_FACTORY]), ATTACH_REACTOR_TO_FACTORY),
+                         SEPARATE_REACTOR_FROM_STARPORT: (frozenset([BUILD_VIKING, BUILD_MEDIVAC, BUILD_REACTOR_ONTO_STARPORT, ATTACH_REACTOR_TO_STARPORT]), ATTACH_REACTOR_TO_STARPORT),
+                         SEPARATE_TECH_LAB_FROM_BARRACKS: (frozenset([TRAIN_MARAUDER, TRAIN_GHOST, BUILD_TECH_LAB_ONTO_BARRACKS, RESEARCH_CONCUSSIVE_SHELLS, RESEARCH_STIMPACK,
+                                                                      RESEARCH_COMBAT_SHIELD, ATTACH_TECH_LAB_TO_BARRACKS]), ATTACH_TECH_LAB_TO_BARRACKS),
+                         SEPARATE_TECH_LAB_FROM_FACTORY: (frozenset([BUILD_SIEGE_TANK, BUILD_THOR, BUILD_TECH_LAB_ONTO_FACTORY, RESEARCH_INFERNAL_PRE_IGNITER,
+                                                                     RESEARCH_DRILLING_CLAWS, RESEARCH_TRANSFORMATION_SERVOS, ATTACH_TECH_LAB_TO_FACTORY]), ATTACH_TECH_LAB_TO_FACTORY),
+                         SEPARATE_TECH_LAB_FROM_STARPORT: (frozenset([BUILD_BANSHEE, BUILD_RAVEN, BUILD_BATTLE_CRUISER, BUILD_TECH_LAB_ONTO_STARPORT, RESEARCH_CADUCEUS_REACTOR,
+                                                                      RESEARCH_CORVID_REACTOR, RESEARCH_DURABLE_MATERIALS, RESEARCH_CLOAKING_FIELD, ATTACH_TECH_LAB_TO_STARPORT]), ATTACH_TECH_LAB_TO_STARPORT)}
         event_index = len(self.events) - 1
         if only_last:
             if self.events[event_index][0] in changes and self.events[event_index - 1][0] in changes:
@@ -532,6 +543,13 @@ class Order:
                 gassers = self.at_time[-1].units[SCV_GAS] + self.at_time[-1].units[PROBE_GAS] + self.at_time[-1].units[DRONE_GAS]
                 gasses = self.at_time[-1].units[REFINERY] + self.at_time[-1].units[EXTRACTOR] + self.at_time[-1].units[ASSIMILATOR]
                 if gassers > 3 * gasses:
+                    return False
+            if self.events[event_index][0] in lifts_to_uses.keys():
+                lift = self.events[event_index][0]
+                i = event_index
+                while i >= 0 and self.events[i][0] not in lifts_to_uses[lift][0]:
+                    i -= 1
+                if i > 0 and self.events[i][0] == lifts_to_uses[lift][1]:
                     return False
         else:
             pass
