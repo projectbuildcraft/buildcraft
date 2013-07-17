@@ -3,7 +3,7 @@ all:
 clean:
 	rm *.pyc
 run:
-	./buildcraft.py
+	./buildcraft
 babies:
 	fortune | cowsay
 pull:

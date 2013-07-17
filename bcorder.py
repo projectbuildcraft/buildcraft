@@ -359,7 +359,24 @@ class Instance:
                     return False
             continue
         return True
-   
+    
+    def init_as_race(self, race):
+        if race == "P":
+            self.units[PROBE_MINERAL] = 6
+            self.units[NEXUS] = 1
+            self.energy_units.append([NEXUS,energy[NEXUS][0]])
+        if race == "T":
+            self.units[SCV_MINERAL] = 6
+            self.units[COMMAND_CENTER] = 1
+            self.cap = 11 # override default
+        if race == "Z":
+            self.units[DRONE_MINERAL] = 6
+            self.units[HATCHERY] = 1
+            self.units[LARVA] = 3
+            self.units[OVERLORD] = 1
+            self.base_larva = [3]
+        self.blue = 1
+        self.energy_units = []
 
 racename = {
     "P" : "Protoss",
@@ -690,21 +707,7 @@ class Order:
         start_times = {}
         end_times = {}         
         self.time_taken = {} # event_index -> time_taken
-        if self.race == "P":
-            now.units[PROBE_MINERAL] = 6
-            now.units[NEXUS] = 1
-            now.energy_units.append([NEXUS,energy[NEXUS][0]])
-        if self.race == "T":
-            now.units[SCV_MINERAL] = 6
-            now.units[COMMAND_CENTER] = 1
-            now.cap = 11 # override default
-        if self.race == "Z":
-            now.units[DRONE_MINERAL] = 6
-            now.units[HATCHERY] = 1
-            now.units[LARVA] = 3
-            now.units[OVERLORD] = 1
-            now.base_larva = [3]
-        now.blue = 1
+        now.init_as_race(self.race)
         self.at = [now] # at[0] is initial state, at[1] is state at which can do first event, etc
         self.at_time = []
         impossible = False
@@ -804,21 +807,7 @@ class Order:
         """
         if self.incorrect_times:
             now = Instance()
-            if self.race == "P":
-                now.units[PROBE_MINERAL] = 6
-                now.units[NEXUS] = 1
-                now.energy_units.append([NEXUS,energy[NEXUS][0]])
-            if self.race == "T":
-                now.units[SCV_MINERAL] = 6
-                now.units[COMMAND_CENTER] = 1
-                now.cap = 11 # override default
-            if self.race == "Z":
-                now.units[DRONE_MINERAL] = 6
-                now.units[HATCHERY] = 1
-                now.units[LARVA] = 3
-                now.units[OVERLORD] = 1
-                now.base_larva = [3]
-            now.energy_units = []
+            now.init_as_race(self.race)
             for index, event_info in enumerate(self.events):
                 # now effect costs
                 now.supply += events[event_info[0]].supply
