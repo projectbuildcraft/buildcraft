@@ -545,7 +545,7 @@ events = [
         Event('Research Ship Plating Level 3',300,300,0,0,220,research,(SHIP_PLATING_LEVEL_3,),((ARMORY,O),(SHIP_PLATING_LEVEL_3,N),(SHIP_PLATING_LEVEL_2,A))),
         Event('Research Nitro Packs',50,50,0,0,100,research,(NITRO_PACKS,),((TECH_LAB_BARRACKS,O),(NITRO_PACKS,N),(ARMORY,A))),
         Event('Research Hi_Sec Auto Tracking',100,100,0,0,80,research,(HI_SEC_AUTO_TRACKING,),((ENGINEERING_BAY,O),(HI_SEC_AUTO_TRACKING,N))),
-        Event('Research Cloaking Field',200,200,0,0,110,research,(CLOAKING_FIELD,),((TECH_LAB_STARPORT,O),(CLOAKING_FIELD,N))),
+        Event('Research Cloaking Field',100,100,0,0,110,research,(CLOAKING_FIELD,),((TECH_LAB_STARPORT,O),(CLOAKING_FIELD,N))),
         Event('Research Concussive Shells',50,50,0,0,60,research,(CONCUSSIVE_SHELLS,),((TECH_LAB_BARRACKS,O),(CONCUSSIVE_SHELLS,N))),
         Event('Research Personal Cloaking',150,150,0,0,120,research,(PERSONAL_CLOAKING,),((GHOST_ACADEMY,O),(PERSONAL_CLOAKING,N))),
         Event('Research Stimpack',100,100,0,0,170,research,(STIMPACK,),((TECH_LAB_BARRACKS,O),(STIMPACK,N))),
