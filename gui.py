@@ -17,6 +17,7 @@ import time
 import platform
 
 class App:
+    """ Tkinter window """
 
     def __init__(self, master, **options):
         self.frame = Frame(master, **options)
@@ -27,10 +28,12 @@ class App:
         return self.master
 
 class EventWidget(Canvas):
-
+    """ Represents event in GUI """
+    
     supply_width = 60
     
     def __init__(self, app, index):
+        """ Creates EventWidget for given app at given index """
         self.height = 20
         self.app = app
         self.index = index
@@ -69,7 +72,6 @@ class EventWidget(Canvas):
             self.full_time = self.create_rectangle(EventWidget.supply_width+disp,2,total_time*5+EventWidget.supply_width+disp,self.height)
         self.create_text(EventWidget.supply_width + 5 + disp,10,text=events[self.event[0]].name,anchor=W)
         self.bind('<Button-1>',self.clicked)
-        self.bind('<ButtonRelease-1>',self.unclicked)
         self.bind('<B1-Motion>',self.drag)
         self.passed_str = str(actual_time)+'/'+str(total_time)
         self.tooltip = ToolTip(self,delay=50)
@@ -90,6 +92,7 @@ class EventWidget(Canvas):
         self.bind('<Button-3>',self.popup)
 
     def echo(self, event=None):
+        """ Prints the event's index, useful for testing binding events """
         print self.index
 
     def chrono_check(self, chrono_index):
@@ -101,21 +104,16 @@ class EventWidget(Canvas):
             self.itemconfig(self.full_time, dash = None)
 
     def clicked(self,click_event):
-        """ On click, check if Chrono Boost is active, and if so, Chrono Boost this event """
+        """ On click, check if Chrono Boost is active, and if so, Chrono Boost this event
+            Otherwise, prepare dragging this event to other indexes """
         if self.app.chrono >= 0 and self.app.my_order.can_chrono(self.index, self.app.chrono):
             self.app.insert_chrono(self.index)
             self.app.chrono = -1
         else:
             self.app.drag = self.index
 
-    def unclicked(self,click_event):
-        if self.app.drag >= 0:
-            change = (click_event.y + 14) / 27
-            self.app.my_order.move(self.index, self.index + change)
-            self.app.refresh()
-            self.app.drag = -1
-
     def drag(self,drag_event):
+        """ Calculates mouse position relative to dragged event, moves event if difference is large enough """
         change = 0
         if self.index == self.app.drag:
             if drag_event.y > 40:
@@ -189,6 +187,7 @@ class EventWidget(Canvas):
         root.mainloop()
 
     def toggle_trick(self):
+        """ Toggles whether or not this event uses extractor trick """
         self.app.my_order.toggle_trick(self.index)
         self.app.refresh()
 
@@ -199,7 +198,7 @@ def gain_focus(frame):
 class BuildCraftGUI:
 
     def __init__(app):
-
+        """ Creates main window for BuildCraft GUI"""
         root = Tk()
         root.wm_title('Buildcraft - SC2 HOTS Build Order Calculator')
         app.frame = Frame(root)
@@ -220,6 +219,7 @@ class BuildCraftGUI:
         root.mainloop()
 
     def load(app, r = True):
+        """ Loads build order file of user's choice """
         f = tkFileDialog.askopenfilename(defaultextension = '.bo', initialdir='orders', filetypes = [('All files','.*'),('Build order files','.bo')])
         if f:
             app.my_order = bcorder.Order(filename = f)
@@ -227,12 +227,14 @@ class BuildCraftGUI:
                 app.refresh()
 
     def save(app):
+        """ Saves the build order to where it was saved before, or user's choice if not available """
         if app.my_order.default_location:
             app.my_order.save('')
         else:
             app.save_as()
 
     def save_as(app):
+        """ Saves the build order to user's choice of location """
         name = tkFileDialog.asksaveasfilename(defaultextension = '.bo', initialdir='orders',filetypes = [('All files','.*'),('Build order files','.bo')], initialfile = app.my_order.name)
         if name:
             app.my_order.save(name)
@@ -240,13 +242,16 @@ class BuildCraftGUI:
         return False
 
     def graph(app,f):
+        """ Calls the given graphing function using the current build order """
         f(app)
 
     def toggle_display(app):
+        """ Switches display mode for events between a single column and orientation by time """
         app.place_by_time = not app.place_by_time
         app.refresh()
 
     def add_menu(app):
+        """ Adds menu bar to window """
         app.menubar = Menu(app.master)
         
         app.file = Menu(app.menubar, tearoff = 0)
@@ -283,61 +288,65 @@ class BuildCraftGUI:
         app.frame.bind_all('<Control-y>',app.redo)
 
     def graph_buttons_update(app):
+        """ Enables/disables menu buttons that can/can't be used now """
         app.graphs.entryconfig('Army Value',state= NORMAL if has_army(app.my_order) else DISABLED)
         app.edit.entryconfig('Undo',state= NORMAL if app.my_order.can_undo() else DISABLED)
         app.edit.entryconfig('Redo',state= NORMAL if app.my_order.can_redo() else DISABLED)
 
     def undo(app, event=None):
+        """ Undoes last change to build order """
         if app.my_order.can_undo():
             app.my_order.undo()
             app.refresh()
 
     def redo(app,event=None):
+        """ Redoes next change to build order """
         if app.my_order.can_redo():
             app.my_order.redo()
             app.refresh()
 
-    def new_order(app, race = None):
-        if race:
-            app.my_order = bcorder.Order(name='',race=race)
-            app.refresh()
-        else:
-            root = Toplevel()
-            root.wm_title('New Order')
-            new_order = App(root)
-            new_order.frame.bind('<FocusOut>',gain_focus)
-            new_order.label = Label(root, text = "Create a new build order")
-            new_order.label.grid(row = 0, columnspan = 3)
-
-            new_order.entry = Entry(root)
-            new_order.entry.grid(row = 1, columnspan = 3,sticky = E+W)
-
-            modes = ("Terran","Protoss","Zerg")
-
-            def submit(app, new_order):
-                app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
-                app.refresh()
-                new_order.master.destroy()
-
-            new_order.v = StringVar()
-            new_order.v.set('T')
-            new_order.images = []
-            for i in range(3):
-                text = modes[i]
-                image = Image.open('images/'+text+'.png')
-                photo = ImageTk.PhotoImage(image.resize((50,50)))
-                new_order.images.append(photo)
-                b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=new_order.v, value=text[0])
-                b.grid(row = 2,column = i)
-
-            new_order.b = Button(root, text="Done", command=lambda:submit(app, new_order))
-            new_order.b.grid(row = 3, columnspan = 3, sticky = E+W)
-
-            root.mainloop()
+##    def new_order(app, race = None):
+##        if race:
+##            app.my_order = bcorder.Order(name='',race=race)
+##            app.refresh()
+##        else:
+##            root = Toplevel()
+##            root.wm_title('New Order')
+##            new_order = App(root)
+##            new_order.frame.bind('<FocusOut>',gain_focus)
+##            new_order.label = Label(root, text = "Create a new build order")
+##            new_order.label.grid(row = 0, columnspan = 3)
+##
+##            new_order.entry = Entry(root)
+##            new_order.entry.grid(row = 1, columnspan = 3,sticky = E+W)
+##
+##            modes = ("Terran","Protoss","Zerg")
+##
+##            def submit(app, new_order):
+##                app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
+##                app.refresh()
+##                new_order.master.destroy()
+##
+##            new_order.v = StringVar()
+##            new_order.v.set('T')
+##            new_order.images = []
+##            for i in range(3):
+##                text = modes[i]
+##                image = Image.open('images/'+text+'.png')
+##                photo = ImageTk.PhotoImage(image.resize((50,50)))
+##                new_order.images.append(photo)
+##                b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=new_order.v, value=text[0])
+##                b.grid(row = 2,column = i)
+##
+##            new_order.b = Button(root, text="Done", command=lambda:submit(app, new_order))
+##            new_order.b.grid(row = 3, columnspan = 3, sticky = E+W)
+##
+##            root.mainloop()
 
     default_colors = ['red','blue','green','yellow','purple','orange']
 
     def add_instance_analysis(app):
+        """ Adds display of information about given time as well as slider to change current time """
 
         app.canvas = Canvas(app.master, width=500,height=125)
         app.canvas.pack(side = BOTTOM, expand = 0, fill=X)
@@ -362,7 +371,7 @@ class BuildCraftGUI:
 
         
         def refresh(i):
-
+            """ Changes display based on new time """
             i = int(i)
 
             for e in app.events:
@@ -389,6 +398,7 @@ class BuildCraftGUI:
         app.analysis_update()
 
     def analysis_update(app):
+        """ Updates instance anaylsis to use changed build order """
         app.scale.config(to=len(app.my_order.at_time))
         zerg = NORMAL if app.my_order.race == 'Z' else HIDDEN
         for z in app.canvas.zerg_only:
@@ -396,11 +406,13 @@ class BuildCraftGUI:
             
 
     def refresh(app):
+        """ Updates all displays to use changed build order """
         app.analysis_update()
         app.graph_buttons_update()
         app.event_update()
 
     def add_event_list(app):
+        """ Adds list of events to display as EventWidgets """
 
         app.place_by_time = False
         
@@ -410,18 +422,23 @@ class BuildCraftGUI:
         app.event_update()
 
     def event_update(app):
+        """ Refreshes list of events according to last change """
+
         app.insert_event_choose(len(app.my_order.events))
 
     def chrono_check(app, index):
+        """ Changes display of all chrono-boostable events """
         app.chrono = index
         for e in app.events:
             e.chrono_check(index)
 
     def insert_event_choose(app, index):
+        """ Recreates event list with insertion button at given index """
         for w in app.event_frame.children.values():
             w.destroy()
         
         def command(choice):
+            """ Inserts chosen event at set index """
             e = 0
             while events[e].name != choice:
                 e += 1
@@ -456,6 +473,7 @@ class BuildCraftGUI:
         app.chrono = -1
 
     def insert_event(app, index, event):
+        """ Inserts given event at given index and updates entire display accordingly """
         app.my_order.insert([event,''],index)
         app.refresh()
 

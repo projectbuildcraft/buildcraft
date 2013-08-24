@@ -31,3 +31,9 @@ class ScrolledFrame(Frame):
 
         def scroll(self, i):
                 self.canvas.yview('scroll',i,'units')
+
+        def get_x_scroll(self):
+                return self.hsb
+
+        def get_y_scroll(self):
+                return self.vsb

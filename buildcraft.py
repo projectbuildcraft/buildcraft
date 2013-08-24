@@ -22,7 +22,7 @@ from bcevent import boost
 import gui
 
 
-my_order = bcorder.Order(filename = "orders/7RR.bo")
+my_order = bcorder.Order(filename = "orders/OC Opening.bo")
 run = True
 racemap = {
 	0 : "P",
@@ -80,6 +80,7 @@ while run:
 			for boostable_index, boost_info in enumerate(boostable):
 				print boostable_index, events[boost_info[0]].get_name(), "with", boost_info[1], "sec remaining"
 			extra_choice = int(raw_input("=> "))
+			print boostable[extra_choice]
 			my_order.append([choices[choice], '', boostable[extra_choice][0], boostable[extra_choice][1]])
 		else:
 			my_order.append([choices[choice],''])

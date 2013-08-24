@@ -66,12 +66,15 @@ class Graph(Frame):
                     g.c.create_line(width - label_width + 20,y,width - 20,y,fill=d.color)
                 g.c.create_text(width - label_width/2,y - 20,text=d.label)
                 area = g.c.create_rectangle(width - label_width + 20,y-20,width-20,y+10)
-                g.c.tag_bind(area,'<Button-1>',lambda g,d:g.move_down(d))
+                g.c.tag_bind(area,'<Button-1>',g.output)
                 y += 50
 
         for o in options:
             checkbox = Checkbutton(g.c, text=o, command=g.recalculate_data, variable=v)
             g.c.create_window(width - label_width + 20,y,window=checkbox)
+
+    def output(g):
+        print 'Clicked'
 
     def move_down(g, data, event = None):
         print 'here'
