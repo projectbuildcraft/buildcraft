@@ -572,14 +572,22 @@ def resource_data(order, args = []):
 
     return [DataSet(minerals,False,'blue','minerals'),DataSet(gas,False,'green','gas')] + ([DataSet(larva,False,'orange','larva')] if zerg else [])
 
-system = platform.system()
-if system == 'Linux':
-    imagedir = '/usr/share/games/buildcraft/images/'
-else:
-    imagedir = 'images/'
-
 def get_image(src, size = ()):
-    image = Image.open(imagedir+src)
+    if 'imagedir' not in globals():
+        system = platform.system()
+        global imagedir
+        if system == 'Linux':
+            imagedir = '/usr/share/games/buildcraft/images/'
+        else:
+            imagedir = 'images/'
+    try:
+        image = Image.open(imagedir+src)
+    except IOError:
+        if imagedir.startswith('/'):
+            # then it is not installed
+            imagedir = 'images/'
+            return get_image(src, size)
+        raise
     if size:
         image = image.resize(size[0],size[1])
     return ImageTk.PhotoImage(image)
