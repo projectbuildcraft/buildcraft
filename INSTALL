@@ -18,7 +18,7 @@ On Debian-based machines, it is easiest to install the .deb file from the linux 
 dpkg -i buildcraft<version>.deb
 where <version> is specific to the version being installed.
 
-Alternatively, you can install everything manually as follows.
+Alternatively, you can install everything manually from source as follows.
 
 To run on linux, make sure that you have installed the following packages, on Debian-based machines named:
 
@@ -45,7 +45,7 @@ You may have to give it executable permissions:
 
 chmod +x buildcraft
 
-Assets also have to be copied into /usr/share/games/buildcraft/
+Assets may have to be copied into /usr/share/games/buildcraft/
 
 We're working to support native installation for other packaging systems in the future. Any assistance would be appreciated.
 
