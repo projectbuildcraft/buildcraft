@@ -1,4 +1,4 @@
-from bcorder import Order
+from bcorder import Order, Instance
 from bcevent import boost
 from constants import *
 import copy
@@ -15,7 +15,8 @@ def genetic_optimization(race, constraints):
     Race denotes the race: "Z", "P", or "T"
     """
     frozen_constraints = frozenset(constraints)
-    orders = [randomly_fit(race, frozen_constraints) for x in xrange(10)]
+    orders = [randomly_fit(race, frozen_constraints)
+    for x in xrange(10)]
     print "Randomly generated"
     king_count = 0
     king = 0
@@ -208,8 +209,8 @@ def mutate(order, constraints):
 
 
 def heuristic(order, constraints):
-    pass
-    return 0
+    heuristics = [0]
+    return max(heuristics)
 
 def cost(order):
     return order.at[-1].time # should be at because that's where we are in the build order right now
@@ -242,8 +243,7 @@ def set_up(constraints, race):
         pass # actually see if we benefit from minerals
         if need_minerals:
             needed_units.add([PROBE_MINERAL,SCV_MINERAL,DRONE_MINERAL][r])
-        need_gas = True
-        pass # actually see if we benefit from gas
+        need_gas = gas_helps(constraints,race)
         if need_gas:
             needed_units.add([PROBE_GAS,SCV_GAS,DRONE_GAS][r])
         need_supply = True
@@ -286,7 +286,7 @@ def set_up(constraints, race):
         if not need_scouts:
             needed_events -= set([SEND_SCV_TO_SCOUT,BRING_BACK_SCV_SCOUT,SEND_PROBE_TO_SCOUT,BRING_BACK_PROBE_SCOUT,SEND_DRONE_TO_SCOUT,BRING_BACK_DRONE_SCOUT])
         if not need_gas:
-            needed_events -= set([SWITCH_SCV_TO_MINERALS,SWITCH_SCV_TO_SCOUT,BUILD_REFINERY,SWITCH_PROBE_TO_MINERALS,SWITCH_PROBE_TO_GAS,WARP_ASSIMILATOR,SWITCH_DRONE_TO_GAS,SWITCH_DRONE_TO_MINERALS,MORPH_EXTRACTOR])
+            needed_events -= set([SWITCH_SCV_TO_MINERALS, BUILD_REFINERY,SWITCH_PROBE_TO_MINERALS,SWITCH_PROBE_TO_GAS,WARP_ASSIMILATOR,SWITCH_DRONE_TO_GAS,SWITCH_DRONE_TO_MINERALS,MORPH_EXTRACTOR])
         contributes[constraints] = {i: (i in needed_events) for i in xrange(len(events))}
         print [key for key in contributes[constraints].iterkeys() if contributes[constraints][key]]
 
@@ -317,3 +317,32 @@ class PriorityQueue:
   
   def isEmpty(self):
     return len(self.heap) == 0
+
+def gas_helps(constraints, race):
+    for unit, count in constraints:
+        # reactor build time 50s, marine 25s
+        if unit == MARINE and count > 3:
+            return True
+        # cycore time 50
+        # warp gate time 160
+        # zealot time 38 -> 28 with warpgate
+        if unit == ZEALOT and count > 5:
+            return True
+    instance = Instance()
+    instance.init_as_race(race)
+    can_reach = set([i for i in xrange(len(instance.units)) if instance.units[i] > 0])
+    old_size = 0
+    new_size = len(can_reach)
+    gasless_events = filter(lambda event: event.cost[1] == 0, events)
+    while old_size < new_size:
+        old_size = new_size
+        for event in gasless_events:
+            for req, kind in event.requirements:
+                if kind is not NOT and req not in can_reach:
+                    break
+            else:
+                if event.result in [add, warp, research, warp]:
+                    can_reach |= set([product for product in event.args])
+        new_size = len(can_reach)
+    required = set([i for unit, count in constraints])
+    return required.issubset(can_reach)
