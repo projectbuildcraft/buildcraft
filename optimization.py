@@ -48,6 +48,8 @@ def a_star_optimization(race, constraints):
     frontier.push(Order(race = race),1)
     while not frontier.isEmpty():
         current_order = frontier.pop()
+        if has_constraints(current_order.at_time[-1], constraints):
+            return current_order
         for option in current_order.all_available(): # somehow we need to handle gas tricks
             if helps(option,frozen_cons):
                 extension = Order(events_list=copy.copy(current_order.events), race = race)
@@ -56,8 +58,6 @@ def a_star_optimization(race, constraints):
                 else:
                     extension.append([option,'']) # need to make sure it has all of event_info
                     if extension.sanity_check(True): # if makes sense
-                        if has_constraints(extension.at_time[-1],constraints):
-                            return extension
                         frontier.push(extension, cost(extension) + heuristic(extension,constraints))
     return None
 
