@@ -209,11 +209,28 @@ def mutate(order, constraints):
 
 
 def heuristic(order, constraints):
-    heuristics = [0]
+    heuristics = [0, mining_heuristic(order.at[-1], constraints)]
     return max(heuristics)
 
 def cost(order):
     return order.at[-1].time # should be at because that's where we are in the build order right now
+
+def mining_heuristic(instance, goals):
+    """
+    TODO
+    A lower bound on the time to finish the goals using mining rates
+    """
+    cost = 0
+    for item, count in goals:
+        # TODO find lower bound on costs
+        pass
+    minerals, gas = instance.resource_rate()
+    minerals /= 60
+    gas /= 60
+    # TODO find lower bound on time to reach costs
+    pass
+    return 0
+    
 
 def helps(event_index, constraints):
     """
@@ -273,14 +290,20 @@ def set_up(constraints, race):
         while old_length != new_length:
             old_length = new_length
             for event_index in xrange(len(events)): # continue
-                if events[event_index].get_result() in [add,research]:
-                    if len([element for element in events[event_index].get_args() if element in needed_units]):
+                event = events[event_index]
+                if event.get_result() in [add,research]:
+                    if len([element for element in event.get_args() if element in needed_units]):
                         needed_events.add(event_index)
-                        needed_units |= set([req for req,kind in events[event_index].get_requirements()])
-                elif events[event_index].get_result() ==  warp:
-                    if events[event_index].get_args()[0] in needed_units:
+                        needed_units |= set([req for req,kind in event.get_requirements()])
+                elif event.get_result() ==  warp:
+                    if event.get_args()[0] in needed_units:
                         needed_events.add(event_index)
-                        needed_units |= set([req for req,kind in events[event_index].get_requirements()])
+                        needed_units |= set([req for req,kind in event.get_requirements()])
+                elif event.get_result() == spawn_larva:
+                    if LARVA in needed_units and False in event.get_args():
+                        # queen larva spawn
+                        needed_events.add(event_index)
+                        needed_units |= set([req for req,kind in event.get_requirements()])
             new_length = len(needed_events)
         # now remove unneeded
         if not need_scouts:
