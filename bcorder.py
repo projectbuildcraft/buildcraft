@@ -12,6 +12,19 @@ def name(event_index):
 def get_requirements(event_index):
     return events[event_index].get_requirements()
 
+class Counter:
+    """
+    A map with zero for DNF
+    """
+    def __init__(self):
+        self.counts = dict()
+    def __getitem__(self, item):
+        if item in self.counts:
+            return self.counts[item]
+        return 0
+    def __setitem__(self, item, value):
+        self.counts[item] = value
+
 class Instance:
     """
     Condition of player at a particular event in their build
@@ -19,11 +32,11 @@ class Instance:
     def __init__(self, time = 1, units = None, occupied = None, production = None, minerals = 50, gas = 0, supply = 6, cap = 10, blue = 1, gold = 0, energy_units = None, base_larva = None, boosted_things = None):
         self.time = time
         if units == None:
-            self.units = [0]*NUM_UNITS
+            self.units = Counter()
         else:
             self.units = units # counts indexed by constants
         if occupied == None:
-            self.occupied = [0]*NUM_UNITS
+            self.occupied = Counter()
         else:
             self.occupied = occupied
         if production == None:

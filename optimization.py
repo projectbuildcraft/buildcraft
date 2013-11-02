@@ -353,7 +353,7 @@ def gas_helps(constraints, race):
             return True
     instance = Instance()
     instance.init_as_race(race)
-    can_reach = set([i for i in xrange(len(instance.units)) if instance.units[i] > 0])
+    can_reach = set([i for i in xrange(NUM_UNITS) if instance.units[i] > 0])
     old_size = 0
     new_size = len(can_reach)
     gasless_events = filter(lambda event: event.cost[1] == 0, events)
