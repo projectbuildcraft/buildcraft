@@ -4,6 +4,7 @@
 """
 import copy
 import string
+from collections import Counter
 from constants import *
 
 def name(event_index):
@@ -11,19 +12,6 @@ def name(event_index):
 
 def get_requirements(event_index):
     return events[event_index].get_requirements()
-
-class Counter:
-    """
-    A map with zero for DNF
-    """
-    def __init__(self):
-        self.counts = dict()
-    def __getitem__(self, item):
-        if item in self.counts:
-            return self.counts[item]
-        return 0
-    def __setitem__(self, item, value):
-        self.counts[item] = value
 
 class Instance:
     """
