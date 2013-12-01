@@ -830,3 +830,28 @@ defensive_units = { # UNIT: (MINERALS, GAS)
 	OBSERVER : (25,75),
 	PHOTON_CANNON : (150,0),
 }
+techlab_units = set(
+    [   
+        TECH_LAB,
+        BARRACKS_TECH_LAB,
+        FACTORY_TECH_LAB,
+        STARPORT_TECH_LAB,
+        MARAUDER,
+        GHOST,
+        SIEGE_TANK,
+        THOR,
+        RAVEN,
+        BANSHEE,
+        BATTLECRUISER,
+        COMBAT_SHIELD,
+        STIMPACK,
+        CONCUSSIVE_SHELLS,
+        INFERNAL_PRE_IGNITER,
+        TRANSFORMATION_SERVOS,
+        DRILLING_CLAWS,
+        CADUCEUS_REACTOR,
+        CORVID_REACTOR,
+        DURABLE_MATERIALS,
+        CLOAKING_FIELD
+    ]
+)

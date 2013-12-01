@@ -45,21 +45,34 @@ def a_star_optimization(race, constraints):
     frozen_cons = frozenset(constraints)
     set_up(frozen_cons,race)
     frontier = PriorityQueue() # no limit
-    frontier.push(Order(race = race),1)
+    first_instance = Instance()
+    first_instance.init_as_race(race)
+    # The items in the queue should be a tuple, with the first element being a tuple of events, and the second element being the last instance of those events.
+    frontier.push((tuple(), first_instance), 1)
     while not frontier.isEmpty():
-        current_order = frontier.pop()
-        if has_constraints(current_order.at_time[-1], constraints):
-            return current_order
-        for option in current_order.all_available(): # somehow we need to handle gas tricks
-            if helps(option,frozen_cons):
-                extension = Order(events_list=copy.copy(current_order.events), race = race)
-                if events[option].get_result() == boost:
+        events_so_far, current_instance = frontier.pop()
+        if has_constraints(current_instance, constraints):
+            # Create the desired order using the events list
+            best_order = Order(race = race, events_list = events_so_far)
+            return best_order
+        # Check all available event options
+        for option in current_instance.all_available(): # somehow we need to handle gas tricks
+            if option == CHRONO_BOOST:
+                pass
+            else:
+                event_info = [option, ""]
+            if helps(option, frozen_cons):
+                new_instance = copy.deepcopy(current_instance)
+                while (not new_instance.available(now = True, event_index = event_info[0])): # DOES NOT HANDLE CHRONO BOOST YET
+                    new_instance.increment({},{})
+                new_instance.apply_event(event_info)
+                extension = (events_so_far + (event_info,), new_instance)
+                if events[event_info[0]].get_result() == boost:
                     pass
                 else:
-                    extension.append([option,'']) # need to make sure it has all of event_info
-                    if extension.sanity_check(True): # if makes sense
-                        frontier.push(extension, cost(extension) + heuristic(extension,constraints))
-    return None
+                    if Order(race = race, events_list = extension[0], calc = False).sanity_check(True): # if makes sense
+                        frontier.push(extension, cost(extension[1]) + heuristic(extension[1],constraints))
+    raise Exception("a_star optimization shouldn't have exited without a solution.")
 
 def when_meets(order, constraints):
     """
@@ -208,12 +221,12 @@ def mutate(order, constraints):
     order.calculate_times()
 
 
-def heuristic(order, constraints):
-    heuristics = [0, mining_heuristic(order.at[-1], constraints)]
+def heuristic(instance, constraints):
+    heuristics = [0, mining_heuristic(instance, constraints)]
     return max(heuristics)
 
-def cost(order):
-    return order.at[-1].time # should be at because that's where we are in the build order right now
+def cost(instance):
+    return instance.time # should be at because that's where we are in the build order right now
 
 def mining_heuristic(instance, goals):
     """
