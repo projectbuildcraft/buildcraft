@@ -48,23 +48,30 @@ def a_star_optimization(race, constraints):
     first_instance = Instance()
     first_instance.init_as_race(race)
     # The items in the queue should be a tuple, with the first element being a tuple of events, and the second element being the last instance of those events.
-    frontier.push(tuple(), firstInstance), 1)
+    frontier.push((tuple(), firstInstance), 1)
     while not frontier.isEmpty():
         events_so_far, current_instance = frontier.pop()
         if has_constraints(current_instance, constraints):
+            # Create the desired order using the events list
             best_order = Order(race = race, events_list = events_so_far)
             return best_order
         # Check all available event options
-        for option in current_instance.all_available(): # somehow we need to handle gas tricks #HERE
+        for option in current_instance.all_available(): # somehow we need to handle gas tricks
+            if option == CHRONO_BOOST:
+                pass
+            else:
+                event_info = [option, ""]
             if helps(option, frozen_cons):
-                extension = (events_so_far + (option,), )
-                extension = Order(events_list=copy.copy(current_order.events), race = race)
-                if events[option].get_result() == boost:
+                new_instance = copy.deepcopy(current_instance)
+                while (not new_instance.available(now = True, event_index = event_info[0])): # DOES NOT HANDLE CHRONO BOOST YET
+                    new_instance.increment()
+                new_instance.apply_event(event_info)
+                extension = (events_so_far + (event_info[0],), new_instance)
+                if events[event_info[0]].get_result() == boost:
                     pass
                 else:
-                    extension.append([option,''], only_care_about_last=True) # need to make sure it has all of event_info
-                    if extension.sanity_check(True): # if makes sense
-                        frontier.push(extension, cost(extension) + heuristic(extension,constraints))
+                    if Order(race = race, event_list = extension[0], calc = False).sanity_check(True): # if makes sense
+                        frontier.push(extension, cost(extension[1]) + heuristic(extension[1],constraints))
     raise Exception("a_star optimization shouldn't have exited without a solution.")
 
 def when_meets(order, constraints):
@@ -214,12 +221,12 @@ def mutate(order, constraints):
     order.calculate_times()
 
 
-def heuristic(order, constraints):
-    heuristics = [0, mining_heuristic(order.at[-1], constraints)]
+def heuristic(instance, constraints):
+    heuristics = [0, mining_heuristic(instance, constraints)]
     return max(heuristics)
 
-def cost(order):
-    return order.at[-1].time # should be at because that's where we are in the build order right now
+def cost(instance):
+    return instance.time # should be at because that's where we are in the build order right now
 
 def mining_heuristic(instance, goals):
     """
@@ -280,40 +287,10 @@ def set_up(constraints, race):
                 break
         if need_scouts:
             needed_units |= set([[PROBE_SCOUT],[SCV_SCOUT],[DRONE_SCOUT]][r])
-        need_techlab = False
-        for unit, count in constraints:
-            if unit in techlab_units:
-                need_techlab = True
-                break
-        need_reactor = False
-        rax_count = 0
-        fac_count = 0
-        port_count = 0
-        for unit, count in constraints:
-            # TODO do not hard code this
-            if unit in [REACTOR, BARRACKS_REACTOR, FACTORY_REACTOR, STARPORT_REACTOR]:
-                need_reactor = True
-                break
-            elif unit in [MARINE, REAPER]:
-                rax_count += count
-                if (rax_count > 1):
-                    need_reactor = True
-                    break
-            elif unit in [HELLION, WIDOW_MINE, HELLBAT]:
-                fac_count += count
-                if (fac_count > 1):
-                    need_reactor = True
-                    break
-            elif unit in [MEDIVAC, VIKING]:
-                port_count += count
-                if (port_count > 1):
-                    need_reactor = True
-                    break
         needed_events = set()
         old_length = 0
         for event_index in xrange(len(events)): # initialize
             if events[event_index].get_result() in [add,research,warp]:
-                # if it makes something we need
                 if len([1 for element in events[event_index].get_args() if element in needed_units]):
                     needed_events.add(event_index)
                     needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
@@ -322,10 +299,6 @@ def set_up(constraints, race):
                 needed_units.add(MULE)
             elif race == "P" and events[event_index].get_result() == boost:
                 needed_events.add(event_index)
-            if not need_techlab:
-                needed_units -= techlab_units
-            if not need_reactor:
-                needed_units -= set([REACTOR, BARRACKS_REACTOR, FACTORY_REACTOR, STARPORT_REACTOR])
         new_length = len(needed_events)
         while old_length != new_length:
             old_length = new_length
@@ -344,10 +317,6 @@ def set_up(constraints, race):
                         # queen larva spawn
                         needed_events.add(event_index)
                         needed_units |= set([req for req,kind in event.get_requirements()])
-                if not need_techlab:
-                    needed_units -= techlab_units
-                if not need_reactor:
-                    needed_units -= set([REACTOR, BARRACKS_REACTOR, FACTORY_REACTOR, STARPORT_REACTOR])
             new_length = len(needed_events)
         # now remove unneeded
         if not need_scouts:
