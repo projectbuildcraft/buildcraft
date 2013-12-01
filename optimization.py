@@ -62,7 +62,7 @@ def a_star_optimization(race, constraints):
                 if events[option].get_result() == boost:
                     pass
                 else:
-                    extension.append([option,'']) # need to make sure it has all of event_info
+                    extension.append([option,''], only_care_about_last=True) # need to make sure it has all of event_info
                     if extension.sanity_check(True): # if makes sense
                         frontier.push(extension, cost(extension) + heuristic(extension,constraints))
     raise Exception("a_star optimization shouldn't have exited without a solution.")
@@ -280,10 +280,40 @@ def set_up(constraints, race):
                 break
         if need_scouts:
             needed_units |= set([[PROBE_SCOUT],[SCV_SCOUT],[DRONE_SCOUT]][r])
+        need_techlab = False
+        for unit, count in constraints:
+            if unit in techlab_units:
+                need_techlab = True
+                break
+        need_reactor = False
+        rax_count = 0
+        fac_count = 0
+        port_count = 0
+        for unit, count in constraints:
+            # TODO do not hard code this
+            if unit in [REACTOR, BARRACKS_REACTOR, FACTORY_REACTOR, STARPORT_REACTOR]:
+                need_reactor = True
+                break
+            elif unit in [MARINE, REAPER]:
+                rax_count += count
+                if (rax_count > 1):
+                    need_reactor = True
+                    break
+            elif unit in [HELLION, WIDOW_MINE, HELLBAT]:
+                fac_count += count
+                if (fac_count > 1):
+                    need_reactor = True
+                    break
+            elif unit in [MEDIVAC, VIKING]:
+                port_count += count
+                if (port_count > 1):
+                    need_reactor = True
+                    break
         needed_events = set()
         old_length = 0
         for event_index in xrange(len(events)): # initialize
             if events[event_index].get_result() in [add,research,warp]:
+                # if it makes something we need
                 if len([1 for element in events[event_index].get_args() if element in needed_units]):
                     needed_events.add(event_index)
                     needed_units |= set([req for req,kind in events[event_index].get_requirements() if kind in [O,C,A]])
@@ -292,6 +322,10 @@ def set_up(constraints, race):
                 needed_units.add(MULE)
             elif race == "P" and events[event_index].get_result() == boost:
                 needed_events.add(event_index)
+            if not need_techlab:
+                needed_units -= techlab_units
+            if not need_reactor:
+                needed_units -= set([REACTOR, BARRACKS_REACTOR, FACTORY_REACTOR, STARPORT_REACTOR])
         new_length = len(needed_events)
         while old_length != new_length:
             old_length = new_length
@@ -310,6 +344,10 @@ def set_up(constraints, race):
                         # queen larva spawn
                         needed_events.add(event_index)
                         needed_units |= set([req for req,kind in event.get_requirements()])
+                if not need_techlab:
+                    needed_units -= techlab_units
+                if not need_reactor:
+                    needed_units -= set([REACTOR, BARRACKS_REACTOR, FACTORY_REACTOR, STARPORT_REACTOR])
             new_length = len(needed_events)
         # now remove unneeded
         if not need_scouts:
