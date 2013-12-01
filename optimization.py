@@ -45,13 +45,19 @@ def a_star_optimization(race, constraints):
     frozen_cons = frozenset(constraints)
     set_up(frozen_cons,race)
     frontier = PriorityQueue() # no limit
-    frontier.push(Order(race = race),1)
+    first_instance = Instance()
+    first_instance.init_as_race(race)
+    # The items in the queue should be a tuple, with the first element being a tuple of events, and the second element being the last instance of those events.
+    frontier.push(tuple(), firstInstance), 1)
     while not frontier.isEmpty():
-        current_order = frontier.pop()
-        if has_constraints(current_order.at_time[-1], constraints):
-            return current_order
-        for option in current_order.all_available(): # somehow we need to handle gas tricks
-            if helps(option,frozen_cons):
+        events_so_far, current_instance = frontier.pop()
+        if has_constraints(current_instance, constraints):
+            best_order = Order(race = race, events_list = events_so_far)
+            return best_order
+        # Check all available event options
+        for option in current_instance.all_available(): # somehow we need to handle gas tricks #HERE
+            if helps(option, frozen_cons):
+                extension = (events_so_far + (option,), )
                 extension = Order(events_list=copy.copy(current_order.events), race = race)
                 if events[option].get_result() == boost:
                     pass
@@ -59,7 +65,7 @@ def a_star_optimization(race, constraints):
                     extension.append([option,'']) # need to make sure it has all of event_info
                     if extension.sanity_check(True): # if makes sense
                         frontier.push(extension, cost(extension) + heuristic(extension,constraints))
-    return None
+    raise Exception("a_star optimization shouldn't have exited without a solution.")
 
 def when_meets(order, constraints):
     """

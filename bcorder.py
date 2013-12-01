@@ -379,6 +379,52 @@ class Instance:
         self.blue = 1
         self.energy_units = []
 
+    def calculate_times():
+        mineral_cost = events[event_info[0]].cost[0]
+        if using_tricks: 
+            required_tricks = max(now.supply + events[event_info[0]].supply - now.cap, 0)
+            gas_tricks = min(required_tricks, now.units[DRONE_SCOUT] + 2 * (now.units[HATCHERY] + now.units[LAIR] + now.units[HIVE]) - now.units[ASSIMILATOR])
+            evo_tricks = required_tricks - gas_tricks # they either have to be faraway gasses or evo chambers; I think evo chambers are more realistic
+            mineral_cost += 6 * gas_tricks + 18 * evo_tricks
+        now.minerals -= mineral_cost
+        now.gas -= events[event_info[0]].cost[1]
+        now.supply += events[event_info[0]].supply
+        for requirement in get_requirements(event_info[0]):
+            unit, kind = requirement
+            if kind == O:
+                while(now.units[unit] == 0):
+                    unit = can_be[unit] # if this is an error then there is a problem with available
+                now.units[unit] -= 1
+                now.occupied[unit] += 1
+                if unit in now.boosted_things[1].keys():
+                    if len(now.boosted_things[1][unit]) > 0:
+                        now.boosted_things[0][index] = now.boosted_things[1][unit][0] 
+                        del now.boosted_things[1][unit][0]
+            if kind == C:
+                now.units[unit] -= 1
+                if unit == LARVA:
+                    # assume larva from base with most larva
+                    max_index = 0
+                    max_larva = now.base_larva[max_index]
+                    for curr_index, larva in enumerate(now.base_larva):
+                        if larva > max_larva:
+                            max_index = curr_index
+                            max_larva = larva
+                    if max_larva == 3:
+                        now.production.append([[AUTO_SPAWN_LARVA,''], events[AUTO_SPAWN_LARVA].time, -1])
+                    now.base_larva[max_index] -= 1
+            if kind > 20: # energy
+                greatest_index = 0
+                greatest_energy = 0
+                for energy_index, [energy_unit, energy_energy] in enumerate(now.energy_units):
+                    if energy_unit == unit:
+                        if energy_energy > greatest_energy:
+                            greatest_energy == energy_energy
+                            greatest_index = energy_index # these are ENERGY INDICES http://www.youtube.com/watch?v=qRuNxHqwazs
+                now.energy_units[greatest_index][1] -= kind
+        start_times[index] = now.time
+        now.production.append([event_info,events[event_info[0]].time, index])
+
 racename = {
     "P" : "Protoss",
     "T" : "Terran",
