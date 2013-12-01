@@ -305,43 +305,43 @@ class BuildCraftGUI:
             app.my_order.redo()
             app.refresh()
 
-##    def new_order(app, race = None):
-##        if race:
-##            app.my_order = bcorder.Order(name='',race=race)
-##            app.refresh()
-##        else:
-##            root = Toplevel()
-##            root.wm_title('New Order')
-##            new_order = App(root)
-##            new_order.frame.bind('<FocusOut>',gain_focus)
-##            new_order.label = Label(root, text = "Create a new build order")
-##            new_order.label.grid(row = 0, columnspan = 3)
-##
-##            new_order.entry = Entry(root)
-##            new_order.entry.grid(row = 1, columnspan = 3,sticky = E+W)
-##
-##            modes = ("Terran","Protoss","Zerg")
-##
-##            def submit(app, new_order):
-##                app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
-##                app.refresh()
-##                new_order.master.destroy()
-##
-##            new_order.v = StringVar()
-##            new_order.v.set('T')
-##            new_order.images = []
-##            for i in range(3):
-##                text = modes[i]
-##                image = Image.open('images/'+text+'.png')
-##                photo = ImageTk.PhotoImage(image.resize((50,50)))
-##                new_order.images.append(photo)
-##                b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=new_order.v, value=text[0])
-##                b.grid(row = 2,column = i)
-##
-##            new_order.b = Button(root, text="Done", command=lambda:submit(app, new_order))
-##            new_order.b.grid(row = 3, columnspan = 3, sticky = E+W)
-##
-##            root.mainloop()
+    def new_order(app, race = None):
+        if race:
+            app.my_order = bcorder.Order(name='',race=race)
+            app.refresh()
+        else:
+            root = Toplevel()
+            root.wm_title('New Order')
+            new_order = App(root)
+            new_order.frame.bind('<FocusOut>',gain_focus)
+            new_order.label = Label(root, text = "Create a new build order")
+            new_order.label.grid(row = 0, columnspan = 3)
+
+            new_order.entry = Entry(root)
+            new_order.entry.grid(row = 1, columnspan = 3,sticky = E+W)
+
+            modes = ("Terran","Protoss","Zerg")
+
+            def submit(app, new_order):
+                app.my_order = bcorder.Order(name=new_order.entry.get(),race = new_order.v.get())
+                app.refresh()
+                new_order.master.destroy()
+
+            new_order.v = StringVar()
+            new_order.v.set('T')
+            new_order.images = []
+            for i in range(3):
+                text = modes[i]
+                image = Image.open('images/'+text+'.png')
+                photo = ImageTk.PhotoImage(image.resize((50,50)))
+                new_order.images.append(photo)
+                b = Radiobutton(root, text=text, image=photo, indicatoron=0, variable=new_order.v, value=text[0])
+                b.grid(row = 2,column = i)
+
+            new_order.b = Button(root, text="Done", command=lambda:submit(app, new_order))
+            new_order.b.grid(row = 3, columnspan = 3, sticky = E+W)
+
+            root.mainloop()
 
     default_colors = ['red','blue','green','yellow','purple','orange']
 
@@ -487,6 +487,7 @@ class BuildCraftGUI:
             app.supply_g = Graph(app.my_order,supply_data,title='Supply',end_value = app.my_order.at[-1].time)
             app.supply_g.start()
         else:
+            app.supply_g.start()
             app.supply_g.recalculate_data(app.my_order)
             app.supply_g.focus_set()
             
