@@ -48,7 +48,7 @@ def a_star_optimization(race, constraints):
     first_instance = Instance()
     first_instance.init_as_race(race)
     # The items in the queue should be a tuple, with the first element being a tuple of events, and the second element being the last instance of those events.
-    frontier.push((tuple(), firstInstance), 1)
+    frontier.push((tuple(), first_instance), 1)
     while not frontier.isEmpty():
         events_so_far, current_instance = frontier.pop()
         if has_constraints(current_instance, constraints):
@@ -64,13 +64,13 @@ def a_star_optimization(race, constraints):
             if helps(option, frozen_cons):
                 new_instance = copy.deepcopy(current_instance)
                 while (not new_instance.available(now = True, event_index = event_info[0])): # DOES NOT HANDLE CHRONO BOOST YET
-                    new_instance.increment()
+                    new_instance.increment({},{})
                 new_instance.apply_event(event_info)
-                extension = (events_so_far + (event_info[0],), new_instance)
+                extension = (events_so_far + (event_info,), new_instance)
                 if events[event_info[0]].get_result() == boost:
                     pass
                 else:
-                    if Order(race = race, event_list = extension[0], calc = False).sanity_check(True): # if makes sense
+                    if Order(race = race, events_list = extension[0], calc = False).sanity_check(True): # if makes sense
                         frontier.push(extension, cost(extension[1]) + heuristic(extension[1],constraints))
     raise Exception("a_star optimization shouldn't have exited without a solution.")
 
