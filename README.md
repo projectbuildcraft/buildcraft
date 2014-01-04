@@ -1,9 +1,12 @@
 buildcraft
 ==========
 
-A build order calculator and optimizer for Starcraft II: Heart of the Swarm (HOTS). The current release is 0.5.3-4 and is available for Windows and Linux from http://projectbuildcraft.github.io/buildcraft/ Mac OS X support is expected by June.
+A build order calculator and optimizer for Starcraft II: Heart of the Swarm (HOTS). The current release is 0.5.3-4 and is available for Windows and Linux from http://projectbuildcraft.github.io/buildcraft/ 
+
+An OS X release isn't expected soon, but a Mac with python and Tkinter installed should be able to run it from source.
 
 Goal Features:
+----------------
 
 - Build order calculator accurate to 5 seconds for the first ten minutes of the game
 
@@ -20,15 +23,19 @@ Goal Features:
 Potential issues with the current design should be added to List of Oddities
 
 Development Schedule:
+--------------
 
-0.5 GUI - 2 April 2013
+0.5 Beta - 
 
-- All of the above functionality is in place in a GUI
+- Build order calculation is valuable for planning the first ten minutes of the
+game
 
-1.0 Convenience - 20 May 2013
+1.0  - May 2014
 
-- The GUI is aesthetically pleasing, user-friendly, and supports team build orders
+- The GUI is aesthetically pleasing, user-friendly, and supports team build
+orders
 
-2.0 Optimization - July 2013
+2.0 Optimization - July 2014
 
-- The program calculates the build order with the earliest time at which an array of units can be produced
+- The program calculates the build order with the earliest time at which an
+array of units can be produced
